@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "jamkudi",
+    "name": "Jamkudi",
     "slug": "jamkudi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "jamkudi",
+    "icon": "./assets/images/icon.jpg",
+    "scheme": "Jamkudi",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kjpatel.jamkudi"
     },
     "web": {
       "output": "static",
@@ -37,6 +38,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ab5fd6d2-b8b1-4f65-8bd7-f10aa37d4d87"
+      }
     }
   }
 }
