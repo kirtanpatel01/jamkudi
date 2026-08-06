@@ -1,0 +1,70 @@
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { Tabs } from "expo-router";
+import { useTheme } from "@/hooks/useTheme";
+import { FontFamily } from "@/constants/theme";
+import { Icon } from "@/components/common/Icon";
+import { MiniPlayer } from "@/components/home/MiniPlayer";
+
+export default function TabLayout() {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.container}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: theme.tabActive,
+          tabBarInactiveTintColor: theme.tabInactive,
+          tabBarStyle: {
+            backgroundColor: theme.surfaceElevated,
+            borderTopColor: theme.border,
+            borderTopWidth: 0.5,
+            height: 60,
+            paddingBottom: 8,
+            paddingTop: 8,
+          },
+          tabBarLabelStyle: {
+            fontFamily: FontFamily.nunito.medium,
+            fontSize: 11,
+          },
+        }}
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color, focused }) => (
+              <Icon name="home" size={26} color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="search"
+          options={{
+            title: "Search",
+            tabBarIcon: ({ color, focused }) => (
+              <Icon name="search" size={26} color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="library"
+          options={{
+            title: "Your Library",
+            tabBarIcon: ({ color, focused }) => (
+              <Icon name="library" size={26} color={color} focused={focused} />
+            ),
+          }}
+        />
+      </Tabs>
+      <MiniPlayer />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
