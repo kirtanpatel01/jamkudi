@@ -1,16 +1,16 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
 import { Tabs } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { FontFamily } from "@/constants/theme";
 import { Icon } from "@/components/common/Icon";
 import { MiniPlayer } from "@/components/home/MiniPlayer";
+import { View } from "@/tw";
 
 export default function TabLayout() {
   const theme = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -62,9 +62,3 @@ export default function TabLayout() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

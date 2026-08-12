@@ -1,0 +1,39 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@layer theme {
+  @theme {
+    --font-sans: "Nunito_400Regular";
+    --font-fredoka: "Fredoka_700Bold";
+    --font-fredoka-regular: "Fredoka_400Regular";
+    --font-fredoka-medium: "Fredoka_500Medium";
+    --font-fredoka-semibold: "Fredoka_600SemiBold";
+    --font-fredoka-bold: "Fredoka_700Bold";
+
+    --font-nunito: "Nunito_400Regular";
+    --font-nunito-regular: "Nunito_400Regular";
+    --font-nunito-medium: "Nunito_500Medium";
+    --font-nunito-semibold: "Nunito_600SemiBold";
+    --font-nunito-bold: "Nunito_700Bold";
+  }
+}
+
+/* Platform-specific font families */
+@media android {
+  :root {
+    --font-mono: monospace;
+    --font-rounded: "Fredoka_400Regular";
+    --font-serif: serif;
+    --font-sans: "Nunito_400Regular";
+  }
+}
+
+@media ios {
+  :root {
+    --font-mono: ui-monospace;
+    --font-serif: ui-serif;
+    --font-sans: "Nunito_400Regular";
+    --font-rounded: "Fredoka_400Regular";
+  }
+}

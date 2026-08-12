@@ -1,14 +1,9 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  ScrollView,
-  ViewStyle,
-  StyleProp,
-} from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { Spacing } from "@/constants/theme";
+import { View, ScrollView } from "@/tw";
 
 function SafeTabHeight(): number {
   try {
@@ -48,11 +43,13 @@ export const Screen: React.FC<ScreenProps> = ({
   const tabHeight = SafeTabHeight();
 
   const paddingTop = unsafeTop ? 0 : insets.top;
-  // If tabHeight > 0, bottom tab bar already handles bottom inset; otherwise use insets.bottom
   const paddingBottom = unsafeBottom ? 0 : tabHeight > 0 ? tabHeight + 68 : insets.bottom + 68;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }, style]}>
+    <View
+      className="flex-1"
+      style={[{ backgroundColor: theme.background }, style]}
+    >
       {header && <View style={{ paddingTop }}>{header}</View>}
       {scrollable ? (
         <ScrollView
@@ -70,8 +67,8 @@ export const Screen: React.FC<ScreenProps> = ({
         </ScrollView>
       ) : (
         <View
+          className="flex-1"
           style={[
-            styles.flex,
             {
               paddingHorizontal,
               paddingTop: header ? Spacing.sm : paddingTop + Spacing.sm,
@@ -87,12 +84,3 @@ export const Screen: React.FC<ScreenProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
-});

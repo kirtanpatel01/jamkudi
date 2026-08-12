@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { StyleSheet, ViewStyle, StyleProp } from "react-native";
-import Animated, {
+import { ViewStyle, StyleProp } from "react-native";
+import {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
@@ -9,12 +9,14 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { BorderRadius } from "@/constants/theme";
+import { Animated } from "@/tw/animated";
 
 export interface SkeletonProps {
   width?: number | `${number}%`;
   height?: number;
   radius?: number;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
@@ -22,6 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   height = 20,
   radius = BorderRadius.sm,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
   const opacity = useSharedValue(0.5);
@@ -40,8 +43,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <Animated.View
+      className={`overflow-hidden ${className}`}
       style={[
-        styles.skeleton,
         {
           width: width as number,
           height,
@@ -54,9 +57,3 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     />
   );
 };
-
-const styles = StyleSheet.create({
-  skeleton: {
-    overflow: "hidden",
-  },
-});

@@ -27,6 +27,7 @@ export interface IconProps {
   focused?: boolean;
   strokeWidth?: number;
   style?: StyleProp<TextStyle>;
+  className?: string;
 }
 
 type MatName = React.ComponentProps<typeof MaterialIcons>["name"];

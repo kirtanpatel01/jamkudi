@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Pressable, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius, Spacing } from "@/constants/theme";
+import { BorderRadius } from "@/constants/theme";
+import { Pressable } from "@/tw";
 
 export interface FilterChipProps {
   label: string;
@@ -10,6 +11,7 @@ export interface FilterChipProps {
   onPress: () => void;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const FilterChip: React.FC<FilterChipProps> = ({
@@ -18,6 +20,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   onPress,
   accessibilityLabel,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
@@ -27,8 +30,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       accessibilityRole="checkbox"
       accessibilityState={{ checked: active }}
       accessibilityLabel={accessibilityLabel || `${label} filter`}
+      className={`px-4 py-1.5 rounded-full border min-h-[32px] items-center justify-center mr-2 ${className}`}
       style={({ pressed }) => [
-        styles.chip,
         {
           backgroundColor: active
             ? theme.primary
@@ -36,6 +39,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             ? theme.surfacePressed
             : theme.surface,
           borderColor: active ? theme.primary : theme.border,
+          borderRadius: BorderRadius.full,
         },
         style,
       ]}
@@ -43,27 +47,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       <AppText
         variant="caption"
         color={active ? theme.onPrimary : theme.textPrimary}
-        style={styles.label}
+        className="text-[13px] leading-[16px]"
       >
         {label}
       </AppText>
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  chip: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs + 2,
-    borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    minHeight: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.xs,
-  },
-  label: {
-    fontSize: 13,
-    lineHeight: 16,
-  },
-});

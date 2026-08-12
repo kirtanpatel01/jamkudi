@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Pressable } from "react-native";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { IconButton } from "@/components/common/IconButton";
@@ -8,7 +7,8 @@ import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { Icon } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
 import { RECENTLY_PLAYED_DATA } from "@/data/mockMusic";
-import { BorderRadius, Spacing } from "@/constants/theme";
+import { BorderRadius } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
 
 export default function LibraryScreen() {
   const theme = useTheme();
@@ -18,7 +18,7 @@ export default function LibraryScreen() {
 
   return (
     <Screen scrollable>
-      <View style={styles.header}>
+      <View className="flex-row justify-between items-center mb-4">
         <AppText variant="screenTitle">Your Library</AppText>
         <IconButton
           name="settings"
@@ -30,7 +30,7 @@ export default function LibraryScreen() {
       </View>
 
       {/* Filter chips */}
-      <View style={styles.chipRow}>
+      <View className="flex-row mb-6">
         {filters.map((filter) => (
           <FilterChip
             key={filter}
@@ -41,25 +41,20 @@ export default function LibraryScreen() {
         ))}
       </View>
 
-      <View style={styles.list}>
+      <View className="gap-4">
         {/* Liked songs row */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Liked Songs playlist with 142 songs"
-          style={({ pressed }) => [
-            styles.itemRow,
-            { opacity: pressed ? 0.8 : 1 },
-          ]}
+          className="flex-row items-center active:opacity-80"
         >
           <View
-            style={[
-              styles.likedArt,
-              { backgroundColor: theme.favorite },
-            ]}
+            className="w-[56px] h-[56px] rounded-xl items-center justify-center mr-4"
+            style={{ backgroundColor: theme.favorite }}
           >
             <Icon name="heart-filled" size={24} color="#FFFFFF" />
           </View>
-          <View style={styles.itemTextContainer}>
+          <View className="flex-1 ml-2">
             <AppText variant="songTitle">Liked Songs</AppText>
             <AppText variant="caption" color={theme.textSecondary}>
               Playlist • 142 songs
@@ -73,10 +68,7 @@ export default function LibraryScreen() {
             key={item.id}
             accessibilityRole="button"
             accessibilityLabel={`${item.title}, ${item.description}`}
-            style={({ pressed }) => [
-              styles.itemRow,
-              { opacity: pressed ? 0.8 : 1 },
-            ]}
+            className="flex-row items-center active:opacity-80"
           >
             <ArtworkImage
               uri={item.imageUrl}
@@ -84,7 +76,7 @@ export default function LibraryScreen() {
               radius={item.type === "artist" ? BorderRadius.full : BorderRadius.md}
               accessibilityLabel={`${item.title} cover`}
             />
-            <View style={styles.itemTextContainer}>
+            <View className="flex-1 ml-3">
               <AppText variant="songTitle">{item.title}</AppText>
               <AppText variant="caption" color={theme.textSecondary}>
                 {item.description}
@@ -96,35 +88,3 @@ export default function LibraryScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.md,
-  },
-  chipRow: {
-    flexDirection: "row",
-    marginBottom: Spacing.lg,
-  },
-  list: {
-    gap: Spacing.md,
-  },
-  itemRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  likedArt: {
-    width: 56,
-    height: 56,
-    borderRadius: BorderRadius.md,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: Spacing.md,
-  },
-  itemTextContainer: {
-    flex: 1,
-    marginLeft: Spacing.sm,
-  },
-});

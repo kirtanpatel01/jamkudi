@@ -1,9 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import { Fonts } from "@/constants/theme";
 import { MediaItem } from "@/data/mockMusic";
 import { MusicCard } from "./MusicCard";
+import { AppText } from "@/components/common/AppText";
+import { FontFamily } from "@/constants/theme";
+import { View, ScrollView, Pressable } from "@/tw";
 
 interface MusicSectionProps {
   title: string;
@@ -19,14 +20,29 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
   const theme = useTheme();
 
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
+    <View className="mb-7">
+      <View className="flex-row justify-between items-center mb-3.5">
+        <AppText
+          variant="sectionTitle"
+          className="text-xl tracking-tight"
+          style={{
+            fontFamily: FontFamily.fredoka.semiBold,
+            color: theme.text,
+          }}
+        >
+          {title}
+        </AppText>
         {showAll && (
           <Pressable hitSlop={8}>
-            <Text style={[styles.showAll, { color: theme.textSecondary }]}>
+            <AppText
+              className="text-xs"
+              style={{
+                fontFamily: FontFamily.nunito.semiBold,
+                color: theme.textSecondary,
+              }}
+            >
               Show all
-            </Text>
+            </AppText>
           </Pressable>
         )}
       </View>
@@ -34,8 +50,8 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        className="-mx-5"
+        contentContainerClassName="px-5"
       >
         {data.map((item) => (
           <MusicCard key={item.id} item={item} />
@@ -44,30 +60,3 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  section: {
-    marginBottom: 28,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  title: {
-    fontFamily: Fonts.fredoka.semiBold,
-    fontSize: 20,
-    letterSpacing: -0.4,
-  },
-  showAll: {
-    fontFamily: Fonts.nunito.semiBold,
-    fontSize: 12,
-  },
-  scrollView: {
-    marginHorizontal: -20,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-  },
-});

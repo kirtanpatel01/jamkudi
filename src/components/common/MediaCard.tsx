@@ -1,9 +1,10 @@
 import React from "react";
-import { StyleSheet, View, Pressable, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius, Spacing } from "@/constants/theme";
+import { BorderRadius } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
 
 export interface MediaCardProps {
   title: string;
@@ -14,6 +15,7 @@ export interface MediaCardProps {
   width?: number;
   height?: number;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const MediaCard: React.FC<MediaCardProps> = ({
@@ -25,6 +27,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   width = 140,
   height = 140,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
@@ -33,16 +36,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${title}${subtitle ? `, ${subtitle}` : ""}`}
-      style={({ pressed }) => [
-        styles.container,
-        {
-          width,
-          opacity: pressed ? 0.85 : 1,
-        },
-        style,
-      ]}
+      className={`mr-4 active:opacity-85 ${className}`}
+      style={[{ width }, style]}
     >
-      <View style={styles.imageWrapper}>
+      <View className="relative mb-1">
         <ArtworkImage
           uri={artworkUri}
           width={width}
@@ -51,14 +48,17 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           accessibilityLabel={`${title} artwork`}
         />
         {badge && (
-          <View style={[styles.badge, { backgroundColor: theme.primary }]}>
-            <AppText variant="caption" color={theme.onPrimary} style={styles.badgeText}>
+          <View
+            className="absolute top-1 right-1 px-1 py-0.5 rounded"
+            style={{ backgroundColor: theme.primary }}
+          >
+            <AppText variant="caption" color={theme.onPrimary} className="text-[10px] leading-[12px]">
               {badge}
             </AppText>
           </View>
         )}
       </View>
-      <AppText variant="cardTitle" numberOfLines={1} style={styles.title}>
+      <AppText variant="cardTitle" numberOfLines={1} className="mt-0.5">
         {title}
       </AppText>
       {subtitle && (
@@ -69,28 +69,3 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginRight: Spacing.md,
-  },
-  imageWrapper: {
-    position: "relative",
-    marginBottom: Spacing.xs,
-  },
-  badge: {
-    position: "absolute",
-    top: Spacing.xs,
-    right: Spacing.xs,
-    paddingHorizontal: Spacing.xs,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.xs,
-  },
-  badgeText: {
-    fontSize: 10,
-    lineHeight: 12,
-  },
-  title: {
-    marginTop: 2,
-  },
-});

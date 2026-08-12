@@ -1,10 +1,9 @@
 import React from "react";
-import { StyleSheet, View, TextInput } from "react-native";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius, Spacing } from "@/constants/theme";
+import { View, TextInput } from "@/tw";
 
 const GENRES = [
   { id: "g1", title: "Bollywood", color: "#8B5CF6" },
@@ -20,37 +19,37 @@ export default function SearchScreen() {
 
   return (
     <Screen scrollable>
-      <AppText variant="screenTitle" style={styles.title}>
+      <AppText variant="screenTitle" className="mb-4">
         Search
       </AppText>
 
       <View
-        style={[
-          styles.searchBox,
-          {
-            backgroundColor: theme.surfaceElevated,
-            borderColor: theme.border,
-          },
-        ]}
+        className="flex-row items-center px-4 h-12 rounded-xl border mb-6"
+        style={{
+          backgroundColor: theme.surfaceElevated,
+          borderColor: theme.border,
+        }}
       >
         <Icon name="search" size={18} color={theme.textMuted} />
         <TextInput
           placeholder="What do you want to listen to?"
           placeholderTextColor={theme.textSecondary}
-          style={[styles.searchInput, { color: theme.textPrimary }]}
+          className="flex-1 ml-3 text-sm"
+          style={{ color: theme.textPrimary }}
           accessibilityLabel="Search input field"
         />
       </View>
 
-      <AppText variant="sectionTitle" style={styles.sectionTitle}>
+      <AppText variant="sectionTitle" className="mb-4">
         Explore Genres
       </AppText>
 
-      <View style={styles.genreGrid}>
+      <View className="flex-row flex-wrap gap-4">
         {GENRES.map((genre) => (
           <View
             key={genre.id}
-            style={[styles.genreCard, { backgroundColor: genre.color }]}
+            className="w-[47%] h-[90px] rounded-xl p-4 justify-end"
+            style={{ backgroundColor: genre.color }}
           >
             <AppText variant="cardTitle" color="#FFFFFF">
               {genre.title}
@@ -61,38 +60,3 @@ export default function SearchScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    marginBottom: Spacing.md,
-  },
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.md,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    marginBottom: Spacing.xl,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: Spacing.sm,
-    fontSize: 14,
-  },
-  sectionTitle: {
-    marginBottom: Spacing.md,
-  },
-  genreGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.md,
-  },
-  genreCard: {
-    width: "47%",
-    height: 90,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    justifyContent: "flex-end",
-  },
-});

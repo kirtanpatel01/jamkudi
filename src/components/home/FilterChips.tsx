@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, ScrollView, Pressable } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import { Fonts } from "@/constants/theme";
+import { AppText } from "@/components/common/AppText";
+import { FontFamily } from "@/constants/theme";
+import { ScrollView, Pressable } from "@/tw";
 
 const CHIPS = ["All", "Music", "Podcasts"];
 
@@ -13,8 +14,8 @@ export const FilterChips: React.FC = () => {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      style={styles.scrollView}
-      contentContainerStyle={styles.container}
+      className="mb-5 -mx-5"
+      contentContainerClassName="px-5 gap-2"
     >
       {CHIPS.map((chip) => {
         const isSelected = selectedChip === chip;
@@ -22,51 +23,23 @@ export const FilterChips: React.FC = () => {
           <Pressable
             key={chip}
             onPress={() => setSelectedChip(chip)}
-            style={({ pressed }) => [
-              styles.chip,
-              {
-                backgroundColor: isSelected
-                  ? theme.primary
-                  : theme.surface,
-                opacity: pressed ? 0.8 : 1,
-              },
-            ]}
+            className="px-4 py-2 rounded-full active:opacity-80"
+            style={{
+              backgroundColor: isSelected ? theme.primary : theme.surface,
+            }}
           >
-            <Text
-              style={[
-                styles.chipText,
-                {
-                  color: isSelected
-                    ? "#FFFFFF"
-                    : theme.textSecondary,
-                },
-              ]}
+            <AppText
+              className="text-[13px]"
+              style={{
+                fontFamily: FontFamily.nunito.semiBold,
+                color: isSelected ? "#FFFFFF" : theme.textSecondary,
+              }}
             >
               {chip}
-            </Text>
+            </AppText>
           </Pressable>
         );
       })}
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollView: {
-    marginBottom: 20,
-    marginHorizontal: -20,
-  },
-  container: {
-    paddingHorizontal: 20,
-    gap: 8,
-  },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  chipText: {
-    fontFamily: Fonts.nunito.semiBold,
-    fontSize: 13,
-  },
-});

@@ -1,10 +1,10 @@
 import React from "react";
-import { StyleSheet, View, Pressable, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { IconButton } from "@/components/common/IconButton";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
 
 export interface SongRowProps {
   title: string;
@@ -15,6 +15,7 @@ export interface SongRowProps {
   onOptionsPress?: () => void;
   isPlaying?: boolean;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const SongRow: React.FC<SongRowProps> = ({
@@ -26,6 +27,7 @@ export const SongRow: React.FC<SongRowProps> = ({
   onOptionsPress,
   isPlaying = false,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
@@ -34,8 +36,8 @@ export const SongRow: React.FC<SongRowProps> = ({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Play ${title} by ${artist}`}
+      className={`flex-row items-center py-2 px-1 rounded-lg min-h-[56px] ${className}`}
       style={({ pressed }) => [
-        styles.container,
         {
           backgroundColor: pressed ? theme.surfacePressed : "transparent",
         },
@@ -43,7 +45,7 @@ export const SongRow: React.FC<SongRowProps> = ({
       ]}
     >
       <ArtworkImage uri={artworkUri} size={48} accessibilityLabel={`${title} cover`} />
-      <View style={styles.textContainer}>
+      <View className="flex-1 ml-4 justify-center">
         <AppText
           variant="songTitle"
           numberOfLines={1}
@@ -56,7 +58,7 @@ export const SongRow: React.FC<SongRowProps> = ({
         </AppText>
       </View>
       {duration && (
-        <AppText variant="caption" color={theme.textMuted} style={styles.duration}>
+        <AppText variant="caption" color={theme.textMuted} className="mr-1">
           {duration}
         </AppText>
       )}
@@ -72,22 +74,3 @@ export const SongRow: React.FC<SongRowProps> = ({
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.xs,
-    borderRadius: 8,
-    minHeight: 56,
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: Spacing.md,
-    justifyContent: "center",
-  },
-  duration: {
-    marginRight: Spacing.xs,
-  },
-});

@@ -1,14 +1,15 @@
 import React from "react";
-import { StyleSheet, View, Pressable, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
 
 export interface SectionHeaderProps {
   title: string;
   actionText?: string;
   onActionPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
@@ -16,11 +17,12 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   actionText = "See all",
   onActionPress,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
   return (
-    <View style={[styles.container, style]}>
+    <View className={`flex-row items-center justify-between mb-2 mt-4 ${className}`} style={style}>
       <AppText variant="sectionTitle">{title}</AppText>
       {onActionPress && (
         <Pressable
@@ -28,7 +30,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           accessibilityRole="button"
           accessibilityLabel={`${actionText} for ${title}`}
           hitSlop={8}
-          style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+          className="active:opacity-70"
         >
           <AppText variant="caption" color={theme.primary}>
             {actionText}
@@ -38,13 +40,3 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: Spacing.sm,
-    marginTop: Spacing.md,
-  },
-});

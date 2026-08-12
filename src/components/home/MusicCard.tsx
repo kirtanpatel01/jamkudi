@@ -1,8 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View, Pressable, Image } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import { Fonts } from "@/constants/theme";
 import { MediaItem } from "@/data/mockMusic";
+import { AppText } from "@/components/common/AppText";
+import { FontFamily } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
+import { Image } from "@/tw/image";
 
 interface MusicCardProps {
   item: MediaItem;
@@ -13,100 +15,50 @@ export const MusicCard: React.FC<MusicCardProps> = ({ item }) => {
   const isArtist = item.type === "artist";
 
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        { opacity: pressed ? 0.85 : 1 },
-      ]}
-    >
-      <View style={styles.imageContainer}>
+    <Pressable className="w-[140px] mr-[14px] active:opacity-85">
+      <View className="mb-2 relative">
         <Image
           source={{ uri: item.imageUrl }}
-          style={[
-            styles.image,
-            isArtist ? styles.artistImage : styles.squareImage,
-          ]}
-          resizeMode="cover"
+          className={`w-[140px] h-[140px] ${isArtist ? "rounded-full" : "rounded-lg"}`}
         />
         {item.tag && (
           <View
-            style={[
-              styles.tagContainer,
-              { backgroundColor: theme.primary },
-            ]}
+            className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: theme.primary }}
           >
-            <Text style={styles.tagText}>{item.tag}</Text>
+            <AppText
+              className="text-white text-[9px] tracking-wider"
+              style={{ fontFamily: FontFamily.nunito.bold }}
+            >
+              {item.tag}
+            </AppText>
           </View>
         )}
       </View>
 
-      <Text
+      <AppText
         numberOfLines={1}
-        style={[
-          styles.title,
-          { color: theme.text },
-          isArtist && styles.artistTitle,
-        ]}
+        className={`text-[13px] mb-[3px] ${isArtist ? "text-center" : ""}`}
+        style={{
+          fontFamily: FontFamily.nunito.bold,
+          color: theme.text,
+        }}
       >
         {item.title}
-      </Text>
+      </AppText>
 
       {item.description && (
-        <Text
+        <AppText
           numberOfLines={2}
-          style={[styles.description, { color: theme.textSecondary }]}
+          className="text-[11px] leading-[15px]"
+          style={{
+            fontFamily: FontFamily.nunito.regular,
+            color: theme.textSecondary,
+          }}
         >
           {item.description}
-        </Text>
+        </AppText>
       )}
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    width: 140,
-    marginRight: 14,
-  },
-  imageContainer: {
-    marginBottom: 8,
-    position: "relative",
-  },
-  image: {
-    width: 140,
-    height: 140,
-  },
-  squareImage: {
-    borderRadius: 8,
-  },
-  artistImage: {
-    borderRadius: 70,
-  },
-  tagContainer: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  tagText: {
-    color: "#FFFFFF",
-    fontFamily: Fonts.nunito.bold,
-    fontSize: 9,
-    letterSpacing: 0.5,
-  },
-  title: {
-    fontFamily: Fonts.nunito.bold,
-    fontSize: 13,
-    marginBottom: 3,
-  },
-  artistTitle: {
-    textAlign: "center",
-  },
-  description: {
-    fontFamily: Fonts.nunito.regular,
-    fontSize: 11,
-    lineHeight: 15,
-  },
-});

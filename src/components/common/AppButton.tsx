@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  StyleSheet,
-  Pressable,
-  ActivityIndicator,
-  ViewStyle,
-  StyleProp,
-} from "react-native";
+import { ActivityIndicator, ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { Icon, IconName } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
 import { BorderRadius, Spacing } from "@/constants/theme";
+import { Pressable } from "@/tw";
 
 export interface AppButtonProps {
   title: string;
@@ -22,6 +17,7 @@ export interface AppButtonProps {
   rightIcon?: IconName;
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const AppButton: React.FC<AppButtonProps> = ({
@@ -35,6 +31,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
   rightIcon,
   accessibilityLabel,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
@@ -75,8 +72,8 @@ export const AppButton: React.FC<AppButtonProps> = ({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{ disabled: disabled || loading }}
+      className={`flex-row items-center justify-center min-w-[80px] min-h-[44px] ${className}`}
       style={({ pressed }) => [
-        styles.button,
         {
           height,
           backgroundColor: getBackgroundColor(pressed),
@@ -98,7 +95,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
               name={leftIcon}
               size={size === "sm" ? 16 : 20}
               color={iconColor}
-              style={styles.leftIcon}
+              className="mr-2"
             />
           )}
           <AppText
@@ -112,7 +109,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
               name={rightIcon}
               size={size === "sm" ? 16 : 20}
               color={iconColor}
-              style={styles.rightIcon}
+              className="ml-2"
             />
           )}
         </>
@@ -120,19 +117,3 @@ export const AppButton: React.FC<AppButtonProps> = ({
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 80,
-    minHeight: 44, // 44pt touch target minimum
-  },
-  leftIcon: {
-    marginRight: Spacing.sm,
-  },
-  rightIcon: {
-    marginLeft: Spacing.sm,
-  },
-});

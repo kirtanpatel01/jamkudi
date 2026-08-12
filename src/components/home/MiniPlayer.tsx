@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
 import { AppText } from "@/components/common/AppText";
@@ -8,6 +7,7 @@ import { IconButton } from "@/components/common/IconButton";
 import { Icon } from "@/components/common/Icon";
 import { CURRENTLY_PLAYING } from "@/data/mockMusic";
 import { BorderRadius, Spacing } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
 
 function SafeTabHeight(): number {
   try {
@@ -31,32 +31,27 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ bottomOffset }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isLiked, setIsLiked] = useState(true);
 
-  // If bottomOffset is passed explicitly, use it; otherwise compute dynamically from tabHeight/insets
   const dynamicBottom =
     bottomOffset ?? (tabHeight > 0 ? tabHeight + Spacing.xs : insets.bottom + 60);
 
   return (
     <View
-      style={[
-        styles.wrapper,
-        {
-          bottom: dynamicBottom,
-          backgroundColor: theme.surfaceElevated,
-          borderColor: theme.border,
-        },
-      ]}
+      className="absolute left-3 right-3 rounded-xl border overflow-hidden shadow-lg"
+      style={{
+        bottom: dynamicBottom,
+        backgroundColor: theme.surfaceElevated,
+        borderColor: theme.border,
+      }}
     >
       {/* Progress line */}
-      <View style={styles.progressBarBg}>
+      <View className="h-0.5 w-full bg-zinc-400/15 dark:bg-zinc-600/15">
         <View
-          style={[
-            styles.progressBarFill,
-            { backgroundColor: theme.primary, width: "42%" },
-          ]}
+          className="h-full w-[42%]"
+          style={{ backgroundColor: theme.primary }}
         />
       </View>
 
-      <View style={styles.container}>
+      <View className="flex-row items-center px-3 py-2.5">
         <ArtworkImage
           uri={CURRENTLY_PLAYING.imageUrl}
           size={42}
@@ -64,7 +59,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ bottomOffset }) => {
           accessibilityLabel={`${CURRENTLY_PLAYING.title} cover`}
         />
 
-        <View style={styles.textContainer}>
+        <View className="flex-1 ml-3 mr-2">
           <AppText variant="songTitle" numberOfLines={1}>
             {CURRENTLY_PLAYING.title}
           </AppText>
@@ -73,7 +68,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ bottomOffset }) => {
           </AppText>
         </View>
 
-        <View style={styles.actionsContainer}>
+        <View className="flex-row items-center gap-2">
           <IconButton
             name={isLiked ? "heart-filled" : "heart"}
             size={22}
@@ -94,13 +89,8 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ bottomOffset }) => {
             onPress={() => setIsPlaying(!isPlaying)}
             accessibilityRole="button"
             accessibilityLabel={isPlaying ? "Pause music" : "Play music"}
-            style={({ pressed }) => [
-              styles.playBtn,
-              {
-                backgroundColor: theme.primary,
-                opacity: pressed ? 0.85 : 1,
-              },
-            ]}
+            className="w-9 h-9 rounded-full items-center justify-center ml-2 active:opacity-85"
+            style={{ backgroundColor: theme.primary }}
           >
             <Icon
               name={isPlaying ? "pause" : "play"}
@@ -113,51 +103,3 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({ bottomOffset }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    position: "absolute",
-    left: Spacing.sm,
-    right: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  progressBarBg: {
-    height: 2,
-    width: "100%",
-    backgroundColor: "rgba(150, 150, 150, 0.15)",
-  },
-  progressBarFill: {
-    height: "100%",
-  },
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs + 2,
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: Spacing.sm,
-    marginRight: Spacing.xs,
-  },
-  actionsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-  },
-  playBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: Spacing.xs,
-  },
-});

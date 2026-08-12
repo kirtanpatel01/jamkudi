@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, View, ViewStyle, StyleProp } from "react-native";
-import { Image, ImageStyle } from "expo-image";
+import { ViewStyle, StyleProp, ImageStyle } from "react-native";
 import { Icon, IconName } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
 import { BorderRadius } from "@/constants/theme";
+import { View } from "@/tw";
+import { Image } from "@/tw/image";
 
 export interface ArtworkImageProps {
   uri?: string | null;
@@ -14,6 +15,7 @@ export interface ArtworkImageProps {
   fallbackIcon?: IconName;
   accessibilityLabel?: string;
   style?: StyleProp<ImageStyle>;
+  className?: string;
 }
 
 export const ArtworkImage: React.FC<ArtworkImageProps> = ({
@@ -25,6 +27,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
   fallbackIcon = "music",
   accessibilityLabel = "Album Artwork",
   style,
+  className = "",
 }) => {
   const theme = useTheme();
   const [hasError, setHasError] = useState(false);
@@ -38,8 +41,8 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
       <View
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="image"
+        className={`items-center justify-center border-[0.5px] ${className}`}
         style={[
-          styles.fallbackContainer,
           {
             width: w,
             height: h,
@@ -58,6 +61,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
   return (
     <Image
       source={{ uri }}
+      className={className}
       style={[
         {
           width: w,
@@ -69,17 +73,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
       ]}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="image"
-      contentFit="cover"
-      transition={200}
       onError={() => setHasError(true)}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  fallbackContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 0.5,
-  },
-});

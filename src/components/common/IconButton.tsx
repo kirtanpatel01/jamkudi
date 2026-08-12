@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Pressable, ViewStyle, StyleProp, ColorValue } from "react-native";
+import { ViewStyle, StyleProp, ColorValue } from "react-native";
 import { Icon, IconName } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
 import { BorderRadius } from "@/constants/theme";
+import { Pressable } from "@/tw";
 
 export interface IconButtonProps {
   name: IconName;
@@ -14,6 +15,7 @@ export interface IconButtonProps {
   disabled?: boolean;
   strokeWidth?: number;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({
@@ -26,6 +28,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   disabled = false,
   strokeWidth = 2,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
@@ -51,8 +54,8 @@ export const IconButton: React.FC<IconButtonProps> = ({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled }}
       hitSlop={8}
+      className={`w-11 h-11 items-center justify-center rounded-full ${className}`}
       style={({ pressed }) => [
-        styles.button,
         {
           backgroundColor: getBackgroundColor(pressed),
           borderRadius: BorderRadius.full,
@@ -65,12 +68,3 @@ export const IconButton: React.FC<IconButtonProps> = ({
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    width: 44,
-    height: 44, // 44x44 minimum touch target
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

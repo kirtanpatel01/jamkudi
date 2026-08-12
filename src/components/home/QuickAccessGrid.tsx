@@ -1,88 +1,56 @@
 import React from "react";
-import { StyleSheet, Text, View, Pressable, Image, Dimensions } from "react-native";
+import { Dimensions } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
-import { Fonts } from "@/constants/theme";
 import { QUICK_ACCESS_DATA, QuickAccessItem } from "@/data/mockMusic";
 import { Icon } from "@/components/common/Icon";
+import { AppText } from "@/components/common/AppText";
+import { FontFamily } from "@/constants/theme";
+import { View, Pressable } from "@/tw";
+import { Image } from "@/tw/image";
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48) / 2; // 20px padding each side + 8px gap
+const CARD_WIDTH = (width - 48) / 2;
 
 export const QuickAccessGrid: React.FC = () => {
   const theme = useTheme();
 
   return (
-    <View style={styles.grid}>
+    <View className="flex-row flex-wrap gap-2 mb-7">
       {QUICK_ACCESS_DATA.map((item: QuickAccessItem) => (
         <Pressable
           key={item.id}
-          style={({ pressed }) => [
-            styles.card,
-            {
-              backgroundColor: theme.surface,
-              opacity: pressed ? 0.85 : 1,
-            },
-          ]}
+          className="h-[54px] rounded-lg flex-row items-center overflow-hidden active:opacity-85"
+          style={{
+            width: CARD_WIDTH,
+            backgroundColor: theme.surface,
+          }}
         >
           {item.isGradient ? (
             <View
-              style={[
-                styles.gradientArtwork,
-                { backgroundColor: theme.primary },
-              ]}
+              className="w-[54px] h-[54px] items-center justify-center"
+              style={{ backgroundColor: theme.primary }}
             >
               <Icon name="heart-filled" size={18} color="#FFFFFF" />
             </View>
           ) : (
             <Image
               source={{ uri: item.imageUrl }}
-              style={styles.artwork}
-              resizeMode="cover"
+              className="w-[54px] h-[54px]"
             />
           )}
 
-          <Text
+          <AppText
             numberOfLines={2}
-            style={[styles.title, { color: theme.text }]}
+            className="flex-1 text-[13px] px-2.5 leading-[16px]"
+            style={{
+              fontFamily: FontFamily.nunito.semiBold,
+              color: theme.text,
+            }}
           >
             {item.title}
-          </Text>
+          </AppText>
         </Pressable>
       ))}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 28,
-  },
-  card: {
-    width: CARD_WIDTH,
-    height: 54,
-    borderRadius: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    overflow: "hidden",
-  },
-  artwork: {
-    width: 54,
-    height: 54,
-  },
-  gradientArtwork: {
-    width: 54,
-    height: 54,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    flex: 1,
-    fontFamily: Fonts.nunito.semiBold,
-    fontSize: 13,
-    paddingHorizontal: 10,
-    lineHeight: 16,
-  },
-});

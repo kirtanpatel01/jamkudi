@@ -1,10 +1,10 @@
 import React from "react";
-import { StyleSheet, View, ViewStyle, StyleProp } from "react-native";
+import { ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { Icon, IconName } from "@/components/common/Icon";
 import { AppButton } from "@/components/common/AppButton";
 import { useTheme } from "@/hooks/useTheme";
-import { Spacing } from "@/constants/theme";
+import { View } from "@/tw";
 
 export interface EmptyStateProps {
   title: string;
@@ -13,6 +13,7 @@ export interface EmptyStateProps {
   actionTitle?: string;
   onActionPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  className?: string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -22,22 +23,26 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   actionTitle,
   onActionPress,
   style,
+  className = "",
 }) => {
   const theme = useTheme();
 
   return (
-    <View style={[styles.container, style]}>
-      <View style={[styles.iconWrapper, { backgroundColor: theme.surface }]}>
+    <View className={`items-center justify-center p-8 my-6 ${className}`} style={style}>
+      <View
+        className="w-[72px] h-[72px] rounded-full items-center justify-center mb-4"
+        style={{ backgroundColor: theme.surface }}
+      >
         <Icon name={icon} size={36} color={theme.primary} />
       </View>
-      <AppText variant="sectionTitle" style={styles.title}>
+      <AppText variant="sectionTitle" className="text-center mb-1">
         {title}
       </AppText>
       {message && (
         <AppText
           variant="body"
           color={theme.textSecondary}
-          style={styles.message}
+          className="text-center mb-6"
         >
           {message}
         </AppText>
@@ -48,37 +53,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           onPress={onActionPress}
           variant="primary"
           size="md"
-          style={styles.button}
+          className="mt-1"
         />
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: Spacing.xxl,
-    marginVertical: Spacing.xl,
-  },
-  iconWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: Spacing.md,
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: Spacing.xs,
-  },
-  message: {
-    textAlign: "center",
-    marginBottom: Spacing.lg,
-  },
-  button: {
-    marginTop: Spacing.xs,
-  },
-});
