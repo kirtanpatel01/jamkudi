@@ -17,3 +17,21 @@ export type PlaybackState =
   | "error";
 
 export type RepeatMode = "OFF" | "ALL" | "ONE";
+
+export type QueueSource =
+  | "search"
+  | "album"
+  | "artist"
+  | "playlist"
+  | "collection"
+  | "mood"
+  | "home"
+  | "library"
+  | "manual";
+
+export interface QueueItem {
+  queueId: string;
+  track: Track;
+  addedAt: number;
+  source?: QueueSource;
+}

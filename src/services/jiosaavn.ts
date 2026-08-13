@@ -280,3 +280,83 @@ export async function getAlbumDetails(query: string): Promise<AlbumDetails | nul
     tracks: songs,
   };
 }
+
+export interface RawArtistResult {
+  id: string;
+  name: string;
+  image?: string | JioSaavnImage[];
+}
+
+export interface RawAlbumResult {
+  id: string;
+  name: string;
+  artist?: string;
+  image?: string | JioSaavnImage[];
+}
+
+export async function searchArtists(query: string): Promise<RawArtistResult[]> {
+  if (!query || !query.trim()) return [];
+  const tryFetch = async (baseUrl: string) => {
+    const res = await fetch(`${baseUrl}/search/artists?query=${encodeURIComponent(query.trim())}&limit=5`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const json = await res.json();
+    const results = json?.data?.results || json?.data || [];
+    return Array.isArray(results) ? results : [];
+  };
+  try {
+    return await tryFetch(BASE_URL);
+  } catch {
+    try {
+      return await tryFetch(FALLBACK_URL);
+    } catch {
+      return [];
+    }
+  }
+}
+
+export async function searchAlbums(query: string): Promise<RawAlbumResult[]> {
+  if (!query || !query.trim()) return [];
+  const tryFetch = async (baseUrl: string) => {
+    const res = await fetch(`${baseUrl}/search/albums?query=${encodeURIComponent(query.trim())}&limit=5`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const json = await res.json();
+    const results = json?.data?.results || json?.data || [];
+    return Array.isArray(results) ? results : [];
+  };
+  try {
+    return await tryFetch(BASE_URL);
+  } catch {
+    try {
+      return await tryFetch(FALLBACK_URL);
+    } catch {
+      return [];
+    }
+  }
+}
+
+export interface RawPlaylistResult {
+  id: string;
+  name: string;
+  subtitle?: string;
+  image?: string | JioSaavnImage[];
+}
+
+export async function searchPlaylists(query: string): Promise<RawPlaylistResult[]> {
+  if (!query || !query.trim()) return [];
+  const tryFetch = async (baseUrl: string) => {
+    const res = await fetch(`${baseUrl}/search/playlists?query=${encodeURIComponent(query.trim())}&limit=5`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const json = await res.json();
+    const results = json?.data?.results || json?.data || [];
+    return Array.isArray(results) ? results : [];
+  };
+  try {
+    return await tryFetch(BASE_URL);
+  } catch {
+    try {
+      return await tryFetch(FALLBACK_URL);
+    } catch {
+      return [];
+    }
+  }
+}

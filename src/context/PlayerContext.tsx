@@ -5,7 +5,7 @@ import {
   requestNotificationPermissionsAsync,
   AudioPlayer,
 } from "expo-audio";
-import { Track, PlaybackState, RepeatMode } from "@/types/track";
+import { Track, PlaybackState, RepeatMode, QueueItem, QueueSource } from "@/types/track";
 import {
   loadLikedSongs,
   saveLikedSongs,
@@ -17,24 +17,26 @@ import {
 
 interface PlayerContextType {
   currentTrack: Track | null;
+  currentQueueItem: QueueItem | null;
   playbackState: PlaybackState;
   isPlaying: boolean;
   position: number;
   duration: number;
   isInitialized: boolean;
-  queue: Track[];
-  originalQueue: Track[];
+  queue: QueueItem[];
   currentIndex: number;
   shuffleEnabled: boolean;
   repeatMode: RepeatMode;
   likedTracks: Track[];
   recentlyPlayed: Track[];
-  playTrack: (track: Track) => Promise<void>;
-  playQueue: (tracks: Track[], startIndex?: number) => Promise<void>;
-  playNext: (track: Track) => void;
-  addToQueue: (track: Track) => void;
-  removeFromQueue: (index: number) => void;
+  playTrack: (track: Track, source?: QueueSource) => Promise<void>;
+  playQueue: (tracks: Track[], startIndex?: number, source?: QueueSource) => Promise<void>;
+  playNext: (track: Track, source?: QueueSource) => void;
+  addToQueue: (track: Track, source?: QueueSource) => void;
+  removeFromQueue: (queueId: string) => void;
+  moveInQueue: (fromIndex: number, toIndex: number) => void;
   clearQueue: () => void;
+  playFromQueue: (queueId: string) => Promise<void>;
   skipToNext: () => Promise<void>;
   skipToPrevious: () => Promise<void>;
   togglePlayPause: () => Promise<void>;
@@ -47,6 +49,16 @@ interface PlayerContextType {
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
+function createQueueItem(track: Track, source?: QueueSource): QueueItem {
+  const uniqueId = `${track.id}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  return {
+    queueId: uniqueId,
+    track,
+    addedAt: Date.now(),
+    source: source || "manual",
+  };
+}
+
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -56,18 +68,16 @@ function shuffleArray<T>(array: T[]): T[] {
   return arr;
 }
 
-export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentQueueItem, setCurrentQueueItem] = useState<QueueItem | null>(null);
   const [playbackState, setPlaybackState] = useState<PlaybackState>("idle");
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const [queue, setQueue] = useState<Track[]>([]);
-  const [originalQueue, setOriginalQueue] = useState<Track[]>([]);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [originalQueue, setOriginalQueue] = useState<QueueItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
@@ -78,10 +88,13 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const playerRef = useRef<AudioPlayer | null>(null);
   const intervalRef = useRef<any>(null);
-  const queueRef = useRef<Track[]>([]);
+  const queueRef = useRef<QueueItem[]>([]);
   const currentIndexRef = useRef<number>(-1);
   const repeatModeRef = useRef<RepeatMode>("OFF");
   const isHandlingCompletionRef = useRef(false);
+
+  // Derived current track representation
+  const currentTrack = currentQueueItem ? currentQueueItem.track : null;
 
   // Sync refs for closures
   useEffect(() => {
@@ -163,16 +176,16 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     const idx = currentIndexRef.current;
 
     try {
-      if (rep === "ONE" && currentTrack) {
+      if (rep === "ONE" && currentQueueItem) {
         await seekTo(0);
         if (playerRef.current) playerRef.current.play();
       } else if (q.length > 0 && idx < q.length - 1) {
         const nextIdx = idx + 1;
         setCurrentIndex(nextIdx);
-        await playTrackInternal(q[nextIdx]);
+        await playItemInternal(q[nextIdx]);
       } else if (rep === "ALL" && q.length > 0) {
         setCurrentIndex(0);
-        await playTrackInternal(q[0]);
+        await playItemInternal(q[0]);
       } else {
         setPlaybackState("paused");
         setIsPlaying(false);
@@ -184,7 +197,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const playTrackInternal = async (track: Track) => {
+  const playItemInternal = async (item: QueueItem) => {
     try {
       setPlaybackState("loading");
       if (playerRef.current) {
@@ -194,7 +207,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
         playerRef.current = null;
       }
 
-      setCurrentTrack(track);
+      setCurrentQueueItem(item);
+      const track = item.track;
       setPosition(0);
       setDuration(track.duration || 0);
 
@@ -225,86 +239,138 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const playTrack = async (track: Track) => {
-    setOriginalQueue([track]);
-    setQueue([track]);
+  const playTrack = async (track: Track, source: QueueSource = "manual") => {
+    const item = createQueueItem(track, source);
+    setOriginalQueue([item]);
+    setQueue([item]);
     setCurrentIndex(0);
-    await playTrackInternal(track);
+    await playItemInternal(item);
   };
 
-  const playQueue = async (tracks: Track[], startIndex: number = 0) => {
+  const playQueue = async (tracks: Track[], startIndex: number = 0, source: QueueSource = "manual") => {
     if (!tracks || tracks.length === 0) return;
     const validIndex = Math.max(0, Math.min(startIndex, tracks.length - 1));
+    const items = tracks.map((t) => createQueueItem(t, source));
 
     if (shuffleEnabled) {
-      const selectedTrack = tracks[validIndex];
-      const rest = tracks.filter((_, i) => i !== validIndex);
-      const shuffled = [selectedTrack, ...shuffleArray(rest)];
-      setOriginalQueue(tracks);
+      const selectedItem = items[validIndex];
+      const rest = items.filter((_, i) => i !== validIndex);
+      const shuffled = [selectedItem, ...shuffleArray(rest)];
+      setOriginalQueue(items);
       setQueue(shuffled);
       setCurrentIndex(0);
-      await playTrackInternal(selectedTrack);
+      await playItemInternal(selectedItem);
     } else {
-      setOriginalQueue(tracks);
-      setQueue(tracks);
+      setOriginalQueue(items);
+      setQueue(items);
       setCurrentIndex(validIndex);
-      await playTrackInternal(tracks[validIndex]);
+      await playItemInternal(items[validIndex]);
     }
   };
 
-  const playNext = (track: Track) => {
+  const playNext = (track: Track, source: QueueSource = "manual") => {
+    const newItem = createQueueItem(track, source);
     setQueue((prev) => {
-      const nextIndex = currentIndex + 1;
+      const insertIdx = currentIndex < 0 ? 0 : currentIndex + 1;
       const updated = [...prev];
-      updated.splice(nextIndex, 0, track);
+      updated.splice(insertIdx, 0, newItem);
       return updated;
     });
-    setOriginalQueue((prev) => [...prev, track]);
+    setOriginalQueue((prev) => [...prev, newItem]);
   };
 
-  const addToQueue = (track: Track) => {
-    setQueue((prev) => [...prev, track]);
-    setOriginalQueue((prev) => [...prev, track]);
+  const addToQueue = (track: Track, source: QueueSource = "manual") => {
+    const newItem = createQueueItem(track, source);
+    setQueue((prev) => [...prev, newItem]);
+    setOriginalQueue((prev) => [...prev, newItem]);
   };
 
-  const removeFromQueue = (index: number) => {
-    setQueue((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      if (updated.length === 0) {
-        clearQueue();
-        return [];
-      }
-      return updated;
-    });
+  const removeFromQueue = (queueId: string) => {
+    const targetIdx = queue.findIndex((item) => item.queueId === queueId);
+    if (targetIdx === -1) return;
 
-    if (index < currentIndex) {
-      setCurrentIndex((prev) => Math.max(0, prev - 1));
-    } else if (index === currentIndex) {
-      const q = queueRef.current;
-      if (index < q.length - 1) {
-        playTrackInternal(q[index + 1]);
-      } else if (q.length > 1) {
-        setCurrentIndex(0);
-        playTrackInternal(q[0]);
+    if (queue.length === 1) {
+      // Removing the only item
+      if (playerRef.current) {
+        try {
+          playerRef.current.pause();
+        } catch {}
+        playerRef.current = null;
       }
+      setQueue([]);
+      setOriginalQueue([]);
+      setCurrentIndex(-1);
+      setCurrentQueueItem(null);
+      setIsPlaying(false);
+      setPlaybackState("idle");
+      return;
     }
+
+    if (targetIdx < currentIndex) {
+      setCurrentIndex((prev) => Math.max(0, prev - 1));
+      setQueue((prev) => prev.filter((item) => item.queueId !== queueId));
+    } else if (targetIdx === currentIndex) {
+      const remaining = queue.filter((item) => item.queueId !== queueId);
+      setQueue(remaining);
+      const nextIdx = Math.min(currentIndex, remaining.length - 1);
+      setCurrentIndex(nextIdx);
+      playItemInternal(remaining[nextIdx]);
+    } else {
+      setQueue((prev) => prev.filter((item) => item.queueId !== queueId));
+    }
+  };
+
+  const moveInQueue = (fromIndex: number, toIndex: number) => {
+    if (
+      fromIndex < 0 ||
+      fromIndex >= queue.length ||
+      toIndex < 0 ||
+      toIndex >= queue.length ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+
+    // Do not move the currently playing item
+    if (fromIndex === currentIndex || toIndex === currentIndex) return;
+
+    setQueue((prev) => {
+      const updated = [...prev];
+      const [movedItem] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, movedItem);
+      return updated;
+    });
   };
 
   const clearQueue = () => {
-    if (playerRef.current) {
-      try {
-        playerRef.current.pause();
-      } catch {}
-      playerRef.current = null;
+    // Keep currently playing track in queue, remove all upcoming items!
+    if (currentIndex >= 0 && currentIndex < queue.length) {
+      const activeItem = queue[currentIndex];
+      setQueue([activeItem]);
+      setOriginalQueue([activeItem]);
+      setCurrentIndex(0);
+    } else {
+      if (playerRef.current) {
+        try {
+          playerRef.current.pause();
+        } catch {}
+        playerRef.current = null;
+      }
+      setQueue([]);
+      setOriginalQueue([]);
+      setCurrentIndex(-1);
+      setCurrentQueueItem(null);
+      setIsPlaying(false);
+      setPlaybackState("idle");
     }
-    setQueue([]);
-    setOriginalQueue([]);
-    setCurrentIndex(-1);
-    setCurrentTrack(null);
-    setIsPlaying(false);
-    setPlaybackState("idle");
-    setPosition(0);
-    setDuration(0);
+  };
+
+  const playFromQueue = async (queueId: string) => {
+    const targetIdx = queue.findIndex((item) => item.queueId === queueId);
+    if (targetIdx >= 0) {
+      setCurrentIndex(targetIdx);
+      await playItemInternal(queue[targetIdx]);
+    }
   };
 
   const skipToNext = async () => {
@@ -315,10 +381,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     if (q.length > 0 && idx < q.length - 1) {
       const nextIdx = idx + 1;
       setCurrentIndex(nextIdx);
-      await playTrackInternal(q[nextIdx]);
+      await playItemInternal(q[nextIdx]);
     } else if (rep === "ALL" && q.length > 0) {
       setCurrentIndex(0);
-      await playTrackInternal(q[0]);
+      await playItemInternal(q[0]);
     }
   };
 
@@ -335,11 +401,11 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     if (q.length > 0 && idx > 0) {
       const prevIdx = idx - 1;
       setCurrentIndex(prevIdx);
-      await playTrackInternal(q[prevIdx]);
+      await playItemInternal(q[prevIdx]);
     } else if (rep === "ALL" && q.length > 0) {
       const lastIdx = q.length - 1;
       setCurrentIndex(lastIdx);
-      await playTrackInternal(q[lastIdx]);
+      await playItemInternal(q[lastIdx]);
     }
   };
 
@@ -375,15 +441,15 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     setShuffleEnabled(nextShuffle);
     saveSettings({ shuffleEnabled: nextShuffle });
 
-    if (nextShuffle && currentTrack && queue.length > 1) {
-      const rest = queue.filter((t) => t.id !== currentTrack.id);
-      const shuffled = [currentTrack, ...shuffleArray(rest)];
+    if (nextShuffle && currentQueueItem && queue.length > 1) {
+      const rest = queue.filter((item) => item.queueId !== currentQueueItem.queueId);
+      const shuffled = [currentQueueItem, ...shuffleArray(rest)];
       setQueue(shuffled);
       setCurrentIndex(0);
     } else if (!nextShuffle && originalQueue.length > 0) {
       setQueue(originalQueue);
-      if (currentTrack) {
-        const origIndex = originalQueue.findIndex((t) => t.id === currentTrack.id);
+      if (currentQueueItem) {
+        const origIndex = originalQueue.findIndex((item) => item.queueId === currentQueueItem.queueId);
         setCurrentIndex(origIndex >= 0 ? origIndex : 0);
       }
     }
@@ -416,13 +482,13 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     <PlayerContext.Provider
       value={{
         currentTrack,
+        currentQueueItem,
         playbackState,
         isPlaying,
         position,
         duration: duration || currentTrack?.duration || 0,
         isInitialized,
         queue,
-        originalQueue,
         currentIndex,
         shuffleEnabled,
         repeatMode,
@@ -433,7 +499,9 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
         playNext,
         addToQueue,
         removeFromQueue,
+        moveInQueue,
         clearQueue,
+        playFromQueue,
         skipToNext,
         skipToPrevious,
         togglePlayPause,

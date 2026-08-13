@@ -13,10 +13,10 @@ import { useToast } from "@/context/ToastContext";
 import {
   JioSaavnSong,
   searchSongs,
-  getTrendingFeed,
   FEATURED_ARTISTS,
   FeaturedArtist,
 } from "@/services/jiosaavn";
+import { fetchHomeCatalog } from "@/services/catalogEngine";
 import { View, Pressable } from "@/tw";
 
 interface VibeOption {
@@ -66,10 +66,7 @@ export default function HomeScreen() {
     let isMounted = true;
     setLoading(true);
 
-    Promise.all([
-      getTrendingFeed(),
-      searchSongs("Top Trending Hits", 0, 15),
-    ]).then(([trending, discovery]) => {
+    fetchHomeCatalog().then(({ popularSongs: trending, discoverySongs: discovery }) => {
       if (isMounted) {
         setPopularSongs(trending);
         setDiscoverySongs(discovery);

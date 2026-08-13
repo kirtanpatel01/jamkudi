@@ -8,7 +8,8 @@ import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
-import { AlbumDetails, getAlbumDetails, JioSaavnSong } from "@/services/jiosaavn";
+import { AlbumDetails, JioSaavnSong } from "@/services/jiosaavn";
+import { fetchAlbumCatalog } from "@/services/catalogEngine";
 import { View, Pressable } from "@/tw";
 
 function formatDuration(seconds: number): string {
@@ -33,7 +34,7 @@ export default function AlbumDetailScreen() {
     let isMounted = true;
     setLoading(true);
 
-    getAlbumDetails(id).then((data) => {
+    fetchAlbumCatalog(id).then((data) => {
       if (isMounted) {
         setAlbum(data);
         setLoading(false);
