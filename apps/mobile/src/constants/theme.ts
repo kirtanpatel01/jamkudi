@@ -37,27 +37,27 @@ export const Colors = {
   },
 
   dark: {
-    background: "#0F0D15",
-    surface: "#1A1723",
-    surfaceElevated: "#242030",
-    surfacePressed: "#2F2B3E",
+    background: "#09070F",
+    surface: "#181424",
+    surfaceElevated: "#241E34",
+    surfacePressed: "#312946",
 
-    primary: "#A78BFA",
-    primaryPressed: "#8B5CF6",
+    primary: "#8B5CF6",
+    primaryPressed: "#7C3AED",
     primarySubtle: "#2E2648",
-    onPrimary: "#0F0D15",
+    onPrimary: "#FFFFFF",
 
-    textPrimary: "#F3F0F8",
-    textSecondary: "#A19AA8",
-    textMuted: "#77717F",
+    textPrimary: "#FFFFFF",
+    textSecondary: "#D8B4FE",
+    textMuted: "#9CA3AF",
     textInverse: "#18151D",
 
     // Backwards-compatibility aliases
-    text: "#F3F0F8",
-    icon: "#A19AA8",
+    text: "#FFFFFF",
+    icon: "#D8B4FE",
 
-    border: "#2E2A3A",
-    divider: "#262232",
+    border: "#3B334C",
+    divider: "#2D263B",
 
     favorite: "#F43F5E",
     success: "#34D399",
@@ -65,12 +65,12 @@ export const Colors = {
     error: "#F87171",
 
     tabActive: "#A78BFA",
-    tabInactive: "#77717F",
+    tabInactive: "#9CA3AF",
     tabIconSelected: "#A78BFA",
-    tabIconDefault: "#77717F",
+    tabIconDefault: "#9CA3AF",
 
-    skeletonBase: "#242030",
-    skeletonHighlight: "#322D42",
+    skeletonBase: "#241E34",
+    skeletonHighlight: "#362E4A",
   },
 } as const;
 
@@ -127,13 +127,13 @@ export const Typography = {
   },
   button: {
     fontFamily: FontFamily.nunito.bold,
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 15,
+    lineHeight: 20,
   },
   caption: {
     fontFamily: FontFamily.nunito.medium,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 13,
+    lineHeight: 18,
   },
 } as const;
 

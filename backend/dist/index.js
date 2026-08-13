@@ -1,6 +1,8 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import auth from './routes/auth.js';
 import health from './routes/health.js';
+import profile from './routes/profile.js';
 const app = new Hono();
 // Global error handling
 app.onError((err, c) => {
@@ -24,8 +26,10 @@ app.get('/', (c) => {
         status: 'ok'
     });
 });
-// Mount health route
+// Mount routes
 app.route('/health', health);
+app.route('/auth', auth);
+app.route('/profile', profile);
 const port = Number(process.env.PORT) || 3000;
 serve({
     fetch: app.fetch,

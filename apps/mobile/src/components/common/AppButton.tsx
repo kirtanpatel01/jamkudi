@@ -35,14 +35,17 @@ export const AppButton: React.FC<AppButtonProps> = ({
 }) => {
   const theme = useTheme();
 
-  const heightMap = { sm: 36, md: 44, lg: 52 };
+  const heightMap = { sm: 40, md: 48, lg: 56 };
   const height = heightMap[size];
 
   const getBackgroundColor = (pressed: boolean) => {
+    if (variant === "primary") {
+      if (disabled) return "#6D28D9";
+      return pressed ? "#7C3AED" : "#8B5CF6";
+    }
     if (disabled) return theme.surface;
+
     switch (variant) {
-      case "primary":
-        return pressed ? theme.primaryPressed : theme.primary;
       case "secondary":
         return pressed ? theme.surfacePressed : theme.surface;
       case "outline":
@@ -52,14 +55,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
   };
 
   const getTextColor = () => {
+    if (variant === "primary") return "#FFFFFF";
     if (disabled) return theme.textMuted;
+
     switch (variant) {
-      case "primary":
-        return theme.onPrimary;
       case "secondary":
       case "outline":
       case "ghost":
         return theme.textPrimary;
+      default:
+        return "#FFFFFF";
     }
   };
 
@@ -72,16 +77,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{ disabled: disabled || loading }}
-      className={`flex-row items-center justify-center min-w-[80px] min-h-[44px] ${className}`}
+      className={`flex-row items-center justify-center min-w-[80px] ${className}`}
       style={({ pressed }) => [
         {
           height,
           backgroundColor: getBackgroundColor(pressed),
           borderColor: variant === "outline" ? theme.border : "transparent",
-          borderWidth: variant === "outline" ? 1 : 0,
-          borderRadius: BorderRadius.md,
-          paddingHorizontal: size === "sm" ? Spacing.md : Spacing.lg,
-          opacity: disabled ? 0.6 : 1,
+          borderWidth: variant === "outline" ? 1.5 : 0,
+          borderRadius: BorderRadius.lg,
+          paddingHorizontal: size === "sm" ? Spacing.md : Spacing.xl,
+          opacity: disabled ? 0.8 : 1,
         },
         style,
       ]}
@@ -93,13 +98,14 @@ export const AppButton: React.FC<AppButtonProps> = ({
           {leftIcon && (
             <Icon
               name={leftIcon}
-              size={size === "sm" ? 16 : 20}
+              size={size === "sm" ? 18 : 22}
               color={iconColor}
               className="mr-2"
             />
           )}
           <AppText
             variant="button"
+            className="text-base font-bold text-center"
             style={{ color: iconColor }}
           >
             {title}
@@ -107,7 +113,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
           {rightIcon && (
             <Icon
               name={rightIcon}
-              size={size === "sm" ? 16 : 20}
+              size={size === "sm" ? 18 : 22}
               color={iconColor}
               className="ml-2"
             />

@@ -21,7 +21,13 @@ export type IconName =
   | "music"
   | "chevron-down"
   | "skip-back"
-  | "skip-forward";
+  | "skip-forward"
+  | "alert-circle"
+  | "lock"
+  | "eye"
+  | "eye-off"
+  | "user"
+  | "mail";
 
 export interface IconProps {
   name: IconName;
@@ -55,6 +61,12 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   "chevron-down": { outline: "keyboard-arrow-down", filled: "keyboard-arrow-down" },
   "skip-back": { outline: "skip-previous", filled: "skip-previous" },
   "skip-forward": { outline: "skip-next", filled: "skip-next" },
+  "alert-circle": { outline: "error-outline", filled: "error" },
+  lock: { outline: "lock-outline", filled: "lock" },
+  eye: { outline: "visibility", filled: "visibility" },
+  "eye-off": { outline: "visibility-off", filled: "visibility-off" },
+  user: { outline: "person-outline", filled: "person" },
+  mail: { outline: "email", filled: "email" },
 };
 
 export const Icon: React.FC<IconProps> = ({

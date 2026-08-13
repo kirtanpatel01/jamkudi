@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { safeStorage } from "./safeStorage";
 import { Track, RepeatMode } from "@/types/track";
 
 const KEYS = {
@@ -23,7 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 // Liked Songs
 export async function loadLikedSongs(): Promise<Track[]> {
   try {
-    const raw = await AsyncStorage.getItem(KEYS.LIKED_SONGS);
+    const raw = await safeStorage.getItem(KEYS.LIKED_SONGS);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -32,14 +32,14 @@ export async function loadLikedSongs(): Promise<Track[]> {
 
 export async function saveLikedSongs(songs: Track[]): Promise<void> {
   try {
-    await AsyncStorage.setItem(KEYS.LIKED_SONGS, JSON.stringify(songs));
+    await safeStorage.setItem(KEYS.LIKED_SONGS, JSON.stringify(songs));
   } catch {}
 }
 
 // Recently Played
 export async function loadRecentlyPlayed(): Promise<Track[]> {
   try {
-    const raw = await AsyncStorage.getItem(KEYS.RECENTLY_PLAYED);
+    const raw = await safeStorage.getItem(KEYS.RECENTLY_PLAYED);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -51,7 +51,7 @@ export async function addRecentlyPlayed(track: Track): Promise<Track[]> {
     const current = await loadRecentlyPlayed();
     const filtered = current.filter((t) => t.id !== track.id);
     const updated = [track, ...filtered].slice(0, 50); // Keep latest 50
-    await AsyncStorage.setItem(KEYS.RECENTLY_PLAYED, JSON.stringify(updated));
+    await safeStorage.setItem(KEYS.RECENTLY_PLAYED, JSON.stringify(updated));
     return updated;
   } catch {
     return [];
@@ -61,7 +61,7 @@ export async function addRecentlyPlayed(track: Track): Promise<Track[]> {
 // Search History
 export async function loadSearchHistory(): Promise<string[]> {
   try {
-    const raw = await AsyncStorage.getItem(KEYS.SEARCH_HISTORY);
+    const raw = await safeStorage.getItem(KEYS.SEARCH_HISTORY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -74,7 +74,7 @@ export async function addSearchQuery(query: string): Promise<string[]> {
     const current = await loadSearchHistory();
     const filtered = current.filter((q) => q.toLowerCase() !== query.trim().toLowerCase());
     const updated = [query.trim(), ...filtered].slice(0, 10);
-    await AsyncStorage.setItem(KEYS.SEARCH_HISTORY, JSON.stringify(updated));
+    await safeStorage.setItem(KEYS.SEARCH_HISTORY, JSON.stringify(updated));
     return updated;
   } catch {
     return [];
@@ -83,14 +83,14 @@ export async function addSearchQuery(query: string): Promise<string[]> {
 
 export async function clearSearchHistory(): Promise<void> {
   try {
-    await AsyncStorage.removeItem(KEYS.SEARCH_HISTORY);
+    await safeStorage.removeItem(KEYS.SEARCH_HISTORY);
   } catch {}
 }
 
 // Settings
 export async function loadSettings(): Promise<AppSettings> {
   try {
-    const raw = await AsyncStorage.getItem(KEYS.AUDIO_SETTINGS);
+    const raw = await safeStorage.getItem(KEYS.AUDIO_SETTINGS);
     return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : DEFAULT_SETTINGS;
   } catch {
     return DEFAULT_SETTINGS;
@@ -101,6 +101,6 @@ export async function saveSettings(settings: Partial<AppSettings>): Promise<void
   try {
     const current = await loadSettings();
     const updated = { ...current, ...settings };
-    await AsyncStorage.setItem(KEYS.AUDIO_SETTINGS, JSON.stringify(updated));
+    await safeStorage.setItem(KEYS.AUDIO_SETTINGS, JSON.stringify(updated));
   } catch {}
 }

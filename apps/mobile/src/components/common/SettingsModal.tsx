@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Modal } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { AppText } from "@/components/common/AppText";
+import { AppButton } from "@/components/common/AppButton";
 import { Icon } from "@/components/common/Icon";
 import { loadSettings, saveSettings } from "@/utils/storage";
 import { View, Pressable } from "@/tw";
@@ -15,6 +17,7 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
   const theme = useTheme();
   const { showToast } = useToast();
+  const { user, profile, signOut } = useAuth();
   const [audioQuality, setAudioQuality] = useState<"320kbps" | "160kbps">("320kbps");
 
   useEffect(() => {
@@ -29,6 +32,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
     showToast(`Audio quality set to ${quality === "320kbps" ? "320 kbps (HD)" : "160 kbps (Data Saver)"}`, "success");
   };
 
+  const handleLogout = async () => {
+    onClose();
+    await signOut();
+    showToast("Signed out successfully", "info");
+  };
+
   return (
     <Modal
       visible={visible}
@@ -41,9 +50,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
         style={{ backgroundColor: theme.background }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-8 pb-4 border-b border-white/10">
+        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-white/10">
           <AppText variant="screenTitle" className="text-xl font-bold">
-            Settings & Preferences
+            Settings & Account
           </AppText>
 
           <Pressable
@@ -54,6 +63,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
             <Icon name="chevron-down" size={26} color={theme.textPrimary} />
           </Pressable>
         </View>
+
+        {/* User Account Card */}
+        {user && (
+          <View className="mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 flex-row items-center justify-between">
+            <View className="flex-1 mr-3">
+              <AppText variant="songTitle" className="text-base font-bold mb-0.5">
+                {profile?.display_name || profile?.username || "Authenticated User"}
+              </AppText>
+              <AppText variant="caption" className="text-xs text-zinc-400 font-medium">
+                {user.email}
+              </AppText>
+              {profile?.username && (
+                <AppText variant="caption" className="text-[11px] text-purple-400 font-semibold mt-0.5">
+                  @{profile.username}
+                </AppText>
+              )}
+            </View>
+
+            <AppButton
+              title="Log Out"
+              onPress={handleLogout}
+              variant="outline"
+              size="sm"
+              className="border-red-500/30"
+            />
+          </View>
+        )}
 
         {/* Streaming Quality Setting */}
         <View className="mb-8">

@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { IconButton } from "@/components/common/IconButton";
+import { SettingsModal } from "@/components/common/SettingsModal";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { View, Pressable } from "@/tw";
 
 function formatDuration(seconds: number): string {
@@ -21,7 +23,9 @@ export default function LibraryScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { showToast } = useToast();
+  const { profile } = useAuth();
   const { playQueue, likedTracks, recentlyPlayed, currentTrack, isPlaying } = usePlayer();
+  const [showSettings, setShowSettings] = useState(false);
 
   const handlePlayLiked = async () => {
     if (likedTracks.length > 0) {
@@ -42,9 +46,16 @@ export default function LibraryScreen() {
     <Screen scrollable paddingHorizontal={16}>
       {/* Top Header */}
       <View className="flex-row items-center justify-between mt-2 mb-6">
-        <AppText variant="screenTitle" className="text-2xl font-bold">
-          Your Library
-        </AppText>
+        <View>
+          <AppText variant="screenTitle" className="text-2xl font-bold">
+            Your Library
+          </AppText>
+          {profile?.display_name && (
+            <AppText variant="caption" className="text-xs text-purple-400 font-semibold mt-0.5">
+              Welcome, {profile.display_name}
+            </AppText>
+          )}
+        </View>
 
         <View className="flex-row items-center gap-x-2">
           <IconButton
@@ -53,6 +64,13 @@ export default function LibraryScreen() {
             color={theme.textPrimary}
             onPress={() => router.push("/(tabs)/search")}
             accessibilityLabel="Search Library"
+          />
+          <IconButton
+            name="heart"
+            size={22}
+            color={theme.textPrimary}
+            onPress={() => setShowSettings(true)}
+            accessibilityLabel="Account Settings"
           />
         </View>
       </View>
@@ -159,6 +177,9 @@ export default function LibraryScreen() {
           </View>
         )}
       </View>
+
+      {/* Settings Modal */}
+      <SettingsModal visible={showSettings} onClose={() => setShowSettings(false)} />
     </Screen>
   );
 }

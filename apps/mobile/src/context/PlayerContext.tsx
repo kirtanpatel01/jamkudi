@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import {
-  createAudioPlayer,
-  setAudioModeAsync,
-  requestNotificationPermissionsAsync,
-  AudioPlayer,
-} from "expo-audio";
+import { initAudioSystem, createUnifiedPlayer, AudioPlayerInstance } from "@/utils/audioService";
 import { Track, PlaybackState, RepeatMode, QueueItem, QueueSource } from "@/types/track";
 import {
   loadLikedSongs,
@@ -86,7 +81,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [likedTracks, setLikedTracks] = useState<Track[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Track[]>([]);
 
-  const playerRef = useRef<AudioPlayer | null>(null);
+  const playerRef = useRef<AudioPlayerInstance | null>(null);
   const intervalRef = useRef<any>(null);
   const queueRef = useRef<QueueItem[]>([]);
   const currentIndexRef = useRef<number>(-1);
@@ -109,15 +104,9 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     repeatModeRef.current = repeatMode;
   }, [repeatMode]);
 
-  // Load initial settings & persisted data from AsyncStorage
+  // Load initial settings & persisted data
   useEffect(() => {
-    requestNotificationPermissionsAsync().catch(() => {});
-
-    setAudioModeAsync({
-      playsInSilentMode: true,
-      shouldPlayInBackground: true,
-      interruptionMode: "doNotMix",
-    })
+    initAudioSystem()
       .then(() => setIsInitialized(true))
       .catch(() => setIsInitialized(true));
 
@@ -203,6 +192,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (playerRef.current) {
         try {
           playerRef.current.pause();
+          if (playerRef.current.unload) playerRef.current.unload();
         } catch {}
         playerRef.current = null;
       }
@@ -216,16 +206,18 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       addRecentlyPlayed(track).then(setRecentlyPlayed);
 
       const streamUrl = track.audioUrl || (track as any).url;
-      const player = createAudioPlayer(streamUrl);
+      const player = createUnifiedPlayer(streamUrl);
       playerRef.current = player;
 
       try {
-        player.setActiveForLockScreen(true, {
-          title: track.title,
-          artist: track.artist,
-          albumTitle: track.album,
-          artworkUrl: track.artwork,
-        });
+        if (player.setActiveForLockScreen) {
+          player.setActiveForLockScreen(true, {
+            title: track.title,
+            artist: track.artist,
+            albumTitle: track.album,
+            artworkUrl: track.artwork,
+          });
+        }
       } catch (lockErr) {
         console.log("Lock screen controls notice:", lockErr);
       }
