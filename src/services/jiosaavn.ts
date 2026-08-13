@@ -234,3 +234,49 @@ export async function getSongById(id: string): Promise<JioSaavnSong | null> {
     }
   }
 }
+
+export interface ArtistDetails {
+  name: string;
+  imageUrl: string;
+  tracks: JioSaavnSong[];
+}
+
+export interface AlbumDetails {
+  title: string;
+  artist: string;
+  artwork: string;
+  year?: string;
+  tracks: JioSaavnSong[];
+}
+
+export async function getArtistDetails(query: string): Promise<ArtistDetails | null> {
+  if (!query) return null;
+  const decodedQuery = decodeURIComponent(query);
+  const featured = FEATURED_ARTISTS.find(
+    (a) => a.query.toLowerCase() === decodedQuery.toLowerCase() || a.name.toLowerCase() === decodedQuery.toLowerCase()
+  );
+
+  const songs = await searchSongs(decodedQuery, 0, 20);
+  const imageUrl = featured?.imageUrl || (songs.length > 0 ? songs[0].artwork || "" : "");
+
+  return {
+    name: featured?.name || decodedQuery,
+    imageUrl: imageUrl || "",
+    tracks: songs,
+  };
+}
+
+export async function getAlbumDetails(query: string): Promise<AlbumDetails | null> {
+  if (!query) return null;
+  const decodedQuery = decodeURIComponent(query);
+  const songs = await searchSongs(decodedQuery, 0, 20);
+
+  if (songs.length === 0) return null;
+
+  return {
+    title: songs[0].album || decodedQuery,
+    artist: songs[0].artist || "Various Artists",
+    artwork: songs[0].artwork || "",
+    tracks: songs,
+  };
+}

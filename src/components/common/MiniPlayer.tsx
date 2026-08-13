@@ -1,6 +1,6 @@
 import React from "react";
 import { ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 import { usePlayer } from "@/context/PlayerContext";
 import { useTheme } from "@/hooks/useTheme";
 import { AppText } from "@/components/common/AppText";
@@ -10,6 +10,7 @@ import { View, Pressable } from "@/tw";
 
 export const MiniPlayer: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const theme = useTheme();
   const {
     currentTrack,
@@ -21,23 +22,34 @@ export const MiniPlayer: React.FC = () => {
     skipToNext,
   } = usePlayer();
 
-  if (!currentTrack) {
+  // Hide MiniPlayer on full-screen player modal or when no track is selected
+  if (!currentTrack || pathname === "/player") {
     return null;
   }
 
+  // Adjust bottom offset depending on whether bottom tab bar is visible
+  const isTabScreen =
+    pathname === "/" ||
+    pathname === "/search" ||
+    pathname === "/library" ||
+    pathname.startsWith("/(tabs)");
+
+  const bottomOffset = isTabScreen ? 64 : 16;
   const isBuffering = playbackState === "buffering" || playbackState === "loading";
-  const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (position / duration) * 100)) : 0;
+  const progressPercent =
+    duration > 0 ? Math.min(100, Math.max(0, (position / duration) * 100)) : 0;
 
   return (
     <Pressable
       onPress={() => router.push("/player")}
-      className="absolute bottom-16 left-3 right-3 h-16 rounded-2xl flex-row items-center px-3 shadow-2xl overflow-hidden active:opacity-95"
+      className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3 shadow-2xl overflow-hidden active:opacity-95"
       style={{
+        bottom: bottomOffset,
         backgroundColor: theme.isDark ? "#1E1B2E" : "#FFFFFF",
         borderWidth: 1,
         borderColor: theme.isDark ? "#2E2A45" : "#E5E7EB",
         elevation: 10,
-        zIndex: 50,
+        zIndex: 99,
       }}
       accessibilityRole="button"
       accessibilityLabel={`Now playing ${currentTrack.title}. Tap to expand.`}

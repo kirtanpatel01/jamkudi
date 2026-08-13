@@ -7,6 +7,7 @@ import { IconButton } from "@/components/common/IconButton";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
+import { useToast } from "@/context/ToastContext";
 import { View, Pressable } from "@/tw";
 
 function formatDuration(seconds: number): string {
@@ -19,19 +20,21 @@ function formatDuration(seconds: number): string {
 export default function LibraryScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const { showToast } = useToast();
   const { playQueue, likedTracks, recentlyPlayed, currentTrack, isPlaying } = usePlayer();
 
   const handlePlayLiked = async () => {
     if (likedTracks.length > 0) {
       await playQueue(likedTracks, 0);
-      router.push("/player");
+      showToast("Playing Liked Songs", "success");
     }
   };
 
   const handlePlayRecent = async (index: number) => {
     if (recentlyPlayed.length > 0) {
+      const selected = recentlyPlayed[index];
       await playQueue(recentlyPlayed, index);
-      router.push("/player");
+      showToast(`Playing ${selected?.title || "track"}`, "info");
     }
   };
 

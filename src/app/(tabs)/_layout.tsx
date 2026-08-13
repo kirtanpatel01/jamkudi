@@ -9,9 +9,7 @@ export default function TabLayout() {
   const theme = useTheme();
 
   return (
-    <>
-      <MiniPlayer />
-      <Tabs
+    <Tabs
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: theme.tabActive,
@@ -58,6 +56,5 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-    </>
   );
 }

@@ -82,18 +82,16 @@ export default function HomeScreen() {
     };
   }, []);
 
+  // Non-Intrusive Playback: Play track and update MiniPlayer WITHOUT forcing full player modal open
   const handleSelectSong = async (songsList: JioSaavnSong[], index: number) => {
+    const selected = songsList[index];
     await playQueue(songsList, index);
-    router.push("/player");
+    showToast(`Playing ${selected?.title || "track"}`, "info");
   };
 
-  const handleSelectArtist = async (artist: FeaturedArtist) => {
-    showToast(`Loading ${artist.name}...`, "info");
-    const artistSongs = await searchSongs(artist.query, 0, 15);
-    if (artistSongs.length > 0) {
-      await playQueue(artistSongs, 0);
-      router.push("/player");
-    }
+  // Tap Artist -> Navigate to Artist Detail route for exploration!
+  const handleSelectArtist = (artist: FeaturedArtist) => {
+    router.push(`/artist/${encodeURIComponent(artist.query)}` as any);
   };
 
   const handleSelectVibe = async (vibe: VibeOption) => {
@@ -106,7 +104,7 @@ export default function HomeScreen() {
 
     if (vibeSongs.length > 0) {
       await playQueue(vibeSongs, 0);
-      router.push("/player");
+      showToast(`Playing ${vibe.label} session`, "success");
     }
   };
 
@@ -343,7 +341,7 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {/* 4. Featured Artists */}
+            {/* 4. Featured Artists (Tap -> Opens Artist Detail Route) */}
             <View className="mb-8">
               <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
                 Featured Artists 🎤

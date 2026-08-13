@@ -268,16 +268,43 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const removeFromQueue = (index: number) => {
-    setQueue((prev) => prev.filter((_, i) => i !== index));
+    setQueue((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      if (updated.length === 0) {
+        clearQueue();
+        return [];
+      }
+      return updated;
+    });
+
     if (index < currentIndex) {
       setCurrentIndex((prev) => Math.max(0, prev - 1));
+    } else if (index === currentIndex) {
+      const q = queueRef.current;
+      if (index < q.length - 1) {
+        playTrackInternal(q[index + 1]);
+      } else if (q.length > 1) {
+        setCurrentIndex(0);
+        playTrackInternal(q[0]);
+      }
     }
   };
 
   const clearQueue = () => {
+    if (playerRef.current) {
+      try {
+        playerRef.current.pause();
+      } catch {}
+      playerRef.current = null;
+    }
     setQueue([]);
     setOriginalQueue([]);
     setCurrentIndex(-1);
+    setCurrentTrack(null);
+    setIsPlaying(false);
+    setPlaybackState("idle");
+    setPosition(0);
+    setDuration(0);
   };
 
   const skipToNext = async () => {
@@ -298,6 +325,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
   const skipToPrevious = async () => {
     const q = queueRef.current;
     const idx = currentIndexRef.current;
+    const rep = repeatModeRef.current;
 
     if (position > 3 && playerRef.current) {
       await seekTo(0);
@@ -308,6 +336,10 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
       const prevIdx = idx - 1;
       setCurrentIndex(prevIdx);
       await playTrackInternal(q[prevIdx]);
+    } else if (rep === "ALL" && q.length > 0) {
+      const lastIdx = q.length - 1;
+      setCurrentIndex(lastIdx);
+      await playTrackInternal(q[lastIdx]);
     }
   };
 

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
+import { useToast } from "@/context/ToastContext";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
+import { loadSettings, saveSettings } from "@/utils/storage";
 import { View, Pressable } from "@/tw";
 
 interface SettingsModalProps {
@@ -12,7 +14,20 @@ interface SettingsModalProps {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
   const theme = useTheme();
+  const { showToast } = useToast();
   const [audioQuality, setAudioQuality] = useState<"320kbps" | "160kbps">("320kbps");
+
+  useEffect(() => {
+    if (visible) {
+      loadSettings().then((st) => setAudioQuality(st.audioQuality));
+    }
+  }, [visible]);
+
+  const handleSelectQuality = (quality: "320kbps" | "160kbps") => {
+    setAudioQuality(quality);
+    saveSettings({ audioQuality: quality });
+    showToast(`Audio quality set to ${quality === "320kbps" ? "320 kbps (HD)" : "160 kbps (Data Saver)"}`, "success");
+  };
 
   return (
     <Modal
@@ -51,7 +66,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
 
           <View className="gap-y-3">
             <Pressable
-              onPress={() => setAudioQuality("320kbps")}
+              onPress={() => handleSelectQuality("320kbps")}
               className={`flex-row items-center justify-between p-4 rounded-2xl border ${
                 audioQuality === "320kbps"
                   ? "bg-purple-900/40 border-purple-500"
@@ -73,7 +88,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
             </Pressable>
 
             <Pressable
-              onPress={() => setAudioQuality("160kbps")}
+              onPress={() => handleSelectQuality("160kbps")}
               className={`flex-row items-center justify-between p-4 rounded-2xl border ${
                 audioQuality === "160kbps"
                   ? "bg-purple-900/40 border-purple-500"

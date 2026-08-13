@@ -88,7 +88,7 @@ export default function SearchScreen() {
 
   const handleSelectSong = async (song: JioSaavnSong, index: number) => {
     await playQueue(results, index);
-    router.push("/player");
+    showToast(`Playing ${song.title}`, "info");
   };
 
   const handleSelectCategory = (catLabel: string) => {

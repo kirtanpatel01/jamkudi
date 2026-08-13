@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@/hooks/useTheme";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { MiniPlayer } from "@/components/common/MiniPlayer";
 import {
   useFonts,
   Fredoka_400Regular,
@@ -67,6 +68,7 @@ export default function RootLayout() {
             }}
           />
         </Stack>
+        <MiniPlayer />
       </PlayerProvider>
     </ToastProvider>
   );
