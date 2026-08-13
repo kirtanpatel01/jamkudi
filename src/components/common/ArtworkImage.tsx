@@ -1,79 +1,87 @@
 import React, { useState } from "react";
-import { ViewStyle, StyleProp, ImageStyle } from "react-native";
-import { Icon, IconName } from "@/components/common/Icon";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { Image, ImageProps } from "expo-image";
+import { Icon } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius } from "@/constants/theme";
-import { View } from "@/tw";
-import { Image } from "@/tw/image";
 
-export interface ArtworkImageProps {
+interface ArtworkImageProps extends Omit<ImageProps, "source"> {
   uri?: string | null;
   size?: number;
   width?: number;
   height?: number;
+  iconSize?: number;
   radius?: number;
-  fallbackIcon?: IconName;
-  accessibilityLabel?: string;
-  style?: StyleProp<ImageStyle>;
   className?: string;
+  style?: any;
 }
+
+const absoluteFill = StyleSheet.absoluteFill || {
+  position: "absolute",
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0,
+};
 
 export const ArtworkImage: React.FC<ArtworkImageProps> = ({
   uri,
-  size = 56,
+  size,
   width,
   height,
-  radius = BorderRadius.md,
-  fallbackIcon = "music",
-  accessibilityLabel = "Album Artwork",
+  iconSize = 24,
+  radius,
   style,
   className = "",
+  ...props
 }) => {
   const theme = useTheme();
   const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const w = width ?? size;
-  const h = height ?? size;
-  const iconSize = Math.max(16, Math.floor(Math.min(w, h) * 0.45));
+  const sanitizedUri =
+    typeof uri === "string" && uri.trim().length > 0
+      ? uri.trim().replace(/^http:\/\//i, "https://")
+      : "";
 
-  if (!uri || hasError) {
+  if (!sanitizedUri || hasError) {
     return (
       <View
-        accessibilityLabel={accessibilityLabel}
-        accessibilityRole="image"
-        className={`items-center justify-center border-[0.5px] ${className}`}
-        style={[
-          {
-            width: w,
-            height: h,
-            borderRadius: radius,
-            backgroundColor: theme.surfaceElevated,
-            borderColor: theme.border,
-          },
-          style as StyleProp<ViewStyle>,
-        ]}
+        className={`items-center justify-center bg-purple-950/60 ${className}`}
+        style={[{ width: width || "100%", height: height || "100%" }, style]}
       >
-        <Icon name={fallbackIcon} size={iconSize} color={theme.textMuted} />
+        <Icon name="music" size={iconSize} color={theme.primary} />
       </View>
     );
   }
 
   return (
-    <Image
-      source={{ uri }}
-      className={className}
-      style={[
-        {
-          width: w,
-          height: h,
-          borderRadius: radius,
-          backgroundColor: theme.surface,
-        },
-        style,
-      ]}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityRole="image"
-      onError={() => setHasError(true)}
-    />
+    <View
+      className={`relative overflow-hidden ${className}`}
+      style={[{ width: width || "100%", height: height || "100%" }, style]}
+    >
+      {isLoading && (
+        <View
+          style={absoluteFill as any}
+          className="items-center justify-center bg-purple-950/40 z-10"
+        >
+          <ActivityIndicator size="small" color={theme.primary} />
+        </View>
+      )}
+
+      <Image
+        source={{ uri: sanitizedUri }}
+        style={absoluteFill as any}
+        contentFit="cover"
+        transition={150}
+        onLoadStart={() => setIsLoading(true)}
+        onLoadEnd={() => setIsLoading(false)}
+        onError={(err) => {
+          console.log("Artwork load error for URI:", sanitizedUri, err);
+          setIsLoading(false);
+          setHasError(true);
+        }}
+        {...props}
+      />
+    </View>
   );
 };

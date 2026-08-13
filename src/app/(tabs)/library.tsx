@@ -1,69 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import React from "react";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { IconButton } from "@/components/common/IconButton";
+import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
-import { JioSaavnSong, searchSongs } from "@/services/jiosaavn";
 import { View, Pressable } from "@/tw";
-import { Image } from "@/tw/image";
 
-interface PlaylistCategory {
-  id: string;
-  title: string;
-  subtitle: string;
-  query: string;
-  gradientBg: string;
-  iconName: any;
+function formatDuration(seconds: number): string {
+  if (!seconds || isNaN(seconds)) return "";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }
-
-const FEATURED_PLAYLISTS: PlaylistCategory[] = [
-  {
-    id: "liked",
-    title: "Liked Songs",
-    subtitle: "Auto-saved tracks",
-    query: "Top Hits",
-    gradientBg: "bg-purple-900/60",
-    iconName: "heart-filled",
-  },
-  {
-    id: "arijit_special",
-    title: "Arijit Singh Special",
-    subtitle: "Best of Arijit",
-    query: "Arijit Singh",
-    gradientBg: "bg-pink-900/60",
-    iconName: "music",
-  },
-  {
-    id: "lofi",
-    title: "Chill & Lo-Fi Beats",
-    subtitle: "Relax & Focus",
-    query: "Lo-Fi Hindi",
-    gradientBg: "bg-indigo-900/60",
-    iconName: "library-filled",
-  },
-  {
-    id: "party",
-    title: "Party & Workout Beats",
-    subtitle: "High Energy Punjabi",
-    query: "Punjabi Party",
-    gradientBg: "bg-amber-900/60",
-    iconName: "devices",
-  },
-];
 
 export default function LibraryScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const { playQueue, currentTrack } = usePlayer();
+  const { playQueue, likedTracks, recentlyPlayed, currentTrack, isPlaying } = usePlayer();
 
-  const handleOpenPlaylist = async (playlist: PlaylistCategory) => {
-    const songs = await searchSongs(playlist.query, 0, 20);
-    if (songs.length > 0) {
-      await playQueue(songs, 0);
+  const handlePlayLiked = async () => {
+    if (likedTracks.length > 0) {
+      await playQueue(likedTracks, 0);
+      router.push("/player");
+    }
+  };
+
+  const handlePlayRecent = async (index: number) => {
+    if (recentlyPlayed.length > 0) {
+      await playQueue(recentlyPlayed, index);
       router.push("/player");
     }
   };
@@ -89,8 +56,8 @@ export default function LibraryScreen() {
 
       {/* Liked Songs Featured Banner */}
       <Pressable
-        onPress={() => handleOpenPlaylist(FEATURED_PLAYLISTS[0])}
-        className="w-full h-32 rounded-3xl p-5 mb-8 flex-row items-center justify-between overflow-hidden active:opacity-90 shadow-lg"
+        onPress={handlePlayLiked}
+        className="w-full rounded-3xl p-5 mb-8 flex-row items-center justify-between overflow-hidden active:opacity-90 shadow-lg"
         style={{
           backgroundColor: "#4C1D95",
           borderWidth: 1,
@@ -106,55 +73,88 @@ export default function LibraryScreen() {
             Liked Songs
           </AppText>
           <AppText variant="caption" className="text-xs text-purple-200 font-medium">
-            Tap to stream your favorite tracks
+            {likedTracks.length > 0
+              ? `${likedTracks.length} saved ${likedTracks.length === 1 ? "track" : "tracks"}`
+              : "No liked songs yet • Save songs you love and they'll appear here."}
           </AppText>
         </View>
 
-        <View className="w-12 h-12 rounded-full items-center justify-center bg-white/10">
-          <Icon name="play" size={26} color="#FFFFFF" />
-        </View>
+        {likedTracks.length > 0 && (
+          <View className="w-12 h-12 rounded-full items-center justify-center bg-white/10">
+            <Icon name="play" size={26} color="#FFFFFF" />
+          </View>
+        )}
       </Pressable>
 
-      {/* Playlists Section */}
+      {/* Recently Played Section (Max 10) */}
       <View className="mb-8">
-        <AppText variant="sectionTitle" className="text-lg font-bold mb-4">
-          Curated Playlists 🎵
+        <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+          Recently Played 🕒
         </AppText>
 
-        <View className="gap-y-3">
-          {FEATURED_PLAYLISTS.map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => handleOpenPlaylist(item)}
-              className="flex-row items-center p-3 rounded-2xl active:bg-white/5"
-              style={{
-                backgroundColor: theme.surfaceElevated,
-                borderWidth: 0.5,
-                borderColor: theme.border,
-              }}
-            >
-              <View
-                className={`w-14 h-14 rounded-xl items-center justify-center mr-4 ${item.gradientBg}`}
+        {recentlyPlayed.length > 0 ? (
+          recentlyPlayed.slice(0, 10).map((item, idx) => {
+            const isCurrent = currentTrack?.id === item.id;
+            return (
+              <Pressable
+                key={`${item.id}-${idx}`}
+                onPress={() => handlePlayRecent(idx)}
+                className="flex-row items-center py-2 px-1 rounded-xl mb-1 active:bg-white/5"
               >
-                <Icon name={item.iconName} size={24} color="#FFFFFF" />
-              </View>
+                <View className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 bg-zinc-800">
+                  <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
+                  {isCurrent && (
+                    <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                      <Icon
+                        name={isPlaying ? "pause" : "play"}
+                        size={16}
+                        color="#FFFFFF"
+                      />
+                    </View>
+                  )}
+                </View>
 
-              <View className="flex-1">
-                <AppText variant="songTitle" className="text-base font-semibold mb-0.5">
-                  {item.title}
-                </AppText>
-                <AppText
-                  variant="caption"
-                  className="text-xs text-zinc-400 font-medium"
-                >
-                  Playlist • {item.subtitle}
-                </AppText>
-              </View>
+                <View className="flex-1 mr-2">
+                  <AppText
+                    variant="songTitle"
+                    className={`text-sm font-semibold mb-0.5 ${
+                      isCurrent ? "text-purple-400 font-bold" : ""
+                    }`}
+                    numberOfLines={1}
+                  >
+                    {item.title}
+                  </AppText>
+                  <AppText
+                    variant="artist"
+                    className="text-xs text-zinc-400 font-medium"
+                    numberOfLines={1}
+                  >
+                    {item.artist}
+                  </AppText>
+                </View>
 
-              <Icon name="skip-forward" size={20} color={theme.textMuted} />
-            </Pressable>
-          ))}
-        </View>
+                {item.duration > 0 && (
+                  <AppText
+                    variant="caption"
+                    className="text-xs text-zinc-400 font-medium"
+                  >
+                    {formatDuration(item.duration)}
+                  </AppText>
+                )}
+              </Pressable>
+            );
+          })
+        ) : (
+          <View className="py-10 items-center px-4 rounded-2xl bg-white/5 border border-white/5">
+            <Icon name="clock" size={32} color={theme.textMuted} />
+            <AppText variant="songTitle" className="text-sm font-bold text-center mt-2.5 mb-0.5">
+              Nothing played yet
+            </AppText>
+            <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center">
+              Start listening and your history will appear here.
+            </AppText>
+          </View>
+        )}
       </View>
     </Screen>
   );

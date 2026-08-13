@@ -1,22 +1,31 @@
 import React from "react";
+import { ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { usePlayer } from "@/context/PlayerContext";
 import { useTheme } from "@/hooks/useTheme";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
+import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { View, Pressable } from "@/tw";
-import { Image } from "@/tw/image";
 
 export const MiniPlayer: React.FC = () => {
   const router = useRouter();
   const theme = useTheme();
-  const { currentTrack, isPlaying, position, duration, togglePlayPause, skipToNext } =
-    usePlayer();
+  const {
+    currentTrack,
+    playbackState,
+    isPlaying,
+    position,
+    duration,
+    togglePlayPause,
+    skipToNext,
+  } = usePlayer();
 
   if (!currentTrack) {
     return null;
   }
 
+  const isBuffering = playbackState === "buffering" || playbackState === "loading";
   const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (position / duration) * 100)) : 0;
 
   return (
@@ -34,9 +43,7 @@ export const MiniPlayer: React.FC = () => {
       accessibilityLabel={`Now playing ${currentTrack.title}. Tap to expand.`}
     >
       {/* Top Mini Progress Bar */}
-      <View
-        className="absolute top-0 left-0 right-0 h-[2.5px] bg-white/10"
-      >
+      <View className="absolute top-0 left-0 right-0 h-[2.5px] bg-white/10">
         <View
           className="h-full rounded-r"
           style={{
@@ -48,11 +55,11 @@ export const MiniPlayer: React.FC = () => {
 
       {/* Album Artwork */}
       <View className="w-11 h-11 rounded-xl overflow-hidden bg-zinc-800 mr-3 items-center justify-center">
-        {currentTrack.artwork ? (
-          <Image source={{ uri: currentTrack.artwork }} className="w-full h-full" />
-        ) : (
-          <Icon name="music" size={20} color={theme.primary} />
-        )}
+        <ArtworkImage
+          uri={currentTrack.artwork}
+          iconSize={20}
+          className="w-full h-full"
+        />
       </View>
 
       {/* Title & Artist Info */}
@@ -84,11 +91,15 @@ export const MiniPlayer: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? "Pause" : "Play"}
         >
-          <Icon
-            name={isPlaying ? "pause" : "play"}
-            size={24}
-            color={theme.textPrimary}
-          />
+          {isBuffering ? (
+            <ActivityIndicator size="small" color={theme.textPrimary} />
+          ) : (
+            <Icon
+              name={isPlaying ? "pause" : "play"}
+              size={24}
+              color={theme.textPrimary}
+            />
+          )}
         </Pressable>
 
         <Pressable

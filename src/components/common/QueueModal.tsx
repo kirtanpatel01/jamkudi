@@ -4,8 +4,8 @@ import { usePlayer } from "@/context/PlayerContext";
 import { useTheme } from "@/hooks/useTheme";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
+import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { View, Pressable } from "@/tw";
-import { Image } from "@/tw/image";
 
 interface QueueModalProps {
   visible: boolean;
@@ -21,7 +21,15 @@ function formatDuration(seconds: number): string {
 
 export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
   const theme = useTheme();
-  const { queue, currentIndex, currentTrack, isPlaying, playQueue } = usePlayer();
+  const {
+    queue,
+    currentIndex,
+    currentTrack,
+    isPlaying,
+    playQueue,
+    removeFromQueue,
+    clearQueue,
+  } = usePlayer();
 
   return (
     <Modal
@@ -47,13 +55,24 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
             </AppText>
           </View>
 
-          <Pressable
-            onPress={onClose}
-            hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full active:bg-white/10"
-          >
-            <Icon name="chevron-down" size={26} color={theme.textPrimary} />
-          </Pressable>
+          <View className="flex-row items-center gap-x-3">
+            {queue.length > 0 && (
+              <Pressable
+                onPress={clearQueue}
+                className="px-3 py-1.5 rounded-full bg-white/5 active:bg-white/10 border border-white/10"
+              >
+                <AppText className="text-xs text-rose-400 font-bold">Clear</AppText>
+              </Pressable>
+            )}
+
+            <Pressable
+              onPress={onClose}
+              hitSlop={12}
+              className="w-10 h-10 items-center justify-center rounded-full active:bg-white/10"
+            >
+              <Icon name="chevron-down" size={26} color={theme.textPrimary} />
+            </Pressable>
+          </View>
         </View>
 
         {/* Queue List */}
@@ -73,74 +92,85 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
           renderItem={({ item, index }) => {
             const isCurrent = currentTrack?.id === item.id && index === currentIndex;
             return (
-              <Pressable
-                onPress={() => {
-                  playQueue(queue, index);
-                  onClose();
-                }}
-                className={`flex-row items-center py-3 px-3 rounded-xl mb-1.5 active:bg-white/10 ${
-                  isCurrent ? "bg-purple-900/30 border border-purple-500/30" : ""
-                }`}
-              >
-                {/* Index / Playing Indicator */}
-                <View className="w-8 items-center justify-center mr-2">
-                  {isCurrent ? (
-                    <Icon
-                      name={isPlaying ? "pause" : "play"}
-                      size={18}
-                      color={theme.primary}
+              <View className="flex-row items-center mb-1.5">
+                <Pressable
+                  onPress={() => {
+                    playQueue(queue, index);
+                    onClose();
+                  }}
+                  className={`flex-1 flex-row items-center py-2.5 px-3 rounded-xl active:bg-white/10 ${
+                    isCurrent ? "bg-purple-900/30 border border-purple-500/30" : ""
+                  }`}
+                >
+                  {/* Index / Playing Indicator */}
+                  <View className="w-7 items-center justify-center mr-2">
+                    {isCurrent ? (
+                      <Icon
+                        name={isPlaying ? "pause" : "play"}
+                        size={18}
+                        color={theme.primary}
+                      />
+                    ) : (
+                      <AppText
+                        variant="caption"
+                        className="text-xs text-zinc-400 font-bold"
+                      >
+                        {index + 1}
+                      </AppText>
+                    )}
+                  </View>
+
+                  {/* Track Artwork */}
+                  <View className="relative w-11 h-11 rounded-lg overflow-hidden mr-3 bg-zinc-800">
+                    <ArtworkImage
+                      uri={item.artwork}
+                      iconSize={18}
+                      className="w-full h-full"
                     />
-                  ) : (
+                  </View>
+
+                  {/* Info */}
+                  <View className="flex-1 mr-2">
+                    <AppText
+                      variant="songTitle"
+                      className={`text-sm font-semibold mb-0.5 ${
+                        isCurrent ? "text-purple-400 font-bold" : ""
+                      }`}
+                      numberOfLines={1}
+                    >
+                      {item.title}
+                    </AppText>
+                    <AppText
+                      variant="artist"
+                      className="text-xs text-zinc-400 font-medium"
+                      numberOfLines={1}
+                    >
+                      {item.artist}
+                    </AppText>
+                  </View>
+
+                  {/* Duration */}
+                  {item.duration > 0 && (
                     <AppText
                       variant="caption"
-                      className="text-xs text-zinc-400 font-bold"
+                      className="text-xs text-zinc-400 font-medium mr-2"
                     >
-                      {index + 1}
+                      {formatDuration(item.duration)}
                     </AppText>
                   )}
-                </View>
+                </Pressable>
 
-                {/* Track Artwork */}
-                <View className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 bg-zinc-800">
-                  {item.artwork ? (
-                    <Image source={{ uri: item.artwork }} className="w-full h-full" />
-                  ) : (
-                    <View className="w-full h-full items-center justify-center bg-purple-900/50">
-                      <Icon name="music" size={18} color={theme.primary} />
-                    </View>
-                  )}
-                </View>
-
-                {/* Info */}
-                <View className="flex-1 mr-2">
-                  <AppText
-                    variant="songTitle"
-                    className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-400 font-bold" : ""
-                    }`}
-                    numberOfLines={1}
+                {/* Remove Item Button */}
+                {!isCurrent && (
+                  <Pressable
+                    onPress={() => removeFromQueue(index)}
+                    hitSlop={8}
+                    className="p-2.5 rounded-lg active:bg-white/10 ml-1"
                   >
-                    {item.title}
-                  </AppText>
-                  <AppText
-                    variant="artist"
-                    className="text-xs text-zinc-400 font-medium"
-                    numberOfLines={1}
-                  >
-                    {item.artist}
-                  </AppText>
-                </View>
-
-                {/* Duration */}
-                {item.duration > 0 && (
-                  <AppText
-                    variant="caption"
-                    className="text-xs text-zinc-400 font-medium"
-                  >
-                    {formatDuration(item.duration)}
-                  </AppText>
+                    <AppText className="text-xs text-zinc-500 font-bold">✕</AppText>
+                  </Pressable>
                 )}
-              </Pressable>
+              </View>
             );
           }}
         />

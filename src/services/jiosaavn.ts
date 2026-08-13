@@ -1,3 +1,5 @@
+import { Track } from "@/types/track";
+
 export interface JioSaavnImage {
   quality: string;
   url: string;
@@ -8,15 +10,7 @@ export interface JioSaavnDownloadUrl {
   url: string;
 }
 
-export interface JioSaavnSong {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  artwork: string;
-  url: string;
-  duration: number;
-}
+export type JioSaavnSong = Track;
 
 export interface FeaturedArtist {
   id: string;
@@ -30,31 +24,43 @@ export const FEATURED_ARTISTS: FeaturedArtist[] = [
     id: "arijit",
     name: "Arijit Singh",
     query: "Arijit Singh",
-    imageUrl: "https://c.saavncdn.com/artists/Arijit_Singh_002_20230323062147_500x500.jpg",
+    imageUrl: "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_500x500.jpg",
+  },
+  {
+    id: "rahman",
+    name: "A.R. Rahman",
+    query: "A.R. Rahman",
+    imageUrl: "https://c.saavncdn.com/artists/AR_Rahman_002_20210120084455_500x500.jpg",
+  },
+  {
+    id: "diljit",
+    name: "Diljit Dosanjh",
+    query: "Diljit Dosanjh",
+    imageUrl: "https://c.saavncdn.com/artists/Diljit_Dosanjh_005_20231025073054_500x500.jpg",
   },
   {
     id: "shreya",
     name: "Shreya Ghoshal",
     query: "Shreya Ghoshal",
-    imageUrl: "https://c.saavncdn.com/artists/Shreya_Ghoshal_003_20230323062453_500x500.jpg",
-  },
-  {
-    id: "pritam",
-    name: "Pritam",
-    query: "Pritam",
-    imageUrl: "https://c.saavncdn.com/artists/Pritam_003_20230323062332_500x500.jpg",
+    imageUrl: "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_500x500.jpg",
   },
   {
     id: "anirudh",
     name: "Anirudh Ravichander",
     query: "Anirudh Ravichander",
-    imageUrl: "https://c.saavncdn.com/artists/Anirudh_Ravichander_003_20230323062002_500x500.jpg",
+    imageUrl: "https://c.saavncdn.com/artists/Anirudh_Ravichander_003_20260121134149_500x500.jpg",
+  },
+  {
+    id: "pritam",
+    name: "Pritam",
+    query: "Pritam",
+    imageUrl: "https://c.saavncdn.com/artists/Pritam_Chakraborty-20170711073326_500x500.jpg",
   },
   {
     id: "badshah",
     name: "Badshah",
     query: "Badshah",
-    imageUrl: "https://c.saavncdn.com/artists/Badshah_005_20230323062153_500x500.jpg",
+    imageUrl: "https://c.saavncdn.com/artists/Badshah_006_20241118064015_500x500.jpg",
   },
 ];
 
@@ -70,18 +76,33 @@ function decodeHTMLEntities(str: string = ""): string {
     .replace(/&gt;/g, ">");
 }
 
-export function formatJioSaavnSong(rawSong: any): JioSaavnSong | null {
+export function mapToTrack(rawSong: any): Track | null {
   if (!rawSong || !rawSong.id) return null;
 
   // Extract best artwork (preferably 500x500)
   let artwork = "";
   if (Array.isArray(rawSong.image) && rawSong.image.length > 0) {
-    const bestImage =
-      rawSong.image.find((img: JioSaavnImage) => img.quality === "500x500") ||
-      rawSong.image[rawSong.image.length - 1];
-    artwork = bestImage?.url || "";
+    const lastImg = rawSong.image[rawSong.image.length - 1];
+    const bestImgObj =
+      rawSong.image.find((img: any) => img?.quality === "500x500") || lastImg;
+
+    if (typeof bestImgObj === "string") {
+      artwork = bestImgObj;
+    } else if (typeof bestImgObj === "object" && bestImgObj !== null) {
+      artwork = bestImgObj.url || bestImgObj.link || "";
+    }
   } else if (typeof rawSong.image === "string") {
     artwork = rawSong.image;
+  } else if (typeof rawSong.album === "object" && rawSong.album?.image) {
+    if (Array.isArray(rawSong.album.image) && rawSong.album.image.length > 0) {
+      const lastAlbumImg = rawSong.album.image[rawSong.album.image.length - 1];
+      artwork =
+        typeof lastAlbumImg === "string"
+          ? lastAlbumImg
+          : lastAlbumImg?.url || lastAlbumImg?.link || "";
+    } else if (typeof rawSong.album.image === "string") {
+      artwork = rawSong.album.image;
+    }
   }
 
   // Extract best audio URL (preferably 320kbps or 160kbps)
@@ -116,16 +137,21 @@ export function formatJioSaavnSong(rawSong: any): JioSaavnSong | null {
     album = rawSong.album;
   }
 
+  const cleanUrl = audioUrl.replace("http://", "https://");
+
   return {
     id: rawSong.id,
     title: decodeHTMLEntities(rawSong.name || rawSong.title || "Untitled"),
     artist: decodeHTMLEntities(artist),
     album: decodeHTMLEntities(album),
     artwork: artwork.replace("http://", "https://"),
-    url: audioUrl.replace("http://", "https://"),
+    audioUrl: cleanUrl,
+    url: cleanUrl,
     duration: Number(rawSong.duration) || 0,
-  };
+  } as Track;
 }
+
+export const formatJioSaavnSong = mapToTrack;
 
 export async function searchSongs(
   query: string,

@@ -4,9 +4,9 @@ import { usePlayer } from "@/context/PlayerContext";
 import { useTheme } from "@/hooks/useTheme";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
+import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { getLyrics } from "@/services/jiosaavn";
 import { View, Pressable } from "@/tw";
-import { Image } from "@/tw/image";
 
 interface LyricsModalProps {
   visible: boolean;
@@ -20,23 +20,21 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!visible || !currentTrack?.id) return;
-
-    let isMounted = true;
+  const fetchLyricsData = () => {
+    if (!currentTrack?.id) return;
     setLoading(true);
     setLyrics(null);
 
     getLyrics(currentTrack.id).then((fetchedLyrics) => {
-      if (isMounted) {
-        setLyrics(fetchedLyrics);
-        setLoading(false);
-      }
+      setLyrics(fetchedLyrics);
+      setLoading(false);
     });
+  };
 
-    return () => {
-      isMounted = false;
-    };
+  useEffect(() => {
+    if (visible && currentTrack?.id) {
+      fetchLyricsData();
+    }
   }, [visible, currentTrack?.id]);
 
   return (
@@ -54,13 +52,11 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
         <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-white/10">
           <View className="flex-row items-center flex-1 mr-4">
             <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800">
-              {currentTrack?.artwork ? (
-                <Image source={{ uri: currentTrack.artwork }} className="w-full h-full" />
-              ) : (
-                <View className="w-full h-full items-center justify-center bg-purple-900/50">
-                  <Icon name="music" size={20} color={theme.primary} />
-                </View>
-              )}
+              <ArtworkImage
+                uri={currentTrack?.artwork}
+                iconSize={20}
+                className="w-full h-full"
+              />
             </View>
 
             <View className="flex-1">
@@ -95,7 +91,7 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color={theme.primary} />
             <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
-              Fetching synchronized lyrics...
+              Loading Lyrics...
             </AppText>
           </View>
         ) : (
@@ -111,14 +107,20 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
                 {lyrics}
               </AppText>
             ) : (
-              <View className="py-24 items-center">
+              <View className="py-20 items-center">
                 <Icon name="music" size={48} color={theme.textMuted} />
                 <AppText
                   variant="body"
-                  className="mt-4 text-center text-zinc-400 font-medium px-4"
+                  className="mt-4 text-center text-zinc-400 font-medium px-4 mb-4"
                 >
-                  Lyrics are not available for this song yet.
+                  Lyrics are unavailable for this song.
                 </AppText>
+                <Pressable
+                  onPress={fetchLyricsData}
+                  className="px-5 py-2 rounded-full bg-purple-600 active:bg-purple-700 border border-purple-500"
+                >
+                  <AppText className="text-xs font-bold text-white">Retry</AppText>
+                </Pressable>
               </View>
             )}
           </ScrollView>

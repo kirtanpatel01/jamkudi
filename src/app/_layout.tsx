@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@/hooks/useTheme";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { ToastProvider } from "@/context/ToastContext";
 import {
   useFonts,
   Fredoka_400Regular,
@@ -46,25 +47,27 @@ export default function RootLayout() {
   }
 
   return (
-    <PlayerProvider>
-      <StatusBar style={theme.isDark ? "light" : "dark"} />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: {
-            backgroundColor: theme.background,
-          },
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="player"
-          options={{
-            presentation: "modal",
-            animation: "slide_from_bottom",
+    <ToastProvider>
+      <PlayerProvider>
+        <StatusBar style={theme.isDark ? "light" : "dark"} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              backgroundColor: theme.background,
+            },
           }}
-        />
-      </Stack>
-    </PlayerProvider>
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen
+            name="player"
+            options={{
+              presentation: "modal",
+              animation: "slide_from_bottom",
+            }}
+          />
+        </Stack>
+      </PlayerProvider>
+    </ToastProvider>
   );
 }
