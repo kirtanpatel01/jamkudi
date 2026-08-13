@@ -1,15 +1,51 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import health from './routes/health.js'
 
 const app = new Hono()
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
+// Global error handling
+app.onError((err, c) => {
+  console.error(`[Error] ${err.message}`, err)
+  return c.json(
+    {
+      error: 'Internal Server Error',
+      message: err.message
+    },
+    500
+  )
 })
 
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
+// 404 Not Found handler
+app.notFound((c) => {
+  return c.json(
+    {
+      error: 'Not Found',
+      path: c.req.path
+    },
+    404
+  )
 })
+
+// Base status route
+app.get('/', (c) => {
+  return c.json({
+    name: 'Jamkudi Backend API',
+    status: 'ok'
+  })
+})
+
+// Mount health route
+app.route('/health', health)
+
+const port = Number(process.env.PORT) || 3000
+
+serve(
+  {
+    fetch: app.fetch,
+    port
+  },
+  (info) => {
+    console.log(`Server is running on http://localhost:${info.port}`)
+  }
+)
