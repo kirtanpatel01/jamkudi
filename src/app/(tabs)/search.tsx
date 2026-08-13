@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
@@ -9,6 +9,8 @@ import { usePlayer } from "@/context/PlayerContext";
 import { JioSaavnSong, searchSongs } from "@/services/jiosaavn";
 import { View, TextInput, Pressable } from "@/tw";
 import { Image } from "@/tw/image";
+
+const CATEGORIES = ["Trending", "Bollywood", "Punjabi", "Romantic", "Pop", "Lo-Fi", "Dance"];
 
 function formatDuration(seconds: number): string {
   if (!seconds || isNaN(seconds)) return "";
@@ -20,26 +22,32 @@ function formatDuration(seconds: number): string {
 export default function SearchScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const { playTrack, playQueue, currentTrack, isPlaying } = usePlayer();
+  const { playQueue, currentTrack, isPlaying } = usePlayer();
 
   const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Trending");
   const [results, setResults] = useState<JioSaavnSong[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Load default trending songs on mount
+  // Load default category songs on mount or category change
   useEffect(() => {
+    if (query.trim()) return;
+
     let isMounted = true;
     setLoading(true);
-    searchSongs("Arijit Singh", 0, 15).then((data) => {
+    const searchTerm = activeCategory === "Trending" ? "Top Hits" : `${activeCategory} Songs`;
+
+    searchSongs(searchTerm, 0, 20).then((data) => {
       if (isMounted) {
         setResults(data);
         setLoading(false);
       }
     });
+
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [activeCategory]);
 
   // Debounced search
   useEffect(() => {
@@ -61,6 +69,11 @@ export default function SearchScreen() {
     router.push("/player");
   };
 
+  const handleSelectCategory = (cat: string) => {
+    setActiveCategory(cat);
+    setQuery("");
+  };
+
   return (
     <Screen>
       <AppText variant="screenTitle" className="mb-4">
@@ -69,7 +82,7 @@ export default function SearchScreen() {
 
       {/* Search Input Box */}
       <View
-        className="flex-row items-center px-4 h-12 rounded-xl border mb-5"
+        className="flex-row items-center px-4 h-12 rounded-xl border mb-4"
         style={{
           backgroundColor: theme.surfaceElevated,
           borderColor: theme.border,
@@ -98,12 +111,46 @@ export default function SearchScreen() {
         )}
       </View>
 
-      {/* Loading Indicator or Header */}
+      {/* Category Pills Bar */}
+      {!query.trim() && (
+        <View className="mb-5">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="gap-x-2"
+          >
+            {CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <Pressable
+                  key={cat}
+                  onPress={() => handleSelectCategory(cat)}
+                  className={`px-4 py-2 rounded-full border ${
+                    isActive
+                      ? "bg-purple-600 border-purple-500"
+                      : "bg-white/5 border-white/10"
+                  } active:opacity-80`}
+                >
+                  <AppText
+                    className={`text-xs font-semibold ${
+                      isActive ? "text-white font-bold" : "text-zinc-300"
+                    }`}
+                  >
+                    {cat}
+                  </AppText>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Loading Indicator or Results */}
       {loading ? (
         <View className="py-12 items-center justify-center">
           <ActivityIndicator size="large" color={theme.primary} />
           <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
-            Fetching tracks from JioSaavn...
+            Fetching tracks...
           </AppText>
         </View>
       ) : (
@@ -117,7 +164,7 @@ export default function SearchScreen() {
               variant="caption"
               className="mb-3 uppercase tracking-wider text-[11px] text-zinc-400 font-bold"
             >
-              {query.trim() ? "Search Results" : "Trending Songs"}
+              {query.trim() ? "Search Results" : `${activeCategory} Hits`}
             </AppText>
           }
           ListEmptyComponent={

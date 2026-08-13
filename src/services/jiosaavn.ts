@@ -18,6 +18,46 @@ export interface JioSaavnSong {
   duration: number;
 }
 
+export interface FeaturedArtist {
+  id: string;
+  name: string;
+  query: string;
+  imageUrl: string;
+}
+
+export const FEATURED_ARTISTS: FeaturedArtist[] = [
+  {
+    id: "arijit",
+    name: "Arijit Singh",
+    query: "Arijit Singh",
+    imageUrl: "https://c.saavncdn.com/artists/Arijit_Singh_002_20230323062147_500x500.jpg",
+  },
+  {
+    id: "shreya",
+    name: "Shreya Ghoshal",
+    query: "Shreya Ghoshal",
+    imageUrl: "https://c.saavncdn.com/artists/Shreya_Ghoshal_003_20230323062453_500x500.jpg",
+  },
+  {
+    id: "pritam",
+    name: "Pritam",
+    query: "Pritam",
+    imageUrl: "https://c.saavncdn.com/artists/Pritam_003_20230323062332_500x500.jpg",
+  },
+  {
+    id: "anirudh",
+    name: "Anirudh Ravichander",
+    query: "Anirudh Ravichander",
+    imageUrl: "https://c.saavncdn.com/artists/Anirudh_Ravichander_003_20230323062002_500x500.jpg",
+  },
+  {
+    id: "badshah",
+    name: "Badshah",
+    query: "Badshah",
+    imageUrl: "https://c.saavncdn.com/artists/Badshah_005_20230323062153_500x500.jpg",
+  },
+];
+
 const BASE_URL = "https://saavn.sumit.co/api";
 const FALLBACK_URL = "https://saavn.dev/api";
 
@@ -116,6 +156,35 @@ export async function searchSongs(
     } catch (fallbackErr) {
       console.error("JioSaavn API fetch failed:", fallbackErr);
       return [];
+    }
+  }
+}
+
+export async function getTrendingFeed(): Promise<JioSaavnSong[]> {
+  return searchSongs("Top Hits 2026", 0, 15);
+}
+
+export async function getLyrics(songId: string): Promise<string | null> {
+  if (!songId) return null;
+
+  const tryFetch = async (baseUrl: string) => {
+    const res = await fetch(`${baseUrl}/songs/${songId}/lyrics`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const json = await res.json();
+    const rawLyrics = json?.data?.lyrics || json?.data?.snippet;
+    if (typeof rawLyrics === "string" && rawLyrics.trim()) {
+      return decodeHTMLEntities(rawLyrics.replace(/<br\s*\/?>/gi, "\n"));
+    }
+    return null;
+  };
+
+  try {
+    return await tryFetch(BASE_URL);
+  } catch {
+    try {
+      return await tryFetch(FALLBACK_URL);
+    } catch {
+      return null;
     }
   }
 }
