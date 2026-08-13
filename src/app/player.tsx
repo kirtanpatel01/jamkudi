@@ -24,8 +24,16 @@ function formatTime(seconds: number): string {
 export default function PlayerScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const { currentTrack, isPlaying, position, duration, togglePlayPause, seekTo } =
-    usePlayer();
+  const {
+    currentTrack,
+    isPlaying,
+    position,
+    duration,
+    togglePlayPause,
+    seekTo,
+    skipToNext,
+    skipToPrevious,
+  } = usePlayer();
 
   const [isSliding, setIsSliding] = useState(false);
   const [slidePosition, setSlidePosition] = useState(0);
@@ -166,7 +174,7 @@ export default function PlayerScreen() {
           name="skip-back"
           size={28}
           color={theme.textPrimary}
-          onPress={() => {}}
+          onPress={skipToPrevious}
           accessibilityLabel="Previous Song"
         />
 
@@ -188,7 +196,7 @@ export default function PlayerScreen() {
           name="skip-forward"
           size={28}
           color={theme.textPrimary}
-          onPress={() => {}}
+          onPress={skipToNext}
           accessibilityLabel="Next Song"
         />
 

@@ -20,7 +20,7 @@ function formatDuration(seconds: number): string {
 export default function SearchScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const { playTrack, currentTrack, isPlaying } = usePlayer();
+  const { playTrack, playQueue, currentTrack, isPlaying } = usePlayer();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<JioSaavnSong[]>([]);
@@ -56,8 +56,8 @@ export default function SearchScreen() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleSelectSong = async (song: JioSaavnSong) => {
-    await playTrack(song);
+  const handleSelectSong = async (song: JioSaavnSong, index: number) => {
+    await playQueue(results, index);
     router.push("/player");
   };
 
@@ -127,11 +127,11 @@ export default function SearchScreen() {
               </AppText>
             </View>
           }
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const isCurrent = currentTrack?.id === item.id;
             return (
               <Pressable
-                onPress={() => handleSelectSong(item)}
+                onPress={() => handleSelectSong(item, index)}
                 className="flex-row items-center py-2.5 px-1 rounded-xl mb-1 active:bg-white/5"
               >
                 <View className="relative w-14 h-14 rounded-lg overflow-hidden mr-3.5 bg-zinc-800">

@@ -13,7 +13,13 @@ interface PlayerContextType {
   position: number;
   duration: number;
   isInitialized: boolean;
+  queue: JioSaavnSong[];
+  currentIndex: number;
   playTrack: (song: JioSaavnSong) => Promise<void>;
+  playQueue: (songs: JioSaavnSong[], startIndex?: number) => Promise<void>;
+  addToQueue: (song: JioSaavnSong) => void;
+  skipToNext: () => Promise<void>;
+  skipToPrevious: () => Promise<void>;
   togglePlayPause: () => Promise<void>;
   seekTo: (seconds: number) => Promise<void>;
 }
@@ -28,15 +34,27 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [queue, setQueue] = useState<JioSaavnSong[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
   const playerRef = useRef<AudioPlayer | null>(null);
   const intervalRef = useRef<any>(null);
+  const queueRef = useRef<JioSaavnSong[]>([]);
+  const currentIndexRef = useRef<number>(-1);
+  const isChangingTrackRef = useRef(false);
+
+  // Synchronize refs for interval closures
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
 
   useEffect(() => {
-    // Request notification permission for Android lock screen & notification shade controls
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
     requestNotificationPermissionsAsync().catch(() => {});
 
-    // Set audio mode for background playback & lock screen controls
     setAudioModeAsync({
       playsInSilentMode: true,
       shouldPlayInBackground: true,
@@ -47,7 +65,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
 
     intervalRef.current = setInterval(() => {
       const player = playerRef.current;
-      if (player) {
+      if (player && !isChangingTrackRef.current) {
         try {
           if (typeof player.playing === "boolean") {
             setIsPlaying(player.playing);
@@ -57,6 +75,27 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
           }
           if (typeof player.duration === "number" && !isNaN(player.duration) && player.duration > 0) {
             setDuration(player.duration);
+
+            // Auto-next track detection when song finishes
+            if (
+              player.currentTime > 0 &&
+              player.duration > 0 &&
+              player.currentTime >= player.duration - 0.8
+            ) {
+              const q = queueRef.current;
+              const idx = currentIndexRef.current;
+              if (q.length > 0 && idx < q.length - 1) {
+                isChangingTrackRef.current = true;
+                const nextIdx = idx + 1;
+                setCurrentIndex(nextIdx);
+                const nextSong = q[nextIdx];
+                playTrackInternal(nextSong).finally(() => {
+                  setTimeout(() => {
+                    isChangingTrackRef.current = false;
+                  }, 1000);
+                });
+              }
+            }
           }
         } catch {}
       }
@@ -72,7 +111,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const playTrack = async (song: JioSaavnSong) => {
+  const playTrackInternal = async (song: JioSaavnSong) => {
     try {
       if (playerRef.current) {
         try {
@@ -88,7 +127,6 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
       const player = createAudioPlayer(song.url);
       playerRef.current = player;
 
-      // Enable lock screen & notification drawer controls with metadata
       try {
         player.setActiveForLockScreen(true, {
           title: song.title,
@@ -97,13 +135,58 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
           artworkUrl: song.artwork,
         });
       } catch (lockErr) {
-        console.log("Lock screen controls initialization notice:", lockErr);
+        console.log("Lock screen controls notice:", lockErr);
       }
 
       player.play();
       setIsPlaying(true);
     } catch (error) {
-      console.error("Error creating audio player:", error);
+      console.error("Error playing track:", error);
+    }
+  };
+
+  const playTrack = async (song: JioSaavnSong) => {
+    setQueue([song]);
+    setCurrentIndex(0);
+    await playTrackInternal(song);
+  };
+
+  const playQueue = async (songs: JioSaavnSong[], startIndex: number = 0) => {
+    if (!songs || songs.length === 0) return;
+    setQueue(songs);
+    const validIndex = Math.max(0, Math.min(startIndex, songs.length - 1));
+    setCurrentIndex(validIndex);
+    await playTrackInternal(songs[validIndex]);
+  };
+
+  const addToQueue = (song: JioSaavnSong) => {
+    setQueue((prev) => [...prev, song]);
+  };
+
+  const skipToNext = async () => {
+    const q = queueRef.current;
+    const idx = currentIndexRef.current;
+    if (q.length > 0 && idx < q.length - 1) {
+      const nextIdx = idx + 1;
+      setCurrentIndex(nextIdx);
+      await playTrackInternal(q[nextIdx]);
+    }
+  };
+
+  const skipToPrevious = async () => {
+    const q = queueRef.current;
+    const idx = currentIndexRef.current;
+
+    // If more than 3 seconds into the song, restart current song
+    if (position > 3 && playerRef.current) {
+      await seekTo(0);
+      return;
+    }
+
+    if (q.length > 0 && idx > 0) {
+      const prevIdx = idx - 1;
+      setCurrentIndex(prevIdx);
+      await playTrackInternal(q[prevIdx]);
     }
   };
 
@@ -140,7 +223,13 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
         position,
         duration: duration || currentTrack?.duration || 0,
         isInitialized,
+        queue,
+        currentIndex,
         playTrack,
+        playQueue,
+        addToQueue,
+        skipToNext,
+        skipToPrevious,
         togglePlayPause,
         seekTo,
       }}
