@@ -18,7 +18,10 @@ export type IconName =
   | "devices"
   | "heart"
   | "heart-filled"
-  | "music";
+  | "music"
+  | "chevron-down"
+  | "skip-back"
+  | "skip-forward";
 
 export interface IconProps {
   name: IconName;
@@ -49,6 +52,9 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   heart: { outline: "favorite-border", filled: "favorite" },
   "heart-filled": { outline: "favorite", filled: "favorite" },
   music: { outline: "music-note", filled: "music-note" },
+  "chevron-down": { outline: "keyboard-arrow-down", filled: "keyboard-arrow-down" },
+  "skip-back": { outline: "skip-previous", filled: "skip-previous" },
+  "skip-forward": { outline: "skip-next", filled: "skip-next" },
 };
 
 export const Icon: React.FC<IconProps> = ({

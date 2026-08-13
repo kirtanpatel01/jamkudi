@@ -2,6 +2,7 @@ import "../global.css";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@/hooks/useTheme";
+import { PlayerProvider } from "@/context/PlayerContext";
 import {
   useFonts,
   Fredoka_400Regular,
@@ -45,7 +46,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <PlayerProvider>
       <StatusBar style={theme.isDark ? "light" : "dark"} />
       <Stack
         screenOptions={{
@@ -54,7 +55,16 @@ export default function RootLayout() {
             backgroundColor: theme.background,
           },
         }}
-      />
-    </>
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="player"
+          options={{
+            presentation: "modal",
+            animation: "slide_from_bottom",
+          }}
+        />
+      </Stack>
+    </PlayerProvider>
   );
 }

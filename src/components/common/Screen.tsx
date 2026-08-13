@@ -25,6 +25,7 @@ export interface ScreenProps {
   paddingHorizontal?: number;
   unsafeTop?: boolean;
   unsafeBottom?: boolean;
+  className?: string;
 }
 
 export const Screen: React.FC<ScreenProps> = ({

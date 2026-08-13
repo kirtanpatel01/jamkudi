@@ -8,7 +8,12 @@
     "scheme": "Jamkudi",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/icon.jpg"
+      "icon": "./assets/images/icon.jpg",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -16,7 +21,12 @@
         "foregroundImage": "./assets/images/icon.jpg"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.kjpatel.jamkudi"
+      "package": "com.kjpatel.jamkudi",
+      "permissions": [
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.WAKE_LOCK"
+      ]
     },
     "web": {
       "output": "static",
@@ -30,6 +40,12 @@
           "backgroundColor": "#16131F",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 120
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true
         }
       ]
     ],
