@@ -22,8 +22,9 @@ export const MiniPlayer: React.FC = () => {
     skipToNext,
   } = usePlayer();
 
-  // Hide MiniPlayer on full-screen player modal or when no track is selected
-  if (!currentTrack || pathname === "/player") {
+  // Hide MiniPlayer on full-screen player modal, auth/onboarding screens, or when no track is selected
+  const isAuthScreen = pathname.includes("(auth)") || pathname.includes("login") || pathname.includes("signup") || pathname.includes("onboarding");
+  if (!currentTrack || pathname === "/player" || isAuthScreen) {
     return null;
   }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, ViewStyle, StyleProp } from "react-native";
+import { ActivityIndicator, View, ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { Icon, IconName } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
@@ -40,7 +40,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
   const getBackgroundColor = (pressed: boolean) => {
     if (variant === "primary") {
-      if (disabled) return "#6D28D9";
+      if (disabled) return "rgba(139, 92, 246, 0.2)";
       return pressed ? "#7C3AED" : "#8B5CF6";
     }
     if (disabled) return theme.surface;
@@ -55,7 +55,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
   };
 
   const getTextColor = () => {
-    if (variant === "primary") return "#FFFFFF";
+    if (variant === "primary") return disabled ? "rgba(255, 255, 255, 0.45)" : "#FFFFFF";
     if (disabled) return theme.textMuted;
 
     switch (variant) {
@@ -82,17 +82,30 @@ export const AppButton: React.FC<AppButtonProps> = ({
         {
           height,
           backgroundColor: getBackgroundColor(pressed),
-          borderColor: variant === "outline" ? theme.border : "transparent",
-          borderWidth: variant === "outline" ? 1.5 : 0,
+          borderColor:
+            variant === "outline"
+              ? theme.border
+              : variant === "primary" && disabled
+              ? "rgba(168, 85, 247, 0.25)"
+              : "transparent",
+          borderWidth: variant === "outline" || (variant === "primary" && disabled) ? 1.5 : 0,
           borderRadius: BorderRadius.lg,
           paddingHorizontal: size === "sm" ? Spacing.md : Spacing.xl,
-          opacity: disabled ? 0.8 : 1,
         },
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator size="small" color={iconColor} />
+        <View className="flex-row items-center justify-center">
+          <ActivityIndicator size="small" color={iconColor} style={{ marginRight: 8 }} />
+          <AppText
+            variant="button"
+            className="text-base font-bold text-center"
+            style={{ color: iconColor }}
+          >
+            {title}
+          </AppText>
+        </View>
       ) : (
         <>
           {leftIcon && (

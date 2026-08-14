@@ -1,6 +1,25 @@
 import { supabase } from '@/lib/supabase';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+const getApiBaseUrl = (): string => {
+  let url = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+  if (url.includes('localhost') || url.includes('127.0.0.1')) {
+    const hostUri = Constants.expoConfig?.hostUri || (Constants as any).manifest2?.extra?.expoGo?.debuggerHost;
+    if (hostUri) {
+      const hostIp = hostUri.split(':')[0];
+      if (hostIp && hostIp !== 'localhost' && hostIp !== '127.0.0.1') {
+        return `http://${hostIp}:3000`;
+      }
+    }
+    if (Platform.OS === 'android') {
+      return 'http://10.0.2.2:3000';
+    }
+  }
+  return url;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface UserProfile {
   id: string;
@@ -8,6 +27,9 @@ export interface UserProfile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  favorite_genres?: string[];
+  favorite_artists?: string[];
+  onboarding_completed?: boolean;
 }
 
 export interface AuthMeResponse {

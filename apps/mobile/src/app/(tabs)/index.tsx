@@ -10,6 +10,7 @@ import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import {
   JioSaavnSong,
   searchSongs,
@@ -54,6 +55,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const { playQueue, currentTrack, isPlaying, recentlyPlayed } = usePlayer();
+  const { user, profile } = useAuth();
 
   const [popularSongs, setPopularSongs] = useState<JioSaavnSong[]>([]);
   const [discoverySongs, setDiscoverySongs] = useState<JioSaavnSong[]>([]);
@@ -61,6 +63,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [vibeLoading, setVibeLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [reminderDismissed, setReminderDismissed] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -185,6 +188,39 @@ export default function HomeScreen() {
           </View>
         ) : (
           <View>
+            {/* Gentle Profile Completion Reminder Card */}
+            {user && profile && !profile.onboarding_completed && !reminderDismissed && (
+              <View className="mb-6 p-4 rounded-2xl bg-purple-950/40 border border-purple-500/30 flex-row items-center justify-between">
+                <View className="flex-1 mr-3">
+                  <AppText variant="songTitle" className="text-sm font-bold mb-0.5 text-white">
+                    Make Jamkudi more personal
+                  </AppText>
+                  <AppText variant="caption" className="text-xs text-zinc-400 font-medium leading-4">
+                    Tell us what you listen to and we'll improve your recommendations.
+                  </AppText>
+                </View>
+
+                <View className="flex-row items-center gap-x-2">
+                  <Pressable
+                    onPress={() => router.push('/(auth)/onboarding')}
+                    className="px-3 py-1.5 rounded-full bg-purple-600 active:bg-purple-500"
+                  >
+                    <AppText className="text-xs font-bold text-white">
+                      Complete
+                    </AppText>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => setReminderDismissed(true)}
+                    hitSlop={8}
+                    className="p-1 rounded-full active:bg-white/10"
+                  >
+                    <Icon name="x" size={18} color={theme.textSecondary} />
+                  </Pressable>
+                </View>
+              </View>
+            )}
+
             {/* 1. Set the Vibe ✨ (Jamkudi Identity First) */}
             <View className="mb-7 p-4 rounded-3xl bg-purple-950/25 border border-purple-500/20 shadow-md">
               <View className="flex-row items-center justify-between mb-1">

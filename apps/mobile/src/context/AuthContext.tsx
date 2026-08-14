@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { fetchAuthMe, UserProfile } from '@/services/apiClient';
+import { fetchAuthMe, updateProfile as updateProfileApi, UserProfile } from '@/services/apiClient';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +20,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfileData: (updates: Partial<UserProfile>) => Promise<void>;
   clearError: () => void;
 }
 
@@ -40,17 +41,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setProfile(res.profile);
     } catch (err: any) {
       console.warn('Backend profile fetch notice:', err.message);
-      // Fallback profile if backend server is unreachable
-      setProfile({
-        id: activeUser.id,
-        username: activeUser.email?.split('@')[0] || activeUser.id.slice(0, 8),
-        display_name:
-          activeUser.user_metadata?.full_name ||
-          activeUser.email?.split('@')[0] ||
-          'User',
-        avatar_url: activeUser.user_metadata?.avatar_url || null,
-        bio: null,
-      });
+      // Fallback profile from Supabase directly or default
+      const { data: dbProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', activeUser.id)
+        .maybeSingle();
+
+      if (dbProfile) {
+        setProfile(dbProfile as UserProfile);
+      } else {
+        setProfile({
+          id: activeUser.id,
+          username: activeUser.email?.split('@')[0] || activeUser.id.slice(0, 8),
+          display_name:
+            activeUser.user_metadata?.full_name ||
+            activeUser.email?.split('@')[0] ||
+            'User',
+          avatar_url: activeUser.user_metadata?.avatar_url || null,
+          bio: null,
+          favorite_genres: [],
+          favorite_artists: [],
+          onboarding_completed: false,
+        });
+      }
     }
   }, []);
 
@@ -59,6 +73,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await loadBackendProfile(user);
     }
   }, [user, loadBackendProfile]);
+
+  const updateProfileData = async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+    try {
+      let updatedProfile: UserProfile | null = null;
+      try {
+        const res = await updateProfileApi(updates);
+        updatedProfile = res.profile;
+      } catch (err: any) {
+        console.warn('Backend API update failed, falling back to direct Supabase client:', err.message);
+        const { data, error: dbErr } = await supabase
+          .from('profiles')
+          .upsert({ id: user.id, ...updates, updated_at: new Date().toISOString() })
+          .select('*')
+          .single();
+
+        if (!dbErr && data) {
+          updatedProfile = data as UserProfile;
+        }
+      }
+
+      setProfile((prev) => (prev ? { ...prev, ...updates, ...(updatedProfile || {}) } : updatedProfile));
+    } catch (err: any) {
+      console.error('Failed to update profile data:', err);
+      throw err;
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -178,6 +219,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         signUp,
         signOut,
         refreshProfile,
+        updateProfileData,
         clearError,
       }}
     >

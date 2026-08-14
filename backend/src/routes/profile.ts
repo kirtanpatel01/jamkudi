@@ -42,7 +42,10 @@ profile.get('/', async (c) => {
       username: userProfile.username,
       display_name: userProfile.display_name,
       avatar_url: userProfile.avatar_url,
-      bio: userProfile.bio
+      bio: userProfile.bio,
+      favorite_genres: userProfile.favorite_genres || [],
+      favorite_artists: userProfile.favorite_artists || [],
+      onboarding_completed: userProfile.onboarding_completed ?? false
     }
   })
 })
@@ -125,7 +128,10 @@ profile.patch('/', async (c) => {
       username: updatedProfile.username,
       display_name: updatedProfile.display_name,
       avatar_url: updatedProfile.avatar_url,
-      bio: updatedProfile.bio
+      bio: updatedProfile.bio,
+      favorite_genres: updatedProfile.favorite_genres || [],
+      favorite_artists: updatedProfile.favorite_artists || [],
+      onboarding_completed: updatedProfile.onboarding_completed ?? false
     }
   })
 })

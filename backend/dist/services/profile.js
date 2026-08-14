@@ -16,7 +16,10 @@ export const updateProfileSchema = z
         .url('Avatar URL must be a valid URL')
         .or(z.string().length(0))
         .optional(),
-    bio: z.string().max(250, 'Bio cannot exceed 250 characters').optional()
+    bio: z.string().max(250, 'Bio cannot exceed 250 characters').optional(),
+    favorite_genres: z.array(z.string()).optional(),
+    favorite_artists: z.array(z.string()).optional(),
+    onboarding_completed: z.boolean().optional()
 })
     .strict();
 /**
@@ -54,7 +57,10 @@ export async function getOrCreateProfile(client, user) {
         username: cleanUsername,
         display_name: initialDisplayName,
         avatar_url: user.user_metadata?.avatar_url || null,
-        bio: null
+        bio: null,
+        favorite_genres: [],
+        favorite_artists: [],
+        onboarding_completed: false
     };
     const { data: createdProfile, error: insertError } = await client
         .from('profiles')

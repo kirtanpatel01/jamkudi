@@ -25,7 +25,10 @@ auth.get('/me', async (c) => {
             username: profile.username,
             display_name: profile.display_name,
             avatar_url: profile.avatar_url,
-            bio: profile.bio
+            bio: profile.bio,
+            favorite_genres: profile.favorite_genres || [],
+            favorite_artists: profile.favorite_artists || [],
+            onboarding_completed: profile.onboarding_completed ?? false
         }
     });
 });

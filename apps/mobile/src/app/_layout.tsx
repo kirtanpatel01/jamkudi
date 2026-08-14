@@ -35,10 +35,11 @@ function RootNavigation() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const currentScreen = segments[1];
 
-    if (!session && !inAuthGroup) {
+    if (!session && (!inAuthGroup || currentScreen === "onboarding")) {
       router.replace("/(auth)/login");
-    } else if (session && inAuthGroup) {
+    } else if (session && inAuthGroup && currentScreen !== "onboarding") {
       router.replace("/(tabs)");
     }
   }, [session, isLoading, segments, router]);

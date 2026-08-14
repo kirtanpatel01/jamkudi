@@ -53,7 +53,7 @@ export default function SignupScreen() {
     try {
       await signUp(email.trim(), password);
       showToast('Account created successfully!', 'success');
-      router.replace('/(tabs)');
+      router.replace('/(auth)/onboarding');
     } catch (err: any) {
       const msg = err?.message || 'Failed to create account';
       setLocalError(msg);

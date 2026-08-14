@@ -20,6 +20,7 @@ export type IconName =
   | "heart-filled"
   | "music"
   | "chevron-down"
+  | "chevron-left"
   | "skip-back"
   | "skip-forward"
   | "alert-circle"
@@ -27,7 +28,10 @@ export type IconName =
   | "eye"
   | "eye-off"
   | "user"
-  | "mail";
+  | "mail"
+  | "disc"
+  | "check"
+  | "x";
 
 export interface IconProps {
   name: IconName;
@@ -59,6 +63,7 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   "heart-filled": { outline: "favorite", filled: "favorite" },
   music: { outline: "music-note", filled: "music-note" },
   "chevron-down": { outline: "keyboard-arrow-down", filled: "keyboard-arrow-down" },
+  "chevron-left": { outline: "keyboard-arrow-left", filled: "keyboard-arrow-left" },
   "skip-back": { outline: "skip-previous", filled: "skip-previous" },
   "skip-forward": { outline: "skip-next", filled: "skip-next" },
   "alert-circle": { outline: "error-outline", filled: "error" },
@@ -67,6 +72,9 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   "eye-off": { outline: "visibility-off", filled: "visibility-off" },
   user: { outline: "person-outline", filled: "person" },
   mail: { outline: "email", filled: "email" },
+  disc: { outline: "album", filled: "album" },
+  check: { outline: "check", filled: "check" },
+  x: { outline: "close", filled: "close" },
 };
 
 export const Icon: React.FC<IconProps> = ({
