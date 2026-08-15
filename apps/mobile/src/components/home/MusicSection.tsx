@@ -32,7 +32,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
         >
           {title}
         </AppText>
-        {showAll && (
+        {showAll ? (
           <Pressable hitSlop={8}>
             <AppText
               className="text-xs"
@@ -44,7 +44,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
               Show all
             </AppText>
           </Pressable>
-        )}
+        ) : null}
       </View>
 
       <ScrollView

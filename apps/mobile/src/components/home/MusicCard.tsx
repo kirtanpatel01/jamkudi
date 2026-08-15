@@ -21,7 +21,7 @@ export const MusicCard: React.FC<MusicCardProps> = ({ item }) => {
           source={{ uri: item.imageUrl }}
           className={`w-[140px] h-[140px] ${isArtist ? "rounded-full" : "rounded-lg"}`}
         />
-        {item.tag && (
+        {item.tag ? (
           <View
             className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded"
             style={{ backgroundColor: theme.primary }}
@@ -33,7 +33,7 @@ export const MusicCard: React.FC<MusicCardProps> = ({ item }) => {
               {item.tag}
             </AppText>
           </View>
-        )}
+        ) : null}
       </View>
 
       <AppText
@@ -41,13 +41,13 @@ export const MusicCard: React.FC<MusicCardProps> = ({ item }) => {
         className={`text-[13px] mb-[3px] ${isArtist ? "text-center" : ""}`}
         style={{
           fontFamily: FontFamily.nunito.bold,
-          color: theme.text,
+          color: theme.textPrimary,
         }}
       >
         {item.title}
       </AppText>
 
-      {item.description && (
+      {item.description ? (
         <AppText
           numberOfLines={2}
           className="text-[11px] leading-[15px]"
@@ -58,7 +58,7 @@ export const MusicCard: React.FC<MusicCardProps> = ({ item }) => {
         >
           {item.description}
         </AppText>
-      )}
+      ) : null}
     </Pressable>
   );
 };

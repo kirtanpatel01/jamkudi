@@ -93,7 +93,7 @@ export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
         />
 
         {/* Far-right Password Eye Toggle Button */}
-        {isPassword && (
+        {isPassword ? (
           <Pressable
             onPress={() => setShowPassword((prev) => !prev)}
             hitSlop={12}
@@ -107,15 +107,15 @@ export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
               color={showPassword ? '#C084FC' : theme.isDark ? '#9CA3AF' : '#77717F'}
             />
           </Pressable>
-        )}
+        ) : null}
       </Pressable>
 
       {/* Field Level Error Message */}
-      {error && (
+      {error ? (
         <AppText variant="caption" className="text-xs text-red-400 font-semibold mt-1.5 ml-1">
           {error}
         </AppText>
-      )}
+      ) : null}
     </View>
   );
 });

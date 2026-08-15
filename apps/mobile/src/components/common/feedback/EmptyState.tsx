@@ -38,16 +38,16 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <AppText variant="sectionTitle" className="text-center mb-1">
         {title}
       </AppText>
-      {message && (
+      {message ? (
         <AppText
           variant="body"
-          color={theme.textSecondary}
+          color="textSecondary"
           className="text-center mb-6"
         >
           {message}
         </AppText>
-      )}
-      {actionTitle && onActionPress && (
+      ) : null}
+      {actionTitle && onActionPress ? (
         <AppButton
           title={actionTitle}
           onPress={onActionPress}
@@ -55,7 +55,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           size="md"
           className="mt-1"
         />
-      )}
+      ) : null}
     </View>
   );
 };

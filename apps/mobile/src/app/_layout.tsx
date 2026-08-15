@@ -77,7 +77,7 @@ function RootNavigation() {
           }}
         />
       </Stack>
-      {session && <MiniPlayer />}
+      {session ? <MiniPlayer /> : null}
     </>
   );
 }

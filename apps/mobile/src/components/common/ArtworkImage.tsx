@@ -59,14 +59,14 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
       className={`relative overflow-hidden ${className}`}
       style={[{ width: width || "100%", height: height || "100%" }, style]}
     >
-      {isLoading && (
+      {isLoading ? (
         <View
           style={absoluteFill as any}
           className="items-center justify-center bg-purple-950/40 z-10"
         >
           <ActivityIndicator size="small" color={theme.primary} />
         </View>
-      )}
+      ) : null}
 
       <Image
         source={{ uri: sanitizedUri }}

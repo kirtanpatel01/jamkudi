@@ -280,7 +280,7 @@ export default function SearchScreen() {
           autoCorrect={false}
         />
 
-        {query.length > 0 && (
+        {query.length > 0 ? (
           <Pressable
             onPress={() => setQuery("")}
             className="p-1.5 rounded-full active:opacity-70"
@@ -290,11 +290,11 @@ export default function SearchScreen() {
           >
             <Icon name="x" size={18} color={theme.textMuted} />
           </Pressable>
-        )}
+        ) : null}
       </View>
 
       {/* Recent Searches Row with Edge-to-Edge Horizontal Scroll */}
-      {!query.trim() && recentSearches.length > 0 && (
+      {!query.trim() && recentSearches.length > 0 ? (
         <View className="mb-5">
           <View className="flex-row items-center justify-between mb-2.5">
             <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold ml-1">
@@ -339,10 +339,10 @@ export default function SearchScreen() {
             ))}
           </ScrollView>
         </View>
-      )}
+      ) : null}
 
       {/* Explore Category Pills Bar (when query is empty) */}
-      {!query.trim() && (
+      {!query.trim() ? (
         <View className="mb-5">
           <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-2.5 ml-1">
             Explore

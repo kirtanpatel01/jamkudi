@@ -47,7 +47,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           radius={BorderRadius.lg}
           accessibilityLabel={`${title} artwork`}
         />
-        {badge && (
+        {badge ? (
           <View
             className="absolute top-1 right-1 px-1 py-0.5 rounded"
             style={{ backgroundColor: theme.primary }}
@@ -56,16 +56,16 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               {badge}
             </AppText>
           </View>
-        )}
+        ) : null}
       </View>
       <AppText variant="cardTitle" numberOfLines={1} className="mt-0.5">
         {title}
       </AppText>
-      {subtitle && (
-        <AppText variant="caption" color={theme.textSecondary} numberOfLines={1}>
+      {subtitle ? (
+        <AppText variant="caption" color="textSecondary" numberOfLines={1}>
           {subtitle}
         </AppText>
-      )}
+      ) : null}
     </Pressable>
   );
 };

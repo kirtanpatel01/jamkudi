@@ -115,25 +115,25 @@ export const AppButton: React.FC<AppButtonProps> = ({
         </View>
       ) : (
         <View className="flex-row items-center justify-center">
-          {leftIcon && (
+          {leftIcon ? (
             <Icon
               name={leftIcon}
               size={size === "sm" ? 18 : 22}
               color={iconColor}
               className="mr-2"
             />
-          )}
+          ) : null}
           <AppText className={`text-base font-bold text-center ${textColorClass}`}>
             {title}
           </AppText>
-          {rightIcon && (
+          {rightIcon ? (
             <Icon
               name={rightIcon}
               size={size === "sm" ? 18 : 22}
               color={iconColor}
               className="ml-2"
             />
-          )}
+          ) : null}
         </View>
       )}
     </Pressable>

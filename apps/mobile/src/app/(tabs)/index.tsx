@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, Image } from "react-native";
+import { ActivityIndicator, ScrollView } from "react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
@@ -351,7 +352,7 @@ export default function HomeScreen() {
               <Image
                 source={require("../../../assets/images/icon.jpg")}
                 className="w-full h-full"
-                resizeMode="cover"
+                contentFit="cover"
               />
             </View>
             <View className="flex-1 min-w-0">

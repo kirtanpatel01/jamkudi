@@ -316,7 +316,7 @@ export default function OnboardingScreen() {
                   Pick any genres you enjoy. These help shape your first recommendations.
                 </AppText>
                 <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3">
-                  {genres.length ? `${genres.length} SELECTED` : 'OPTIONAL — PICK AS MANY AS YOU LIKE'}
+                  {genres.length > 0 ? `${genres.length} SELECTED` : 'OPTIONAL — PICK AS MANY AS YOU LIKE'}
                 </AppText>
 
                 <View className="flex-row flex-wrap" style={{ gap: 10 }}>
@@ -386,7 +386,7 @@ export default function OnboardingScreen() {
                 </View>
 
                 {/* Selected Picks Chips */}
-                {artists.length > 0 && (
+                {artists.length > 0 ? (
                   <View
                     className="mb-5 rounded-2xl border p-3.5"
                     style={{ backgroundColor: theme.isDark ? '#1C162E' : theme.surfaceElevated, borderColor: '#A855F7' }}
@@ -410,7 +410,7 @@ export default function OnboardingScreen() {
                       ))}
                     </View>
                   </View>
-                )}
+                ) : null}
 
                 <AppText variant="caption" color="textSecondary" className="text-xs font-bold uppercase tracking-wider mb-3">
                   {query ? 'SEARCH RESULTS' : 'POPULAR ON JAMKUDI'}
@@ -450,7 +450,7 @@ export default function OnboardingScreen() {
                             style={!selected ? { borderColor: theme.border, backgroundColor: theme.surface } : undefined}
                           >
                             <ArtworkImage uri={artist.imageUrl} iconSize={22} className="w-full h-full" />
-                            {selected && (
+                            {selected ? (
                               <View
                                 className="absolute inset-0 items-center justify-center"
                                 style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -459,7 +459,7 @@ export default function OnboardingScreen() {
                                   <Icon name="check" size={17} color="#FFFFFF" />
                                 </View>
                               </View>
-                            )}
+                            ) : null}
                           </View>
                           <AppText
                             variant="caption"
@@ -490,7 +490,7 @@ export default function OnboardingScreen() {
             className="w-full"
             rightIcon={step === 3 ? 'music' : undefined}
           />
-          {step > 1 && (
+          {step > 1 ? (
             <Pressable
               onPress={() => (step === 2 ? goToStep(3) : finish())}
               className="py-3 items-center active:opacity-75"
@@ -500,8 +500,7 @@ export default function OnboardingScreen() {
                 {step === 2 ? "I'll choose genres later" : "I'll choose artists later"}
               </AppText>
             </Pressable>
-          )}
-        </View>
+          ) : null}
       </KeyboardAvoidingView>
     </Screen>
   );

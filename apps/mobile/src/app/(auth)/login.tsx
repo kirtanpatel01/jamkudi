@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/common/Screen';
 import { AppText } from '@/components/common/AppText';
@@ -85,7 +86,7 @@ export default function LoginScreen() {
               <Image
                 source={JAMKUDI_LOGO}
                 style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
+                contentFit="cover"
               />
             </View>
 
@@ -99,14 +100,14 @@ export default function LoginScreen() {
           </View>
 
           {/* Form Error Banner */}
-          {bannerError && (
+          {bannerError ? (
             <View className="p-4 rounded-2xl bg-red-950/90 border border-red-500/60 flex-row items-center mb-6 shadow-md shadow-red-950/50">
               <Icon name="alert-circle" size={22} color="#F87171" className="mr-3" />
               <AppText variant="caption" className="text-sm text-red-200 flex-1 font-semibold">
                 {bannerError}
               </AppText>
             </View>
-          )}
+          ) : null}
 
           {/* Form Fields */}
           <AuthInput

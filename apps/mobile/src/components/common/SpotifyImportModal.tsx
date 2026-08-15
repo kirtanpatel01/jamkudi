@@ -258,7 +258,7 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
           )}
 
           {/* STEP 2: Preview & Destination Selection */}
-          {step === "PREVIEW" && previewResult && (
+          {step === "PREVIEW" && previewResult ? (
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-[500px]">
               {/* Spotify Playlist Preview Header */}
               <View className="flex-row items-center p-3.5 rounded-2xl border mb-4" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
@@ -298,7 +298,7 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
                   </AppText>
                 </Pressable>
 
-                {previewResult.unmatchedTracks.length > 0 && (
+                {previewResult.unmatchedTracks.length > 0 ? (
                   <Pressable
                     onPress={() => setActiveTrackTab("UNMATCHED")}
                     className={`flex-1 flex-row items-center px-3 py-2.5 rounded-xl border active:opacity-80 ${
@@ -318,7 +318,7 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
                       ⚠ {previewResult.unmatchedTracks.length} not found
                     </AppText>
                   </Pressable>
-                )}
+                ) : null}
               </View>
 
               {/* Destination Picker */}

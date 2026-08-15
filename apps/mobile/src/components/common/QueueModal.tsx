@@ -160,11 +160,11 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                 </AppText>
               </View>
 
-              {currentTrack.duration > 0 && (
+              {currentTrack.duration > 0 ? (
                 <AppText variant="caption" color="textMuted" className="text-xs font-medium shrink-0">
                   {formatDuration(currentTrack.duration)}
                 </AppText>
-              )}
+              ) : null}
             </View>
           </View>
         )}

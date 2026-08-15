@@ -177,7 +177,7 @@ export default function AlbumDetailScreen() {
                   </AppText>
                 </View>
 
-                {item.duration > 0 && (
+                {item.duration > 0 ? (
                   <AppText
                     variant="caption"
                     color="textMuted"
@@ -185,7 +185,7 @@ export default function AlbumDetailScreen() {
                   >
                     {formatDuration(item.duration)}
                   </AppText>
-                )}
+                ) : null}
               </Pressable>
             );
           }}

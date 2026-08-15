@@ -161,7 +161,7 @@ export default function ArtistDetailScreen() {
                   style={{ backgroundColor: theme.surfacePressed }}
                 >
                   <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
-                  {isCurrent && (
+                  {isCurrent ? (
                     <View className="absolute inset-0 bg-black/60 items-center justify-center">
                       <Icon
                         name={isPlaying ? "pause" : "play"}
@@ -169,7 +169,7 @@ export default function ArtistDetailScreen() {
                         color="#C084FC"
                       />
                     </View>
-                  )}
+                  ) : null}
                 </View>
 
                 <View className="flex-1 mr-2 min-w-0">
@@ -193,7 +193,7 @@ export default function ArtistDetailScreen() {
                   </AppText>
                 </View>
 
-                {item.duration > 0 && (
+                {item.duration > 0 ? (
                   <AppText
                     variant="caption"
                     color="textMuted"
@@ -201,7 +201,7 @@ export default function ArtistDetailScreen() {
                   >
                     {formatDuration(item.duration)}
                   </AppText>
-                )}
+                ) : null}
               </Pressable>
             );
           }}

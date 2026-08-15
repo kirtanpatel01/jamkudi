@@ -44,7 +44,7 @@ export const QuickAccessGrid: React.FC = () => {
             className="flex-1 text-[13px] px-2.5 leading-[16px]"
             style={{
               fontFamily: FontFamily.nunito.semiBold,
-              color: theme.text,
+              color: theme.textPrimary,
             }}
           >
             {item.title}

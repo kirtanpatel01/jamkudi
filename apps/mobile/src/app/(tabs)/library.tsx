@@ -124,11 +124,11 @@ export default function LibraryScreen() {
           <AppText variant="screenTitle" className="text-2xl font-bold">
             Your Library
           </AppText>
-          {profile?.display_name && (
+          {profile?.display_name ? (
             <AppText variant="caption" className="text-xs text-purple-400 font-semibold mt-0.5">
               Welcome, {profile.display_name}
             </AppText>
-          )}
+          ) : null}
         </View>
 
         <IconButton
@@ -141,33 +141,28 @@ export default function LibraryScreen() {
       </View>
 
       {/* 2. Library Search Bar (Primary interaction placed before filters) */}
-      {!isLibraryEmpty && (
+      {!isLibraryEmpty ? (
         <View
-          className="flex-row items-center px-4 h-12 rounded-2xl border mb-3.5 shadow-sm"
+          className="h-12 px-4 rounded-2xl border flex-row items-center mb-3"
           style={{ backgroundColor: theme.surface, borderColor: theme.border }}
         >
-          <Icon name="search" size={18} color="#C084FC" />
+          <Icon name="search" size={18} color={theme.textMuted} />
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search in your library..."
+            placeholder="Search saved songs & playlists"
             placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
-            className="flex-1 ml-3 text-sm font-semibold h-full py-0"
+            returnKeyType="search"
+            className="flex-1 h-full ml-3 text-sm font-semibold py-0"
             style={{ color: theme.textPrimary }}
-            accessibilityLabel="Search in library input"
-            autoCorrect={false}
           />
-          {searchQuery.length > 0 && (
-            <Pressable
-              onPress={() => setSearchQuery("")}
-              className="p-1.5 rounded-full active:opacity-70"
-              hitSlop={8}
-            >
-              <Icon name="x" size={16} color={theme.textMuted} />
+          {searchQuery.length > 0 ? (
+            <Pressable onPress={() => setSearchQuery("")} hitSlop={10} accessibilityLabel="Clear search input">
+              <Icon name="x" size={18} color={theme.textMuted} />
             </Pressable>
-          )}
+          ) : null}
         </View>
-      )}
+      ) : null}
 
       {/* 3. Library Filter Chips (Edge-to-Edge Scrollable with Active State) */}
       <View className="mb-4">

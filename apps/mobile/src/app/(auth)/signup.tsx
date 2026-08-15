@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/common/Screen';
 import { AppText } from '@/components/common/AppText';
@@ -11,6 +12,7 @@ import { useToast } from '@/context/ToastContext';
 import { View, Pressable, TextInput } from '@/tw';
 
 const JAMKUDI_LOGO = require('../../../assets/images/icon.jpg');
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -37,8 +39,7 @@ export default function SignupScreen() {
       setEmailError('Email address is required');
       valid = false;
     } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmedEmail)) {
+      if (!EMAIL_REGEX.test(trimmedEmail)) {
         setEmailError('Please enter a valid email address');
         valid = false;
       }
@@ -94,7 +95,7 @@ export default function SignupScreen() {
               <Image
                 source={JAMKUDI_LOGO}
                 style={{ width: '100%', height: '100%' }}
-                resizeMode="cover"
+                contentFit="cover"
               />
             </View>
 
@@ -108,14 +109,14 @@ export default function SignupScreen() {
           </View>
 
           {/* Form Error Banner */}
-          {bannerError && (
+          {bannerError ? (
             <View className="p-4 rounded-2xl bg-red-950/90 border border-red-500/60 flex-row items-center mb-6 shadow-md shadow-red-950/50">
               <Icon name="alert-circle" size={22} color="#F87171" className="mr-3" />
               <AppText variant="caption" className="text-sm text-red-200 flex-1 font-semibold">
                 {bannerError}
               </AppText>
             </View>
-          )}
+          ) : null}
 
           {/* Form Fields */}
           <AuthInput

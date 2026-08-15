@@ -37,7 +37,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       <AppText variant="body" color={theme.textSecondary} className="text-center mb-6">
         {message}
       </AppText>
-      {onRetry && (
+      {onRetry ? (
         <AppButton
           title="Try Again"
           onPress={onRetry}
@@ -45,7 +45,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
           size="md"
           className="min-w-[120px]"
         />
-      )}
+      ) : null}
     </View>
   );
 };
