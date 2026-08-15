@@ -34,7 +34,11 @@ export type IconName =
   | "x"
   | "shuffle"
   | "repeat"
-  | "repeat-one";
+  | "repeat-one"
+  | "plus"
+  | "trash"
+  | "edit"
+  | "chevron-up";
 
 export interface IconProps {
   name: IconName;
@@ -66,6 +70,7 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   "heart-filled": { outline: "favorite", filled: "favorite" },
   music: { outline: "music-note", filled: "music-note" },
   "chevron-down": { outline: "keyboard-arrow-down", filled: "keyboard-arrow-down" },
+  "chevron-up": { outline: "keyboard-arrow-up", filled: "keyboard-arrow-up" },
   "chevron-left": { outline: "keyboard-arrow-left", filled: "keyboard-arrow-left" },
   "skip-back": { outline: "skip-previous", filled: "skip-previous" },
   "skip-forward": { outline: "skip-next", filled: "skip-next" },
@@ -81,6 +86,9 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   shuffle: { outline: "shuffle", filled: "shuffle" },
   repeat: { outline: "repeat", filled: "repeat" },
   "repeat-one": { outline: "repeat-one", filled: "repeat-one" },
+  plus: { outline: "add", filled: "add" },
+  trash: { outline: "delete-outline", filled: "delete" },
+  edit: { outline: "edit", filled: "edit" },
 };
 
 export const Icon: React.FC<IconProps> = ({

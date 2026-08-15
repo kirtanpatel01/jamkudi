@@ -9,6 +9,7 @@ import { IconButton } from "@/components/common/IconButton";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { QueueModal } from "@/components/common/QueueModal";
 import { LyricsModal } from "@/components/common/LyricsModal";
+import { AddToPlaylistModal } from "@/components/common/AddToPlaylistModal";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
@@ -50,6 +51,7 @@ export default function PlayerScreen() {
   const [slidePosition, setSlidePosition] = useState(0);
   const [showQueue, setShowQueue] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
 
   const isBuffering = playbackState === "buffering" || playbackState === "loading";
   const displayPosition = isSliding ? slidePosition : position;
@@ -235,23 +237,33 @@ export default function PlayerScreen() {
         </View>
 
         {/* Secondary Labeled Controls Bar */}
-        <View className="flex-row items-center justify-center gap-x-6 pt-1">
+        <View className="flex-row items-center justify-center gap-x-3 pt-1">
           <Pressable
             onPress={() => setShowQueue(true)}
-            className="flex-row items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
+            className="flex-row items-center px-3.5 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
           >
-            <Icon name="library" size={16} color={theme.textPrimary} />
-            <AppText className="ml-2 text-xs font-semibold text-zinc-200">
+            <Icon name="library" size={15} color={theme.textPrimary} />
+            <AppText className="ml-1.5 text-xs font-semibold text-zinc-200">
               Queue
             </AppText>
           </Pressable>
 
           <Pressable
-            onPress={() => setShowLyrics(true)}
-            className="flex-row items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
+            onPress={() => setShowAddToPlaylist(true)}
+            className="flex-row items-center px-3.5 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
           >
-            <Icon name="music" size={16} color={theme.textPrimary} />
-            <AppText className="ml-2 text-xs font-semibold text-zinc-200">
+            <Icon name="plus" size={15} color={theme.textPrimary} />
+            <AppText className="ml-1.5 text-xs font-semibold text-zinc-200">
+              Playlist
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setShowLyrics(true)}
+            className="flex-row items-center px-3.5 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
+          >
+            <Icon name="music" size={15} color={theme.textPrimary} />
+            <AppText className="ml-1.5 text-xs font-semibold text-zinc-200">
               Lyrics
             </AppText>
           </Pressable>
@@ -260,6 +272,11 @@ export default function PlayerScreen() {
 
       <QueueModal visible={showQueue} onClose={() => setShowQueue(false)} />
       <LyricsModal visible={showLyrics} onClose={() => setShowLyrics(false)} />
+      <AddToPlaylistModal
+        track={currentTrack}
+        visible={showAddToPlaylist}
+        onClose={() => setShowAddToPlaylist(false)}
+      />
     </>
   );
 }

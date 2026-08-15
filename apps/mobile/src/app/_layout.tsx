@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useTheme } from "@/hooks/useTheme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { PlayerProvider } from "@/context/PlayerContext";
+import { PlaylistProvider } from "@/context/PlaylistContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { MiniPlayer } from "@/components/common/MiniPlayer";
 import {
@@ -107,7 +108,9 @@ export default function RootLayout() {
     <ToastProvider>
       <AuthProvider>
         <PlayerProvider>
-          <RootNavigation />
+          <PlaylistProvider>
+            <RootNavigation />
+          </PlaylistProvider>
         </PlayerProvider>
       </AuthProvider>
     </ToastProvider>

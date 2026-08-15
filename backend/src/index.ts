@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 import auth from './routes/auth.js'
 import health from './routes/health.js'
 import profile from './routes/profile.js'
+import spotify from './routes/spotify.js'
 
 const app = new Hono()
 
@@ -42,6 +43,7 @@ app.get('/', (c) => {
 app.route('/health', health)
 app.route('/auth', auth)
 app.route('/profile', profile)
+app.route('/spotify', spotify)
 
 const port = Number(process.env.PORT) || 3000
 

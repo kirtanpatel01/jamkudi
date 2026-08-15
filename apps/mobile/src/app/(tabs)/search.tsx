@@ -6,6 +6,7 @@ import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { FilterChip } from "@/components/common/FilterChip";
+import { AddToPlaylistModal } from "@/components/common/AddToPlaylistModal";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
@@ -50,6 +51,9 @@ export default function SearchScreen() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Popular");
   const [activeEntityFilter, setActiveEntityFilter] = useState<EntityFilter>("All");
+
+  const [selectedSongForPlaylist, setSelectedSongForPlaylist] = useState<JioSaavnSong | null>(null);
+  const [showAddToPlaylistModal, setShowAddToPlaylistModal] = useState(false);
 
   const [searchResults, setSearchResults] = useState<CatalogSearchResult>({
     query: "",
@@ -627,14 +631,14 @@ export default function SearchScreen() {
                 </View>
 
                 {/* Action Buttons */}
-                <View className="flex-row items-center gap-x-1.5 mr-2 shrink-0">
+                <View className="flex-row items-center gap-x-1 mr-1.5 shrink-0">
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();
                       playNext(item, "search");
                       showToast(`Added to Up Next: ${item.title}`, "success");
                     }}
-                    className="px-2.5 py-1 rounded-full bg-purple-600/30 active:bg-purple-600/50 border border-purple-500/40"
+                    className="px-2 py-1 rounded-full bg-purple-600/30 active:bg-purple-600/50 border border-purple-500/40"
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Play next ${item.title}`}
@@ -648,18 +652,32 @@ export default function SearchScreen() {
                       addToQueue(item, "search");
                       showToast(`Added to queue: ${item.title}`, "info");
                     }}
-                    className="px-2.5 py-1 rounded-full bg-white/5 active:bg-white/15 border border-white/10"
+                    className="px-2 py-1 rounded-full bg-white/5 active:bg-white/15 border border-white/10"
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to queue`}
                   >
                     <AppText className="text-[10px] text-zinc-300 font-bold">+ Queue</AppText>
                   </Pressable>
+
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      setSelectedSongForPlaylist(item);
+                      setShowAddToPlaylistModal(true);
+                    }}
+                    className="p-1 rounded-full bg-white/5 active:bg-white/15 border border-white/10"
+                    hitSlop={4}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Add ${item.title} to playlist`}
+                  >
+                    <Icon name="plus" size={12} color="#D4D4D8" />
+                  </Pressable>
                 </View>
 
                 {/* Fixed-width Duration Column */}
                 {item.duration > 0 && (
-                  <View className="w-9 items-end shrink-0">
+                  <View className="w-8 items-end shrink-0">
                     <AppText
                       variant="caption"
                       className="text-[11px] text-zinc-400 font-medium"
@@ -673,6 +691,16 @@ export default function SearchScreen() {
           }}
         />
       )}
+
+      {/* Add To Playlist Modal */}
+      <AddToPlaylistModal
+        track={selectedSongForPlaylist}
+        visible={showAddToPlaylistModal}
+        onClose={() => {
+          setShowAddToPlaylistModal(false);
+          setSelectedSongForPlaylist(null);
+        }}
+      />
     </Screen>
   );
 }

@@ -94,3 +94,90 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 6. Playlists & Playlist Tracks Tables
+CREATE TABLE IF NOT EXISTS public.playlists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  artwork TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.playlist_tracks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  playlist_id UUID NOT NULL REFERENCES public.playlists(id) ON DELETE CASCADE,
+  song_id TEXT NOT NULL,
+  track_data JSONB NOT NULL,
+  position INT NOT NULL DEFAULT 0,
+  added_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT unique_playlist_song UNIQUE (playlist_id, song_id)
+);
+
+ALTER TABLE public.playlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.playlist_tracks ENABLE ROW LEVEL SECURITY;
+
+-- Playlists RLS Policies
+DROP POLICY IF EXISTS "Users can view own playlists" ON public.playlists;
+CREATE POLICY "Users can view own playlists"
+  ON public.playlists FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own playlists" ON public.playlists;
+CREATE POLICY "Users can insert own playlists"
+  ON public.playlists FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own playlists" ON public.playlists;
+CREATE POLICY "Users can update own playlists"
+  ON public.playlists FOR UPDATE
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own playlists" ON public.playlists;
+CREATE POLICY "Users can delete own playlists"
+  ON public.playlists FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Playlist Tracks RLS Policies
+DROP POLICY IF EXISTS "Users can view own playlist tracks" ON public.playlist_tracks;
+CREATE POLICY "Users can view own playlist tracks"
+  ON public.playlist_tracks FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.playlists p
+      WHERE p.id = playlist_tracks.playlist_id AND p.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Users can insert own playlist tracks" ON public.playlist_tracks;
+CREATE POLICY "Users can insert own playlist tracks"
+  ON public.playlist_tracks FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.playlists p
+      WHERE p.id = playlist_tracks.playlist_id AND p.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Users can update own playlist tracks" ON public.playlist_tracks;
+CREATE POLICY "Users can update own playlist tracks"
+  ON public.playlist_tracks FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.playlists p
+      WHERE p.id = playlist_tracks.playlist_id AND p.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Users can delete own playlist tracks" ON public.playlist_tracks;
+CREATE POLICY "Users can delete own playlist tracks"
+  ON public.playlist_tracks FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.playlists p
+      WHERE p.id = playlist_tracks.playlist_id AND p.user_id = auth.uid()
+    )
+  );
+
