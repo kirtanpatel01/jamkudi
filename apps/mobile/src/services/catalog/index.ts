@@ -8,8 +8,10 @@ import {
   getTrendingFeed,
   getArtistDetails,
   getAlbumDetails,
+  getPlaylistDetails,
   ArtistDetails,
   AlbumDetails,
+  PlaylistDetails,
 } from "../jiosaavn";
 import { normalizeQuery } from "./normalizer";
 import { deduplicateTracks } from "./deduplicator";
@@ -286,3 +288,30 @@ export async function fetchAlbumCatalog(albumIdOrQuery: string): Promise<AlbumDe
     return result;
   });
 }
+
+/**
+ * Playlist Detail Catalog Method by Playlist Entity ID / Query.
+ */
+export async function fetchPlaylistCatalog(playlistIdOrQuery: string): Promise<PlaylistDetails | null> {
+  const normKey = normalizeQuery(playlistIdOrQuery);
+  const cacheKey = `playlist:${normKey}`;
+  const cached = getFromCatalogCache<PlaylistDetails>(cacheKey);
+  if (cached) return cached;
+
+  return getOrFetchInFlight(cacheKey, async () => {
+    const rawDetails = await getPlaylistDetails(playlistIdOrQuery);
+    if (!rawDetails) return null;
+
+    const deduplicated = deduplicateTracks(rawDetails.tracks);
+
+    const result: PlaylistDetails = {
+      ...rawDetails,
+      tracks: deduplicated,
+    };
+
+    setInCatalogCache(cacheKey, result, "ALBUM");
+    return result;
+  });
+}
+
+export { PlaylistDetails, getPlaylistDetails } from "../jiosaavn";

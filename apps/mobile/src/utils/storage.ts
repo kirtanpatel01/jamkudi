@@ -81,6 +81,18 @@ export async function addSearchQuery(query: string): Promise<string[]> {
   }
 }
 
+export async function removeSearchQuery(query: string): Promise<string[]> {
+  if (!query.trim()) return await loadSearchHistory();
+  try {
+    const current = await loadSearchHistory();
+    const filtered = current.filter((q) => q.toLowerCase() !== query.trim().toLowerCase());
+    await safeStorage.setItem(KEYS.SEARCH_HISTORY, JSON.stringify(filtered));
+    return filtered;
+  } catch {
+    return [];
+  }
+}
+
 export async function clearSearchHistory(): Promise<void> {
   try {
     await safeStorage.removeItem(KEYS.SEARCH_HISTORY);

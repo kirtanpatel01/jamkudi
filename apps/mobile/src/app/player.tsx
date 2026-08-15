@@ -172,7 +172,7 @@ export default function PlayerScreen() {
             accessibilityLabel={`Shuffle ${shuffleEnabled ? "On" : "Off"}`}
           >
             <Icon
-              name="library"
+              name="shuffle"
               size={22}
               color={shuffleEnabled ? theme.primary : theme.textMuted}
             />
@@ -227,15 +227,10 @@ export default function PlayerScreen() {
             accessibilityLabel={`Repeat mode ${repeatMode}`}
           >
             <Icon
-              name="clock"
+              name={repeatMode === "ONE" ? "repeat-one" : "repeat"}
               size={22}
               color={repeatMode !== "OFF" ? theme.primary : theme.textMuted}
             />
-            {repeatMode === "ONE" && (
-              <AppText className="absolute top-1 right-1 text-[9px] font-bold text-purple-400">
-                1
-              </AppText>
-            )}
           </Pressable>
         </View>
 

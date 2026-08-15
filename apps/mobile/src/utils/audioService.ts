@@ -1,3 +1,12 @@
+export interface RemoteCommandListeners {
+  onPlay?: () => void;
+  onPause?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  onInterruption?: () => void;
+  onError?: (err: any) => void;
+}
+
 export interface AudioPlayerInstance {
   play: () => void;
   pause: () => void;
@@ -5,7 +14,9 @@ export interface AudioPlayerInstance {
   playing: boolean;
   currentTime: number;
   duration: number;
+  hasError?: boolean;
   setActiveForLockScreen?: (active: boolean, metadata?: any) => void;
+  setRemoteCommandListeners?: (listeners: RemoteCommandListeners) => void;
   unload?: () => void;
 }
 
@@ -48,11 +59,47 @@ export async function initAudioSystem(): Promise<void> {
 }
 
 export function createUnifiedPlayer(streamUrl: string): AudioPlayerInstance {
+  let listeners: RemoteCommandListeners = {};
+  let hasErrorState = false;
+
   // 1. Try expo-audio native player
   if (expoAudioModule && expoAudioModule.createAudioPlayer) {
     try {
       const player = expoAudioModule.createAudioPlayer(streamUrl);
-      if (player) return player;
+      if (player) {
+        if (typeof player.addListener === "function") {
+          try {
+            player.addListener("statusChange", (status: any) => {
+              if (status?.error) {
+                hasErrorState = true;
+                listeners.onError?.(status.error);
+              }
+            });
+          } catch {}
+        }
+        return {
+          play: () => { try { player.play(); } catch {} },
+          pause: () => { try { player.pause(); } catch {} },
+          seekTo: (seconds: number) => { try { player.seekTo(seconds); } catch {} },
+          get playing() { return player.playing ?? player.isPlaying ?? false; },
+          get currentTime() { return player.currentTime ?? 0; },
+          get duration() { return player.duration ?? 0; },
+          get hasError() { return hasErrorState; },
+          setActiveForLockScreen: (_active: boolean, _metadata?: any) => {
+            try {
+              if (player.setLockScreenMetadata) {
+                player.setLockScreenMetadata(_metadata);
+              }
+            } catch {}
+          },
+          setRemoteCommandListeners: (l: RemoteCommandListeners) => {
+            listeners = l;
+          },
+          unload: () => {
+            try { if (player.release) player.release(); else if (player.remove) player.remove(); } catch {}
+          },
+        };
+      }
     } catch (err) {
       console.warn("expo-audio native player failed, trying fallback:", err);
     }
@@ -72,21 +119,40 @@ export function createUnifiedPlayer(streamUrl: string): AudioPlayerInstance {
             isPlayingState = status.isPlaying;
             currentPos = (status.positionMillis || 0) / 1000;
             totalDur = (status.durationMillis || 0) / 1000;
+          } else if (status.error) {
+            hasErrorState = true;
+            listeners.onError?.(status.error);
           }
         })
-        .catch((err: any) => console.log("expo-av load notice:", err));
+        .catch((err: any) => {
+          console.warn("expo-av load failure:", err);
+          hasErrorState = true;
+          listeners.onError?.(err);
+        });
 
       soundObj.setOnPlaybackStatusUpdate((status: any) => {
         if (status.isLoaded) {
+          const wasPlaying = isPlayingState;
           isPlayingState = status.isPlaying;
           currentPos = (status.positionMillis || 0) / 1000;
           totalDur = (status.durationMillis || 0) / 1000;
+
+          // Detect audio interruption or headphone disconnection (sudden pause mid-track)
+          if (wasPlaying && !status.isPlaying && !status.didJustFinish && currentPos < totalDur - 1.5) {
+            listeners.onInterruption?.();
+          }
+        } else if (status.error) {
+          hasErrorState = true;
+          listeners.onError?.(status.error);
         }
       });
 
       return {
         play: () => {
-          soundObj?.playAsync().catch(() => {});
+          soundObj?.playAsync().catch((err: any) => {
+            hasErrorState = true;
+            listeners.onError?.(err);
+          });
           isPlayingState = true;
         },
         pause: () => {
@@ -106,14 +172,20 @@ export function createUnifiedPlayer(streamUrl: string): AudioPlayerInstance {
         get duration() {
           return totalDur;
         },
+        get hasError() {
+          return hasErrorState;
+        },
         setActiveForLockScreen: () => {},
+        setRemoteCommandListeners: (l: RemoteCommandListeners) => {
+          listeners = l;
+        },
         unload: () => {
           soundObj?.unloadAsync().catch(() => {});
           soundObj = null;
         },
       };
     } catch (avErr) {
-      console.warn("expo-av player failed, using web/mock player:", avErr);
+      console.warn("expo-av player failed, using fallback player:", avErr);
     }
   }
 
@@ -128,7 +200,11 @@ export function createUnifiedPlayer(streamUrl: string): AudioPlayerInstance {
     get playing() { return mockPlaying; },
     get currentTime() { return mockTime; },
     get duration() { return 180; },
+    get hasError() { return hasErrorState; },
     setActiveForLockScreen: () => {},
+    setRemoteCommandListeners: (l: RemoteCommandListeners) => {
+      listeners = l;
+    },
     unload: () => { mockPlaying = false; },
   };
 }

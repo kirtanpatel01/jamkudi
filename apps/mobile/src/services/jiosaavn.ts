@@ -3,6 +3,7 @@ import { Track } from "@/types/track";
 export interface JioSaavnImage {
   quality: string;
   url: string;
+  link?: string;
 }
 
 export interface JioSaavnDownloadUrl {
@@ -64,8 +65,9 @@ export const FEATURED_ARTISTS: FeaturedArtist[] = [
   },
 ];
 
-const BASE_URL = "https://saavn.sumit.co/api";
-const FALLBACK_URL = "https://saavn.dev/api";
+const BASE_URL = "https://jiosaavn-api.kjpatel.workers.dev/api";
+
+const FALLBACK_URL = "https://saavn.sumit.co/api";
 
 function decodeHTMLEntities(str: string = ""): string {
   return str
@@ -357,6 +359,64 @@ export async function searchPlaylists(query: string): Promise<RawPlaylistResult[
       return await tryFetch(FALLBACK_URL);
     } catch {
       return [];
+    }
+  }
+}
+
+export interface PlaylistDetails {
+  id: string;
+  title: string;
+  subtitle?: string;
+  artwork: string;
+  tracks: JioSaavnSong[];
+}
+
+export async function getPlaylistDetails(id: string): Promise<PlaylistDetails | null> {
+  if (!id) return null;
+  const decodedId = decodeURIComponent(id);
+
+  const tryFetch = async (baseUrl: string) => {
+    const res = await fetch(`${baseUrl}/playlists?id=${encodeURIComponent(decodedId)}`);
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const json = await res.json();
+    const data = json?.data;
+    if (data) {
+      const title = decodeHTMLEntities(data.name || data.title || decodedId);
+      let artwork = "";
+      if (Array.isArray(data.image) && data.image.length > 0) {
+        const best = data.image.find((i: any) => i?.quality === "500x500") || data.image[data.image.length - 1];
+        artwork = typeof best === "string" ? best : best?.url || best?.link || "";
+      } else if (typeof data.image === "string") {
+        artwork = data.image;
+      }
+      const rawSongs = data.songs || data.tracks || [];
+      const tracks = rawSongs.map(mapToTrack).filter((s: JioSaavnSong | null): s is JioSaavnSong => s !== null);
+
+      return {
+        id: data.id || decodedId,
+        title,
+        subtitle: data.subtitle || "JioSaavn Playlist",
+        artwork,
+        tracks: tracks.length > 0 ? tracks : await searchSongs(title, 0, 20),
+      };
+    }
+    return null;
+  };
+
+  try {
+    return await tryFetch(BASE_URL);
+  } catch {
+    try {
+      return await tryFetch(FALLBACK_URL);
+    } catch {
+      const fallbackSongs = await searchSongs(decodedId, 0, 20);
+      return {
+        id: decodedId,
+        title: decodedId,
+        subtitle: "JioSaavn Playlist",
+        artwork: fallbackSongs.length > 0 ? fallbackSongs[0].artwork || "" : "",
+        tracks: fallbackSongs,
+      };
     }
   }
 }

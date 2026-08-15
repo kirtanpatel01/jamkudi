@@ -187,6 +187,8 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                     playFromQueue(item.queueId);
                   }}
                   className="flex-1 flex-row items-center py-2.5 px-3 rounded-xl active:bg-white/10 bg-white/5 border border-white/5"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Play ${track.title} by ${track.artist}`}
                 >
                   {/* Upcoming Rank Index */}
                   <AppText
@@ -241,6 +243,8 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                     disabled={isFirst}
                     className={`p-1 rounded bg-white/5 active:bg-white/15 ${isFirst ? "opacity-30" : ""}`}
                     hitSlop={6}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Move ${track.title} up in queue`}
                   >
                     <AppText className="text-[10px] text-zinc-300 font-bold text-center">▲</AppText>
                   </Pressable>
@@ -249,6 +253,8 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                     disabled={isLast}
                     className={`p-1 rounded bg-white/5 active:bg-white/15 ${isLast ? "opacity-30" : ""}`}
                     hitSlop={6}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Move ${track.title} down in queue`}
                   >
                     <AppText className="text-[10px] text-zinc-300 font-bold text-center">▼</AppText>
                   </Pressable>
@@ -262,6 +268,8 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                   }}
                   hitSlop={8}
                   className="p-2.5 rounded-lg active:bg-white/10 ml-1"
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${track.title} from queue`}
                 >
                   <AppText className="text-xs text-zinc-500 font-bold">✕</AppText>
                 </Pressable>

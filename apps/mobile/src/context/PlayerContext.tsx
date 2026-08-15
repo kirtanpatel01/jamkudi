@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { initAudioSystem, createUnifiedPlayer, AudioPlayerInstance } from "@/utils/audioService";
 import { Track, PlaybackState, RepeatMode, QueueItem, QueueSource } from "@/types/track";
+import { getSongById, searchSongs } from "@/services/jiosaavn";
 import {
   loadLikedSongs,
   saveLikedSongs,
@@ -186,7 +187,26 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const playItemInternal = async (item: QueueItem) => {
+  const handleStreamPlaybackError = async (item: QueueItem, retryCount: number) => {
+    if (retryCount < 1) {
+      console.log(`Stream playback issue for "${item.track.title}". Attempting fresh URL retry...`);
+      await playItemInternal(item, retryCount + 1);
+    } else {
+      console.warn(`Track "${item.track.title}" failed after retry.`);
+      setPlaybackState("error");
+      setIsPlaying(false);
+
+      const q = queueRef.current;
+      const idx = currentIndexRef.current;
+      if (q.length > 0 && idx < q.length - 1) {
+        setTimeout(() => {
+          skipToNext();
+        }, 1500);
+      }
+    }
+  };
+
+  const playItemInternal = async (item: QueueItem, retryCount: number = 0) => {
     try {
       setPlaybackState("loading");
       if (playerRef.current) {
@@ -202,12 +222,67 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPosition(0);
       setDuration(track.duration || 0);
 
+      let streamUrl = track.audioUrl || (track as any).url;
+
+      // If retryCount > 0 or streamUrl is missing, attempt to refresh URL from API
+      if (!streamUrl || retryCount > 0) {
+        try {
+          const freshTrack = await getSongById(track.id);
+          if (freshTrack && (freshTrack.audioUrl || (freshTrack as any).url)) {
+            streamUrl = freshTrack.audioUrl || (freshTrack as any).url;
+            track.audioUrl = streamUrl;
+          } else {
+            const searchResults = await searchSongs(`${track.artist} ${track.title}`, 0, 5);
+            if (searchResults.length > 0 && searchResults[0].audioUrl) {
+              streamUrl = searchResults[0].audioUrl;
+              track.audioUrl = streamUrl;
+            }
+          }
+        } catch (refreshErr) {
+          console.warn("Error refreshing stream URL:", refreshErr);
+        }
+      }
+
+      if (!streamUrl) {
+        throw new Error("No playable stream URL available");
+      }
+
       // Record to Recently Played storage
       addRecentlyPlayed(track).then(setRecentlyPlayed);
 
-      const streamUrl = track.audioUrl || (track as any).url;
       const player = createUnifiedPlayer(streamUrl);
       playerRef.current = player;
+
+      if (player.setRemoteCommandListeners) {
+        player.setRemoteCommandListeners({
+          onPlay: () => {
+            if (playerRef.current) playerRef.current.play();
+            setIsPlaying(true);
+            setPlaybackState("playing");
+          },
+          onPause: () => {
+            if (playerRef.current) playerRef.current.pause();
+            setIsPlaying(false);
+            setPlaybackState("paused");
+          },
+          onNext: () => {
+            skipToNext();
+          },
+          onPrevious: () => {
+            skipToPrevious();
+          },
+          onInterruption: () => {
+            if (playerRef.current) {
+              try { playerRef.current.pause(); } catch {}
+            }
+            setIsPlaying(false);
+            setPlaybackState("paused");
+          },
+          onError: () => {
+            handleStreamPlaybackError(item, retryCount);
+          },
+        });
+      }
 
       try {
         if (player.setActiveForLockScreen) {
@@ -227,7 +302,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPlaybackState("playing");
     } catch (error) {
       console.error("Error playing track:", error);
-      setPlaybackState("error");
+      await handleStreamPlaybackError(item, retryCount);
     }
   };
 

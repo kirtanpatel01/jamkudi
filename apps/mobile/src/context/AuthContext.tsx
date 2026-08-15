@@ -82,19 +82,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const res = await updateProfileApi(updates);
         updatedProfile = res.profile;
       } catch (err: any) {
-        console.warn('Backend API update failed, falling back to direct Supabase client:', err.message);
-        const { data, error: dbErr } = await supabase
-          .from('profiles')
-          .upsert({ id: user.id, ...updates, updated_at: new Date().toISOString() })
-          .select('*')
-          .single();
+        console.warn('Backend API update notice, using direct Supabase fallback:', err.message);
 
-        if (!dbErr && data) {
+        // Try direct update first
+        let { data, error: dbErr } = await supabase
+          .from('profiles')
+          .update({ ...updates, updated_at: new Date().toISOString() })
+          .eq('id', user.id)
+          .select('*')
+          .maybeSingle();
+
+        // If row doesn't exist yet, try upsert
+        if (dbErr || !data) {
+          const upsertRes = await supabase
+            .from('profiles')
+            .upsert({ id: user.id, ...updates, updated_at: new Date().toISOString() })
+            .select('*')
+            .maybeSingle();
+          data = upsertRes.data;
+          dbErr = upsertRes.error;
+        }
+
+        if (dbErr) {
+          console.error('Supabase profile update error:', dbErr);
+          throw new Error(dbErr.message || 'Failed to save profile changes');
+        }
+
+        if (data) {
           updatedProfile = data as UserProfile;
         }
       }
 
-      setProfile((prev) => (prev ? { ...prev, ...updates, ...(updatedProfile || {}) } : updatedProfile));
+      setProfile((prev) => {
+        const baseProfile: UserProfile = prev || {
+          id: user.id,
+          username: user.email?.split('@')[0] || user.id.slice(0, 8),
+          display_name: null,
+          avatar_url: null,
+          bio: null,
+          favorite_genres: [],
+          favorite_artists: [],
+          onboarding_completed: false,
+        };
+        return {
+          ...baseProfile,
+          ...updates,
+          ...(updatedProfile || {}),
+        };
+      });
     } catch (err: any) {
       console.error('Failed to update profile data:', err);
       throw err;

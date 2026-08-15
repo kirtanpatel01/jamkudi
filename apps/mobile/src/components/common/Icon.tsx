@@ -31,7 +31,10 @@ export type IconName =
   | "mail"
   | "disc"
   | "check"
-  | "x";
+  | "x"
+  | "shuffle"
+  | "repeat"
+  | "repeat-one";
 
 export interface IconProps {
   name: IconName;
@@ -75,6 +78,9 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   disc: { outline: "album", filled: "album" },
   check: { outline: "check", filled: "check" },
   x: { outline: "close", filled: "close" },
+  shuffle: { outline: "shuffle", filled: "shuffle" },
+  repeat: { outline: "repeat", filled: "repeat" },
+  "repeat-one": { outline: "repeat-one", filled: "repeat-one" },
 };
 
 export const Icon: React.FC<IconProps> = ({
