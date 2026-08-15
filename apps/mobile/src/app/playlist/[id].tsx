@@ -21,6 +21,17 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }
 
+export function cleanTitle(str?: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 export default function PlaylistDetailScreen() {
   const theme = useTheme();
   const router = useRouter();
@@ -92,7 +103,7 @@ export default function PlaylistDetailScreen() {
   const handlePlayAll = async () => {
     if (playlist && playlist.tracks.length > 0) {
       await playQueue(playlist.tracks, 0, "playlist");
-      showToast(`Playing playlist: ${playlist.title}`, "success");
+      showToast(`Playing playlist: ${cleanTitle(playlist.title)}`, "success");
     }
   };
 
@@ -100,14 +111,14 @@ export default function PlaylistDetailScreen() {
     if (playlist && playlist.tracks.length > 0) {
       const shuffled = [...playlist.tracks].sort(() => Math.random() - 0.5);
       await playQueue(shuffled, 0, "playlist");
-      showToast(`Shuffling playlist: ${playlist.title}`, "info");
+      showToast(`Shuffling playlist: ${cleanTitle(playlist.title)}`, "info");
     }
   };
 
   const handleSelectSong = async (song: JioSaavnSong, index: number) => {
     if (playlist) {
       await playQueue(playlist.tracks, index, "playlist");
-      showToast(`Playing ${song.title}`, "info");
+      showToast(`Playing ${cleanTitle(song.title)}`, "info");
     }
   };
 
@@ -115,7 +126,7 @@ export default function PlaylistDetailScreen() {
     if (!playlist || !isUserPlaylist) return;
     try {
       await removeTrackFromPlaylist(playlist.id, song.id);
-      showToast(`Removed "${song.title}" from playlist`, "info");
+      showToast(`Removed "${cleanTitle(song.title)}" from playlist`, "info");
     } catch (err: any) {
       showToast("Couldn't remove track", "error");
     }
@@ -148,7 +159,7 @@ export default function PlaylistDetailScreen() {
       showToast("Updated playlist details", "success");
       setShowEditModal(false);
     } catch (err: any) {
-      showToast("Couldn't update playlist", "error");
+      showToast("Failed to update playlist", "error");
     } finally {
       setEditing(false);
     }
@@ -158,21 +169,17 @@ export default function PlaylistDetailScreen() {
     if (!playlist || !isUserPlaylist) return;
 
     Alert.alert(
-      "Delete Playlist?",
-      `Are you sure you want to delete "${playlist.title}"? This cannot be undone.`,
+      "Delete Playlist",
+      `Are you sure you want to delete "${cleanTitle(playlist.title)}"? This action cannot be undone.`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            try {
-              await deletePlaylist(playlist.id);
-              showToast(`Deleted playlist "${playlist.title}"`, "info");
-              router.back();
-            } catch {
-              showToast("Couldn't delete playlist", "error");
-            }
+            await deletePlaylist(playlist.id);
+            showToast("Playlist deleted", "info");
+            router.back();
           },
         },
       ]
@@ -180,57 +187,57 @@ export default function PlaylistDetailScreen() {
   };
 
   return (
-    <Screen paddingHorizontal={16}>
-      {/* 1. Header Bar (Safe-Area aligned) */}
-      <View className="flex-row items-center justify-between mt-1 mb-3">
+    <Screen scrollable={false}>
+      {/* 1. Header Bar */}
+      <View className="flex-row items-center justify-between mt-1 mb-4">
         <Pressable
           onPress={() => router.back()}
-          hitSlop={12}
-          className="w-9 h-9 items-center justify-center rounded-full active:bg-white/10"
+          className="w-10 h-10 rounded-full items-center justify-center bg-white/5 border border-white/10 active:bg-white/15"
+          hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
-          <Icon name="skip-back" size={22} color={theme.textPrimary} />
+          <Icon name="chevron-left" size={22} color="#FFFFFF" />
         </Pressable>
 
-        <AppText variant="caption" className="uppercase tracking-widest text-[10px] text-zinc-400 font-bold">
-          {isUserPlaylist ? "YOUR PLAYLIST" : "PLAYLIST DISCOVERY"}
+        <AppText variant="caption" className="text-xs uppercase tracking-widest text-zinc-400 font-extrabold">
+          YOUR PLAYLIST
         </AppText>
 
-        {isUserPlaylist && playlist ? (
+        {isUserPlaylist ? (
           <Pressable
             onPress={handleDeletePlaylist}
-            hitSlop={12}
-            className="w-9 h-9 items-center justify-center rounded-full active:bg-red-500/20"
+            className="w-10 h-10 rounded-full items-center justify-center bg-red-900/20 border border-red-500/30 active:bg-red-900/40"
+            hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Delete playlist"
           >
-            <Icon name="trash" size={18} color="#EF4444" />
+            <Icon name="trash" size={18} color="#F87171" />
           </Pressable>
         ) : (
-          <View className="w-9" />
+          <View className="w-10" />
         )}
       </View>
 
       {loading ? (
-        <View className="py-24 items-center justify-center">
-          <ActivityIndicator size="large" color={theme.primary} />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#A855F7" />
           <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
-            Loading playlist details...
+            Loading playlist...
           </AppText>
         </View>
       ) : !playlist ? (
-        <View className="py-24 items-center px-6">
-          <Icon name="alert-circle" size={36} color={theme.textMuted} />
-          <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1">
-            Playlist not found
+        <View className="flex-1 items-center justify-center px-6">
+          <Icon name="alert-circle" size={40} color="#F87171" />
+          <AppText variant="songTitle" className="text-lg font-bold text-center text-white mt-3 mb-1">
+            Playlist Not Found
           </AppText>
-          <AppText variant="caption" className="text-xs text-zinc-400 text-center mb-4">
-            This playlist may have been deleted or is unavailable.
+          <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center mb-6">
+            The playlist you are looking for does not exist or has been removed.
           </AppText>
           <Pressable
             onPress={() => router.back()}
-            className="px-5 py-2 rounded-full bg-purple-600 active:bg-purple-700"
+            className="px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40"
           >
             <AppText className="text-xs font-bold text-white">Go Back</AppText>
           </Pressable>
@@ -244,18 +251,18 @@ export default function PlaylistDetailScreen() {
           ListHeaderComponent={
             <View className="items-center mb-5">
               {/* 2. Scaled Artwork */}
-              <View className="w-32 h-32 rounded-2xl overflow-hidden mb-3 bg-zinc-800 border border-purple-500/20 shadow-xl items-center justify-center">
+              <View className="w-40 h-40 rounded-3xl overflow-hidden mb-3.5 bg-[#161224] border border-[#2B233D] shadow-xl shadow-purple-950/40 items-center justify-center">
                 <ArtworkImage
                   uri={playlist.artwork}
-                  iconSize={40}
+                  iconSize={48}
                   className="w-full h-full"
                 />
               </View>
 
               {/* 3. Playlist Title & Inline Edit Icon */}
-              <View className="flex-row items-center justify-center gap-x-1.5 px-4 mb-0.5">
-                <AppText variant="screenTitle" className="text-lg font-bold text-center" numberOfLines={1}>
-                  {playlist.title}
+              <View className="flex-row items-center justify-center gap-x-2 px-4 mb-1">
+                <AppText variant="screenTitle" className="text-xl font-extrabold text-center text-white tracking-tight" numberOfLines={1}>
+                  {cleanTitle(playlist.title)}
                 </AppText>
                 {isUserPlaylist && (
                   <Pressable
@@ -269,14 +276,14 @@ export default function PlaylistDetailScreen() {
                     accessibilityRole="button"
                     accessibilityLabel="Edit playlist details"
                   >
-                    <Icon name="edit" size={15} color={theme.textMuted} />
+                    <Icon name="edit" size={16} color="#C084FC" />
                   </Pressable>
                 )}
               </View>
 
               {/* 4. Description & Song Count */}
               <AppText variant="artist" className="text-xs text-zinc-400 font-medium text-center mb-4 px-6" numberOfLines={1}>
-                {playlist.subtitle || "Custom User Playlist"} • {playlist.tracks.length} {playlist.tracks.length === 1 ? "song" : "songs"}
+                {cleanTitle(playlist.subtitle || "Custom User Playlist")} • {playlist.tracks.length} {playlist.tracks.length === 1 ? "song" : "songs"}
               </AppText>
 
               {/* 5. Play & Shuffle Controls */}
@@ -284,22 +291,22 @@ export default function PlaylistDetailScreen() {
                 <View className="flex-row items-center justify-center gap-x-3 mb-4">
                   <Pressable
                     onPress={handlePlayAll}
-                    className="flex-row items-center px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md"
+                    className="flex-row items-center px-7 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40 active:scale-[0.96]"
                   >
                     <Icon name="play" size={16} color="#FFFFFF" />
-                    <AppText className="ml-2 text-xs font-bold text-white">Play</AppText>
+                    <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Play</AppText>
                   </Pressable>
 
                   <Pressable
                     onPress={handleShufflePlay}
-                    className="flex-row items-center px-5 py-2.5 rounded-full bg-white/10 border border-white/15 active:bg-white/20"
+                    className="flex-row items-center px-6 py-2.5 rounded-full bg-[#161224] border border-[#2B233D] active:scale-[0.96]"
                   >
                     <Icon name="shuffle" size={16} color="#FFFFFF" />
-                    <AppText className="ml-2 text-xs font-bold text-white">Shuffle</AppText>
+                    <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Shuffle</AppText>
                   </Pressable>
                 </View>
               ) : (
-                <View className="py-6 items-center px-4 rounded-2xl bg-white/5 border border-white/5 w-full my-2">
+                <View className="py-6 items-center px-4 rounded-2xl bg-[#161224] border border-[#2B233D] w-full my-2">
                   <AppText variant="caption" className="text-xs text-zinc-400 text-center mb-3">
                     This playlist is currently empty. Add songs from Search to start building it!
                   </AppText>
@@ -318,11 +325,15 @@ export default function PlaylistDetailScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center py-2 px-1 rounded-xl mb-1 active:bg-white/5"
+                className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                  isCurrent
+                    ? 'bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40'
+                    : 'bg-[#161224]/80 border-[#2B233D]/60'
+                }`}
               >
                 {/* 6. Reordering Controls (Vertically centered) */}
                 {isUserPlaylist && playlist.tracks.length > 1 ? (
-                  <View className="flex-col items-center justify-center mr-1.5 w-4">
+                  <View className="flex-col items-center justify-center mr-2 w-4">
                     <Pressable
                       onPress={() => handleMoveTrack(index, "up")}
                       disabled={index === 0}
@@ -330,7 +341,7 @@ export default function PlaylistDetailScreen() {
                       style={{ opacity: index === 0 ? 0.2 : 0.7 }}
                       hitSlop={6}
                     >
-                      <Icon name="chevron-up" size={14} color={theme.textMuted} />
+                      <Icon name="chevron-up" size={14} color="#9CA3AF" />
                     </Pressable>
                     <Pressable
                       onPress={() => handleMoveTrack(index, "down")}
@@ -339,7 +350,7 @@ export default function PlaylistDetailScreen() {
                       style={{ opacity: index === playlist.tracks.length - 1 ? 0.2 : 0.7 }}
                       hitSlop={6}
                     >
-                      <Icon name="chevron-down" size={14} color={theme.textMuted} />
+                      <Icon name="chevron-down" size={14} color="#9CA3AF" />
                     </Pressable>
                   </View>
                 ) : (
@@ -352,55 +363,41 @@ export default function PlaylistDetailScreen() {
                 )}
 
                 {/* 7. Artwork */}
-                <View className="relative w-10 h-10 rounded-lg overflow-hidden mr-2.5 bg-zinc-800 shrink-0">
+                <View className="relative w-11 h-11 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
                   <ArtworkImage uri={item.artwork} iconSize={16} className="w-full h-full" />
                   {isCurrent && (
-                    <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                    <View className="absolute inset-0 bg-black/60 items-center justify-center">
                       <Icon
                         name={isPlaying ? "pause" : "play"}
                         size={14}
-                        color="#FFFFFF"
+                        color="#C084FC"
                       />
                     </View>
                   )}
                 </View>
 
                 {/* 8. Song Info (Flexible middle) */}
-                <View className="flex-1 min-w-0 mr-2 justify-center">
+                <View className="flex-1 min-w-0 mr-3 justify-center">
                   <AppText
                     variant="songTitle"
                     className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-400 font-bold" : ""
+                      isCurrent ? "text-purple-300 font-bold" : "text-white"
                     }`}
                     numberOfLines={1}
                   >
-                    {item.title}
+                    {cleanTitle(item.title)}
                   </AppText>
                   <AppText
                     variant="artist"
                     className="text-xs text-zinc-400 font-medium"
                     numberOfLines={1}
                   >
-                    {item.artist}
+                    {cleanTitle(item.artist)}
                   </AppText>
                 </View>
 
-                {/* 9. Circular Action Buttons */}
-                <View className="flex-row items-center gap-x-1.5 mr-1.5 shrink-0">
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      playNext(item, "playlist");
-                      showToast(`Added to Up Next: ${item.title}`, "success");
-                    }}
-                    className="w-7 h-7 rounded-full bg-purple-600/30 active:bg-purple-600/50 border border-purple-500/40 items-center justify-center"
-                    hitSlop={4}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Play next ${item.title}`}
-                  >
-                    <Icon name="play" size={12} color="#C084FC" />
-                  </Pressable>
-
+                {/* 9. Action Buttons */}
+                <View className="flex-row items-center gap-x-2 shrink-0">
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();
@@ -408,11 +405,11 @@ export default function PlaylistDetailScreen() {
                       setShowAddOtherModal(true);
                     }}
                     className="w-7 h-7 rounded-full bg-white/5 active:bg-white/15 border border-white/10 items-center justify-center"
-                    hitSlop={4}
+                    hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}
                   >
-                    <Icon name="plus" size={12} color="#D4D4D8" />
+                    <Icon name="plus" size={13} color="#D4D4D8" />
                   </Pressable>
 
                   {isUserPlaylist && (
@@ -421,24 +418,22 @@ export default function PlaylistDetailScreen() {
                         e.stopPropagation();
                         handleRemoveTrack(item);
                       }}
-                      className="w-7 h-7 rounded-full bg-red-900/20 active:bg-red-900/40 border border-red-500/20 items-center justify-center"
+                      className="w-7 h-7 rounded-full bg-red-900/20 active:bg-red-900/40 border border-red-500/30 items-center justify-center"
                       hitSlop={6}
                       accessibilityRole="button"
                       accessibilityLabel={`Remove ${item.title} from playlist`}
                     >
-                      <Icon name="trash" size={12} color="#F87171" />
+                      <Icon name="trash" size={13} color="#F87171" />
                     </Pressable>
                   )}
-                </View>
 
-                {/* 10. Fixed-width Duration Column */}
-                {item.duration > 0 && (
-                  <View className="w-8 items-end shrink-0">
-                    <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium">
+                  {/* 10. Track Duration */}
+                  {item.duration > 0 && (
+                    <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium ml-0.5">
                       {formatDuration(item.duration)}
                     </AppText>
-                  </View>
-                )}
+                  )}
+                </View>
               </Pressable>
             );
           }}

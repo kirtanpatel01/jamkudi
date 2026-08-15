@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { TextInput, TextInputProps } from 'react-native';
 import { AppText } from '@/components/common/AppText';
 import { Icon, IconName } from '@/components/common/Icon';
@@ -12,7 +12,7 @@ export interface AuthInputProps extends Omit<TextInputProps, 'style'> {
   isPassword?: boolean;
 }
 
-export const AuthInput: React.FC<AuthInputProps> = ({
+export const AuthInput = forwardRef<TextInput, AuthInputProps>(({
   label,
   icon,
   error,
@@ -23,26 +23,23 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   autoCapitalize = 'none',
   keyboardType = 'default',
   autoComplete,
+  returnKeyType,
+  onSubmitEditing,
   ...rest
-}) => {
+}, ref) => {
   const theme = useTheme();
-  const inputRef = useRef<TextInput>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const focusInput = () => {
-    inputRef.current?.focus();
-  };
 
   const getBorderColor = () => {
     if (error) return '#EF4444'; // Red-500
     if (isFocused) return '#A855F7'; // Purple-500
-    return theme.isDark ? '#3B334C' : '#E9E5ED';
+    return theme.isDark ? '#2B233D' : '#E9E5ED';
   };
 
   const getBackgroundColor = () => {
-    if (isFocused) return theme.isDark ? '#211B33' : '#F9F5FF';
-    return theme.isDark ? '#181424' : '#FFFFFF';
+    if (isFocused) return theme.isDark ? '#1C162E' : '#F9F5FF';
+    return theme.isDark ? '#161224' : '#FFFFFF';
   };
 
   return (
@@ -54,7 +51,11 @@ export const AuthInput: React.FC<AuthInputProps> = ({
 
       {/* Full-width Interactive Container */}
       <Pressable
-        onPress={focusInput}
+        onPress={() => {
+          if (typeof ref === 'object' && ref?.current) {
+            ref.current.focus();
+          }
+        }}
         className="w-full h-14 px-4 rounded-2xl border flex-row items-center justify-between"
         style={{
           borderColor: getBorderColor(),
@@ -71,15 +72,17 @@ export const AuthInput: React.FC<AuthInputProps> = ({
 
         {/* TextInput occupying full available width */}
         <TextInput
-          ref={inputRef}
+          ref={ref}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={theme.isDark ? '#6B7280' : '#9CA3AF'}
+          placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
           secureTextEntry={isPassword && !showPassword}
           autoCapitalize={autoCapitalize}
           keyboardType={keyboardType}
           autoComplete={autoComplete}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className="flex-1 h-full text-base font-semibold py-0"
@@ -115,4 +118,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({
       )}
     </View>
   );
-};
+});
+
+AuthInput.displayName = 'AuthInput';
+

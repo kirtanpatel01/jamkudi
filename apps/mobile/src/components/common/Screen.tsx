@@ -25,6 +25,7 @@ export interface ScreenProps {
   paddingHorizontal?: number;
   unsafeTop?: boolean;
   unsafeBottom?: boolean;
+  hasMiniPlayer?: boolean;
   className?: string;
 }
 
@@ -38,17 +39,20 @@ export const Screen: React.FC<ScreenProps> = ({
   paddingHorizontal = Spacing.lg,
   unsafeTop = false,
   unsafeBottom = false,
+  hasMiniPlayer = true,
+  className = "",
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const tabHeight = SafeTabHeight();
 
+  const playerOffset = hasMiniPlayer ? 68 : 0;
   const paddingTop = unsafeTop ? 0 : insets.top;
-  const paddingBottom = unsafeBottom ? 0 : tabHeight > 0 ? tabHeight + 68 : insets.bottom + 68;
+  const paddingBottom = unsafeBottom ? 0 : tabHeight > 0 ? tabHeight + playerOffset : insets.bottom + playerOffset;
 
   return (
     <View
-      className="flex-1"
+      className={`flex-1 ${className}`}
       style={[{ backgroundColor: theme.background }, style]}
     >
       {header && <View style={{ paddingTop }}>{header}</View>}

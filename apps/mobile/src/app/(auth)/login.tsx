@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/common/Screen';
 import { AppText } from '@/components/common/AppText';
@@ -17,29 +17,44 @@ export default function LoginScreen() {
   const { signIn, error, clearError } = useAuth();
   const { showToast } = useToast();
 
+  const passwordRef = useRef<TextInput>(null);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  const validateInput = (): boolean => {
+    let valid = true;
+    setEmailError(null);
+    setPasswordError(null);
+    setLocalError(null);
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setEmailError('Please enter your email address');
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError('Please enter your password');
+      valid = false;
+    }
+
+    return valid;
+  };
 
   const handleLogin = async () => {
     setLocalError(null);
     clearError();
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setLocalError('Please enter your email address');
-      return;
-    }
-
-    if (!password) {
-      setLocalError('Please enter your password');
-      return;
-    }
+    if (!validateInput()) return;
 
     setSubmitting(true);
     try {
-      await signIn(trimmedEmail, password);
+      await signIn(email.trim(), password);
       showToast('Welcome back!', 'success');
       router.replace('/(tabs)');
     } catch (err: any) {
@@ -51,22 +66,22 @@ export default function LoginScreen() {
     }
   };
 
-  const errorMessage = localError || error;
+  const bannerError = localError || error;
 
   return (
-    <Screen paddingHorizontal={24}>
+    <Screen paddingHorizontal={24} hasMiniPlayer={false}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1"
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 32 }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 24 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {/* Header App Icon & Titles */}
           <View className="items-center mb-8">
-            <View className="w-20 h-20 rounded-3xl overflow-hidden border border-purple-500/30 bg-zinc-900 items-center justify-center mb-4">
+            <View className="w-20 h-20 rounded-3xl overflow-hidden border border-purple-500/30 bg-[#191428] items-center justify-center mb-4 shadow-lg shadow-purple-950/50">
               <Image
                 source={JAMKUDI_LOGO}
                 style={{ width: '100%', height: '100%' }}
@@ -78,45 +93,59 @@ export default function LoginScreen() {
               Jamkudi Music
             </AppText>
 
-            <AppText variant="caption" className="text-sm text-zinc-400 font-medium text-center px-4">
+            <AppText variant="caption" className="text-sm text-zinc-400 font-medium text-center px-4 leading-5">
               Sign in to continue listening to your personal library
             </AppText>
           </View>
 
-          {/* Error Banner */}
-          {errorMessage && (
-            <View className="p-4 rounded-2xl bg-red-950/90 border border-red-500/60 flex-row items-center mb-6">
+          {/* Form Error Banner */}
+          {bannerError && (
+            <View className="p-4 rounded-2xl bg-red-950/90 border border-red-500/60 flex-row items-center mb-6 shadow-md shadow-red-950/50">
               <Icon name="alert-circle" size={22} color="#F87171" className="mr-3" />
               <AppText variant="caption" className="text-sm text-red-200 flex-1 font-semibold">
-                {errorMessage}
+                {bannerError}
               </AppText>
             </View>
           )}
 
           {/* Form Fields */}
           <AuthInput
-            label="Email Address"
+            label="EMAIL ADDRESS"
             icon="mail"
             value={email}
             onChangeText={(text) => {
               setEmail(text);
-              if (errorMessage) setLocalError(null);
+              if (emailError) setEmailError(null);
+              if (bannerError) setLocalError(null);
             }}
             placeholder="you@example.com"
             keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
             autoComplete="email"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            error={emailError}
           />
 
           <AuthInput
-            label="Password"
+            ref={passwordRef}
+            label="PASSWORD"
             icon="lock"
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              if (errorMessage) setLocalError(null);
+              if (passwordError) setPasswordError(null);
+              if (bannerError) setLocalError(null);
             }}
             placeholder="Enter password"
             isPassword={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="password"
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
+            error={passwordError}
           />
 
           {/* Primary CTA Button */}

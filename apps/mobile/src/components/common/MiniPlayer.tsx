@@ -46,9 +46,9 @@ export const MiniPlayer: React.FC = () => {
       className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3 shadow-2xl overflow-hidden active:opacity-95"
       style={{
         bottom: bottomOffset,
-        backgroundColor: theme.isDark ? "#1E1B2E" : "#FFFFFF",
+        backgroundColor: theme.surfaceElevated,
         borderWidth: 1,
-        borderColor: theme.isDark ? "#2E2A45" : "#E5E7EB",
+        borderColor: theme.border,
         elevation: 10,
         zIndex: 99,
       }}

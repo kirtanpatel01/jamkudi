@@ -24,10 +24,19 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
       disabled={disabled || loading}
       accessibilityRole="button"
       accessibilityState={{ disabled: disabled || loading }}
-      className={`w-full h-14 rounded-2xl items-center justify-center active:opacity-90 ${
-        disabled || loading ? 'opacity-60 bg-purple-700' : 'bg-purple-600 active:bg-purple-700'
+      className={`w-full h-14 rounded-2xl items-center justify-center ${
+        disabled || loading ? 'opacity-60 bg-purple-700' : 'bg-purple-600 active:bg-purple-700 active:scale-[0.98]'
       }`}
-      style={style}
+      style={[
+        {
+          shadowColor: '#A855F7',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 10,
+          elevation: 5,
+        },
+        style,
+      ]}
     >
       {loading ? (
         <ActivityIndicator size="small" color="#FFFFFF" />

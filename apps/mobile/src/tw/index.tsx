@@ -85,7 +85,11 @@ Pressable.displayName = "CSS(Pressable)";
 export const TextInput = (
   props: React.ComponentProps<typeof RNTextInput> & { className?: string }
 ) => {
-  return useCssElement(RNTextInput as any, props, { className: "style" });
+  return useCssElement(
+    RNTextInput as any,
+    { style: { fontFamily: "Nunito_400Regular" }, ...props },
+    { className: "style" }
+  );
 };
 TextInput.displayName = "CSS(TextInput)";
 

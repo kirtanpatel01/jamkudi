@@ -13,6 +13,17 @@ interface LyricsModalProps {
   onClose: () => void;
 }
 
+function cleanTitle(str?: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) => {
   const theme = useTheme();
   const { currentTrack } = usePlayer();
@@ -45,13 +56,12 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
       onRequestClose={onClose}
     >
       <View
-        className="flex-1 px-6 pt-12 pb-6"
-        style={{ backgroundColor: theme.background }}
+        className="flex-1 px-6 pt-12 pb-6 bg-[#0B0813]"
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-white/10">
+        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-[#2B233D]">
           <View className="flex-row items-center flex-1 mr-4">
-            <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800">
+            <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
               <ArtworkImage
                 uri={currentTrack?.artwork}
                 iconSize={20}
@@ -59,20 +69,20 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
               />
             </View>
 
-            <View className="flex-1">
+            <View className="flex-1 min-w-0">
               <AppText
                 variant="songTitle"
-                className="text-base font-bold mb-0.5"
+                className="text-base font-bold text-white mb-0.5"
                 numberOfLines={1}
               >
-                {currentTrack?.title || "Song Lyrics"}
+                {cleanTitle(currentTrack?.title) || "Song Lyrics"}
               </AppText>
               <AppText
                 variant="artist"
                 className="text-xs text-zinc-400 font-medium"
                 numberOfLines={1}
               >
-                {currentTrack?.artist || "Unknown Artist"}
+                {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
               </AppText>
             </View>
           </View>
@@ -80,16 +90,16 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
           <Pressable
             onPress={onClose}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full active:bg-white/10"
+            className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
           >
-            <Icon name="chevron-down" size={26} color={theme.textPrimary} />
+            <Icon name="chevron-down" size={24} color="#FFFFFF" />
           </Pressable>
         </View>
 
         {/* Content */}
         {loading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={theme.primary} />
+            <ActivityIndicator size="large" color="#A855F7" />
             <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
               Loading Lyrics...
             </AppText>

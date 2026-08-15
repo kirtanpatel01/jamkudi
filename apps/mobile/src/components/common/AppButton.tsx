@@ -1,10 +1,9 @@
 import React from "react";
-import { ActivityIndicator, View, ViewStyle, StyleProp } from "react-native";
+import { ActivityIndicator, ViewStyle, StyleProp } from "react-native";
 import { AppText } from "@/components/common/AppText";
 import { Icon, IconName } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
-import { BorderRadius, Spacing } from "@/constants/theme";
-import { Pressable } from "@/tw";
+import { View, Pressable } from "@/tw";
 
 export interface AppButtonProps {
   title: string;
@@ -35,40 +34,56 @@ export const AppButton: React.FC<AppButtonProps> = ({
 }) => {
   const theme = useTheme();
 
-  const heightMap = { sm: 40, md: 48, lg: 56 };
-  const height = heightMap[size];
+  const heightClass = size === "sm" ? "h-10 px-4" : size === "lg" ? "h-14 px-6" : "h-12 px-5";
+  const radiusClass = "rounded-2xl";
 
-  const getBackgroundColor = (pressed: boolean) => {
-    if (variant === "primary") {
-      if (disabled) return "rgba(139, 92, 246, 0.2)";
-      return pressed ? "#7C3AED" : "#8B5CF6";
+  const getVariantClasses = () => {
+    if (disabled || loading) {
+      if (variant === "primary") return "bg-purple-800/60 opacity-60";
+      return "bg-zinc-800/60 opacity-60";
     }
-    if (disabled) return theme.surface;
 
     switch (variant) {
+      case "primary":
+        return "bg-purple-600 active:bg-purple-700 active:scale-[0.98]";
       case "secondary":
-        return pressed ? theme.surfacePressed : theme.surface;
+        return theme.isDark
+          ? "bg-[#241E34] active:bg-[#312946] active:scale-[0.98]"
+          : "bg-purple-100 active:bg-purple-200 active:scale-[0.98]";
       case "outline":
+        return theme.isDark
+          ? "bg-transparent border border-purple-500/40 active:bg-purple-950/30 active:scale-[0.98]"
+          : "bg-transparent border border-purple-300 active:bg-purple-50 active:scale-[0.98]";
       case "ghost":
-        return pressed ? theme.surfacePressed : "transparent";
-    }
-  };
-
-  const getTextColor = () => {
-    if (variant === "primary") return disabled ? "rgba(255, 255, 255, 0.45)" : "#FFFFFF";
-    if (disabled) return theme.textMuted;
-
-    switch (variant) {
-      case "secondary":
-      case "outline":
-      case "ghost":
-        return theme.textPrimary;
+        return "bg-transparent active:bg-white/10 active:scale-[0.98]";
       default:
-        return "#FFFFFF";
+        return "bg-purple-600 active:bg-purple-700 active:scale-[0.98]";
     }
   };
 
-  const iconColor = getTextColor();
+  const getTextColorClass = () => {
+    if (variant === "primary") return disabled ? "text-purple-300" : "text-white";
+    if (disabled) return "text-zinc-500";
+
+    switch (variant) {
+      case "secondary":
+      case "outline":
+      case "ghost":
+        return theme.isDark ? "text-white" : "text-zinc-900";
+      default:
+        return "text-white";
+    }
+  };
+
+  const textColorClass = getTextColorClass();
+  const iconColor =
+    variant === "primary"
+      ? disabled
+        ? "#C084FC"
+        : "#FFFFFF"
+      : theme.isDark
+      ? "#FFFFFF"
+      : "#18151D";
 
   return (
     <Pressable
@@ -77,37 +92,29 @@ export const AppButton: React.FC<AppButtonProps> = ({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{ disabled: disabled || loading }}
-      className={`flex-row items-center justify-center min-w-[80px] ${className}`}
-      style={({ pressed }) => [
-        {
-          height,
-          backgroundColor: getBackgroundColor(pressed),
-          borderColor:
-            variant === "outline"
-              ? theme.border
-              : variant === "primary" && disabled
-              ? "rgba(168, 85, 247, 0.25)"
-              : "transparent",
-          borderWidth: variant === "outline" || (variant === "primary" && disabled) ? 1.5 : 0,
-          borderRadius: BorderRadius.lg,
-          paddingHorizontal: size === "sm" ? Spacing.md : Spacing.xl,
-        },
+      className={`flex-row items-center justify-center min-w-[80px] ${heightClass} ${radiusClass} ${getVariantClasses()} ${className}`}
+      style={[
+        variant === "primary" && !disabled && !loading
+          ? {
+              shadowColor: "#A855F7",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 4,
+            }
+          : undefined,
         style,
       ]}
     >
       {loading ? (
         <View className="flex-row items-center justify-center">
-          <ActivityIndicator size="small" color={iconColor} style={{ marginRight: 8 }} />
-          <AppText
-            variant="button"
-            className="text-base font-bold text-center"
-            style={{ color: iconColor }}
-          >
+          <ActivityIndicator size="small" color={iconColor} className="mr-2" />
+          <AppText className={`text-base font-bold text-center ${textColorClass}`}>
             {title}
           </AppText>
         </View>
       ) : (
-        <>
+        <View className="flex-row items-center justify-center">
           {leftIcon && (
             <Icon
               name={leftIcon}
@@ -116,11 +123,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
               className="mr-2"
             />
           )}
-          <AppText
-            variant="button"
-            className="text-base font-bold text-center"
-            style={{ color: iconColor }}
-          >
+          <AppText className={`text-base font-bold text-center ${textColorClass}`}>
             {title}
           </AppText>
           {rightIcon && (
@@ -131,7 +134,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
               className="ml-2"
             />
           )}
-        </>
+        </View>
       )}
     </Pressable>
   );

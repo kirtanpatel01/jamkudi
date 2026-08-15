@@ -19,87 +19,112 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+function decodeText(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [translateY] = useState(new Animated.Value(-20));
 
   const showToast = useCallback(
     (message: string, type: ToastType = "info") => {
       const id = Math.random().toString();
-      setToast({ id, message, type });
+      setToast({ id, message: decodeText(message), type });
+
+      fadeAnim.setValue(0);
+      translateY.setValue(-20);
 
       Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.delay(2200),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          Animated.spring(translateY, {
+            toValue: 0,
+            friction: 7,
+            tension: 80,
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.delay(2400),
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateY, {
+            toValue: -15,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]),
       ]).start(() => {
         setToast((current) => (current?.id === id ? null : current));
       });
     },
-    [fadeAnim]
+    [fadeAnim, translateY]
   );
 
-  const getBgColor = (type: ToastType) => {
+  const getIconDetails = (type: ToastType) => {
     switch (type) {
       case "success":
-        return "#059669"; // Emerald 600
+        return { name: "check" as const, color: "#34D399" }; // Emerald 400
       case "error":
-        return "#DC2626"; // Red 600
+        return { name: "alert-circle" as const, color: "#F87171" }; // Red 400
       default:
-        return "#4B5563"; // Zinc 600
+        return { name: "music" as const, color: "#C084FC" }; // Purple 400
     }
   };
+
+  const iconDetails = toast ? getIconDetails(toast.type) : null;
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
-      {toast && (
+      {toast && iconDetails && (
         <Animated.View
           style={[
             styles.container,
             {
               top: Math.max(insets.top + 8, 16),
               opacity: fadeAnim,
-              transform: [
-                {
-                  translateY: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-20, 0],
-                  }),
-                },
-              ],
+              transform: [{ translateY }],
             },
           ]}
           pointerEvents="none"
         >
           <View
-            className="flex-row items-center px-4 py-3 rounded-2xl shadow-xl border border-white/10"
-            style={{ backgroundColor: getBgColor(toast.type) }}
+            className="flex-row items-center px-5 py-3 rounded-full border border-purple-500/30 shadow-2xl bg-[#231D33]"
+            style={{
+              shadowColor: "#A855F7",
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.35,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
           >
             <Icon
-              name={
-                toast.type === "success"
-                  ? "heart-filled"
-                  : toast.type === "error"
-                  ? "bell"
-                  : "music"
-              }
+              name={iconDetails.name}
               size={18}
-              color="#FFFFFF"
+              color={iconDetails.color}
             />
-            <AppText variant="body" className="ml-2.5 text-xs font-bold text-white">
+            <AppText variant="body" className="ml-2.5 text-xs font-bold text-white tracking-wide">
               {toast.message}
             </AppText>
           </View>

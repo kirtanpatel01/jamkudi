@@ -363,11 +363,34 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <View className="py-20 items-center justify-center">
-            <ActivityIndicator size="large" color={theme.primary} />
-            <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
-              Building your personalized music feed...
-            </AppText>
+          <View className="py-8">
+            {/* Skeleton Loader Placeholders */}
+            <View className="mb-8">
+              <View className="w-40 h-6 bg-zinc-800/60 rounded-md mb-4" />
+              <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <View key={i} className="h-14 w-[48.5%] bg-[#161224] rounded-2xl border border-[#2B233D] flex-row items-center overflow-hidden opacity-60">
+                    <View className="w-14 h-14 bg-zinc-800" />
+                    <View className="flex-1 px-3">
+                      <View className="w-full h-3 bg-zinc-700/60 rounded mb-1.5" />
+                      <View className="w-2/3 h-2.5 bg-zinc-800/60 rounded" />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className="mb-8">
+              <View className="w-48 h-6 bg-zinc-800/60 rounded-md mb-4" />
+              <View className="flex-row" style={{ gap: 16 }}>
+                {[1, 2, 3, 4].map((i) => (
+                  <View key={i} className="items-center w-20 opacity-60">
+                    <View className="w-20 h-20 rounded-full bg-zinc-800 mb-2 border border-zinc-700/40" />
+                    <View className="w-14 h-3 bg-zinc-800 rounded" />
+                  </View>
+                ))}
+              </View>
+            </View>
           </View>
         ) : isOnboardedUser ? (
           /* ============================================================== */
@@ -377,7 +400,7 @@ export default function HomeScreen() {
             {/* 1. Continue Listening (Shown ONLY if user has listening history) */}
             {onboardedRecentlyPlayed.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Continue Listening 🎧
                 </AppText>
                 <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
@@ -387,25 +410,23 @@ export default function HomeScreen() {
                       <Pressable
                         key={`rec-${item.id}-${idx}`}
                         onPress={() => handleSelectSong(onboardedRecentlyPlayed, idx)}
-                        className="h-14 rounded-xl flex-row items-center overflow-hidden active:opacity-80"
-                        style={{
-                          width: "48%",
-                          backgroundColor: theme.surfaceElevated,
-                          borderWidth: 0.5,
-                          borderColor: theme.border,
-                        }}
+                        className={`h-14 w-[48.5%] rounded-2xl flex-row items-center overflow-hidden border active:scale-[0.97] ${
+                          isCurrent
+                            ? 'bg-[#221A35] border-purple-500/80 shadow-md shadow-purple-950/40'
+                            : 'bg-[#161224] border-[#2B233D]'
+                        }`}
                       >
                         <View className="w-14 h-14 bg-zinc-800 relative">
                           <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
                           {isCurrent && (
-                            <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#FFFFFF" />
+                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#C084FC" />
                             </View>
                           )}
                         </View>
                         <AppText
                           variant="body"
-                          className={`text-xs font-semibold px-2 flex-1 ${isCurrent ? "text-purple-400" : ""}`}
+                          className={`text-xs font-semibold px-2.5 flex-1 ${isCurrent ? "text-purple-300 font-bold" : "text-white"}`}
                           numberOfLines={2}
                         >
                           {item.title}
@@ -420,7 +441,7 @@ export default function HomeScreen() {
             {/* 2. Your Favorite Artists (Visual photos of user's onboarding choices) */}
             {favoriteArtistsList.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Your Favorite Artists 🎤
                 </AppText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20 }}>
@@ -428,12 +449,12 @@ export default function HomeScreen() {
                     <Pressable
                       key={`favart-${artist.name}-${idx}`}
                       onPress={() => handleSelectArtist(artist.name)}
-                      className="items-center w-20 active:opacity-80"
+                      className="items-center w-20 active:scale-[0.94]"
                     >
-                      <View className="w-20 h-20 rounded-full overflow-hidden mb-2 bg-zinc-800 border-2 border-purple-500/40">
+                      <View className="w-20 h-20 rounded-full overflow-hidden mb-2 bg-zinc-900 border-2 border-purple-500/50 shadow-lg shadow-purple-950/40">
                         <ArtworkImage uri={artist.imageUrl} iconSize={26} className="w-full h-full" />
                       </View>
-                      <AppText variant="caption" className="text-xs font-semibold text-center" numberOfLines={1}>
+                      <AppText variant="caption" className="text-xs font-semibold text-center text-zinc-200" numberOfLines={1}>
                         {artist.name}
                       </AppText>
                     </Pressable>
@@ -445,7 +466,7 @@ export default function HomeScreen() {
             {/* 3. Because you like [Artist Name] Shelves */}
             {deduplicatedArtistShelves.map((shelf) => (
               <View key={`shelf-art-${shelf.artistName}`} className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Because you like {shelf.artistName} 🎤
                 </AppText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
@@ -455,19 +476,23 @@ export default function HomeScreen() {
                       <Pressable
                         key={`art-song-${item.id}`}
                         onPress={() => handleSelectSong(shelf.songs, idx)}
-                        className="w-36 active:opacity-85"
+                        className="w-36 active:scale-[0.96]"
                       >
-                        <View className="w-36 h-36 rounded-2xl overflow-hidden mb-2 bg-zinc-800 relative shadow-md">
+                        <View className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 bg-[#161224] border relative shadow-md shadow-purple-950/30 ${
+                          isCurrent ? 'border-purple-500' : 'border-[#2B233D]'
+                        }`}>
                           <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
                           {isCurrent && (
-                            <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={28} color="#FFFFFF" />
+                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center shadow-lg">
+                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
+                              </View>
                             </View>
                           )}
                         </View>
                         <AppText
                           variant="songTitle"
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
+                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : "text-white"}`}
                           numberOfLines={1}
                         >
                           {item.title}
@@ -485,7 +510,7 @@ export default function HomeScreen() {
             {/* 4. Made for your taste: [Genre Name] Shelves */}
             {deduplicatedGenreShelves.map((shelf) => (
               <View key={`shelf-gnr-${shelf.genreName}`} className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Made for your taste: {shelf.genreName} 🎧
                 </AppText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
@@ -495,19 +520,23 @@ export default function HomeScreen() {
                       <Pressable
                         key={`gnr-song-${item.id}`}
                         onPress={() => handleSelectSong(shelf.songs, idx)}
-                        className="w-36 active:opacity-85"
+                        className="w-36 active:scale-[0.96]"
                       >
-                        <View className="w-36 h-36 rounded-2xl overflow-hidden mb-2 bg-zinc-800 relative shadow-md">
+                        <View className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 bg-[#161224] border relative shadow-md shadow-purple-950/30 ${
+                          isCurrent ? 'border-purple-500' : 'border-[#2B233D]'
+                        }`}>
                           <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
                           {isCurrent && (
-                            <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={28} color="#FFFFFF" />
+                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center shadow-lg">
+                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
+                              </View>
                             </View>
                           )}
                         </View>
                         <AppText
                           variant="songTitle"
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
+                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : "text-white"}`}
                           numberOfLines={1}
                         >
                           {item.title}
@@ -522,10 +551,10 @@ export default function HomeScreen() {
               </View>
             ))}
 
-            {/* 5. Preference-Aware Discovery (Derived from user preferences, 100% unique tracks) */}
+            {/* 5. Preference-Aware Discovery */}
             {deduplicatedDiscovery.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Discover More For You 🎵
                 </AppText>
                 {deduplicatedDiscovery.map((item, index) => {
@@ -534,20 +563,22 @@ export default function HomeScreen() {
                     <Pressable
                       key={`pref-disc-${item.id}`}
                       onPress={() => handleSelectSong(deduplicatedDiscovery, index)}
-                      className="flex-row items-center py-2 px-1 rounded-xl mb-1 active:bg-white/5"
+                      className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                        isCurrent ? 'bg-[#221A35] border-purple-500/40' : 'bg-[#161224]/80 border-[#2B233D]'
+                      }`}
                     >
-                      <View className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 bg-zinc-800">
+                      <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800">
                         <ArtworkImage uri={item.artwork} iconSize={20} className="w-full h-full" />
                         {isCurrent && (
-                          <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#FFFFFF" />
+                          <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#C084FC" />
                           </View>
                         )}
                       </View>
                       <View className="flex-1 mr-2">
                         <AppText
                           variant="songTitle"
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
+                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : "text-white"}`}
                           numberOfLines={1}
                         >
                           {item.title}
@@ -574,7 +605,7 @@ export default function HomeScreen() {
           <View>
             {/* Gentle Profile Completion Reminder Card */}
             {user && profile && !profile.onboarding_completed && !reminderDismissed && (
-              <View className="mb-6 p-4 rounded-2xl bg-purple-950/40 border border-purple-500/30 flex-row items-center justify-between">
+              <View className="mb-6 p-4 rounded-2xl bg-[#1C162E] border border-purple-500/40 flex-row items-center justify-between shadow-lg shadow-purple-950/40">
                 <View className="flex-1 mr-3">
                   <AppText variant="songTitle" className="text-sm font-bold mb-0.5 text-white">
                     Make Jamkudi more personal
@@ -587,7 +618,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center gap-x-2">
                   <Pressable
                     onPress={() => router.push("/(auth)/onboarding")}
-                    className="px-3.5 py-1.5 rounded-full bg-purple-600 active:bg-purple-500"
+                    className="px-3.5 py-2 rounded-full bg-purple-600 active:bg-purple-700"
                   >
                     <AppText className="text-xs font-bold text-white">
                       Complete profile
@@ -599,7 +630,7 @@ export default function HomeScreen() {
                     hitSlop={8}
                     className="p-1 rounded-full active:bg-white/10"
                   >
-                    <Icon name="x" size={18} color={theme.textSecondary} />
+                    <Icon name="x" size={18} color="#9CA3AF" />
                   </Pressable>
                 </View>
               </View>
@@ -608,7 +639,7 @@ export default function HomeScreen() {
             {/* Quick Picks */}
             {anonymousSection2.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Quick Picks ⚡
                 </AppText>
                 <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
@@ -618,25 +649,23 @@ export default function HomeScreen() {
                       <Pressable
                         key={`anon-qp-${item.id}-${idx}`}
                         onPress={() => handleSelectSong(anonymousSection2, idx)}
-                        className="h-14 rounded-xl flex-row items-center overflow-hidden active:opacity-80"
-                        style={{
-                          width: "48%",
-                          backgroundColor: theme.surfaceElevated,
-                          borderWidth: 0.5,
-                          borderColor: theme.border,
-                        }}
+                        className={`h-14 w-[48.5%] rounded-2xl flex-row items-center overflow-hidden border active:scale-[0.97] ${
+                          isCurrent
+                            ? 'bg-[#221A35] border-purple-500/80 shadow-md shadow-purple-950/40'
+                            : 'bg-[#161224] border-[#2B233D]'
+                        }`}
                       >
                         <View className="w-14 h-14 bg-zinc-800 relative">
                           <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
                           {isCurrent && (
-                            <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#FFFFFF" />
+                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#C084FC" />
                             </View>
                           )}
                         </View>
                         <AppText
                           variant="body"
-                          className={`text-xs font-semibold px-2 flex-1 ${isCurrent ? "text-purple-400" : ""}`}
+                          className={`text-xs font-semibold px-2.5 flex-1 ${isCurrent ? "text-purple-300 font-bold" : "text-white"}`}
                           numberOfLines={2}
                         >
                           {item.title}
@@ -651,7 +680,7 @@ export default function HomeScreen() {
             {/* Popular Right Now */}
             {popularFeed.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Popular Right Now 🔥
                 </AppText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
@@ -661,19 +690,23 @@ export default function HomeScreen() {
                       <Pressable
                         key={`pop-${item.id}`}
                         onPress={() => handleSelectSong(popularFeed, idx)}
-                        className="w-36 active:opacity-85"
+                        className="w-36 active:scale-[0.96]"
                       >
-                        <View className="w-36 h-36 rounded-2xl overflow-hidden mb-2 bg-zinc-800 relative shadow-md">
+                        <View className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 bg-[#161224] border relative shadow-md shadow-purple-950/30 ${
+                          isCurrent ? 'border-purple-500' : 'border-[#2B233D]'
+                        }`}>
                           <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
                           {isCurrent && (
-                            <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={28} color="#FFFFFF" />
+                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center shadow-lg">
+                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
+                              </View>
                             </View>
                           )}
                         </View>
                         <AppText
                           variant="songTitle"
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
+                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : "text-white"}`}
                           numberOfLines={1}
                         >
                           {item.title}
@@ -690,7 +723,7 @@ export default function HomeScreen() {
 
             {/* Featured Artists */}
             <View className="mb-8">
-              <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+              <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                 Featured Artists 🎤
               </AppText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20 }}>
@@ -698,12 +731,12 @@ export default function HomeScreen() {
                   <Pressable
                     key={`feat-art-${artist.id}`}
                     onPress={() => router.push(`/artist/${encodeURIComponent(artist.query)}` as any)}
-                    className="items-center w-20 active:opacity-80"
+                    className="items-center w-20 active:scale-[0.94]"
                   >
-                    <View className="w-20 h-20 rounded-full overflow-hidden mb-2 bg-zinc-800 border-2 border-purple-500/40">
+                    <View className="w-20 h-20 rounded-full overflow-hidden mb-2 bg-zinc-900 border-2 border-purple-500/50 shadow-lg shadow-purple-950/40">
                       <ArtworkImage uri={artist.imageUrl} iconSize={24} className="w-full h-full" />
                     </View>
-                    <AppText variant="caption" className="text-xs font-semibold text-center" numberOfLines={1}>
+                    <AppText variant="caption" className="text-xs font-semibold text-center text-zinc-200" numberOfLines={1}>
                       {artist.name}
                     </AppText>
                   </Pressable>
@@ -714,7 +747,7 @@ export default function HomeScreen() {
             {/* Trending Discovery */}
             {discoveryFeed.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5 text-white">
                   Trending Discovery 🎵
                 </AppText>
                 {discoveryFeed.map((item, index) => {
@@ -723,20 +756,22 @@ export default function HomeScreen() {
                     <Pressable
                       key={`anon-disc-${item.id}`}
                       onPress={() => handleSelectSong(discoveryFeed, index)}
-                      className="flex-row items-center py-2 px-1 rounded-xl mb-1 active:bg-white/5"
+                      className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                        isCurrent ? 'bg-[#221A35] border-purple-500/40' : 'bg-[#161224]/80 border-[#2B233D]'
+                      }`}
                     >
-                      <View className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 bg-zinc-800">
+                      <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800">
                         <ArtworkImage uri={item.artwork} iconSize={20} className="w-full h-full" />
                         {isCurrent && (
-                          <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#FFFFFF" />
+                          <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#C084FC" />
                           </View>
                         )}
                       </View>
                       <View className="flex-1 mr-2">
                         <AppText
                           variant="songTitle"
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
+                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : "text-white"}`}
                           numberOfLines={1}
                         >
                           {item.title}

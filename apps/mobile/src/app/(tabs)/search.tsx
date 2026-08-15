@@ -264,21 +264,16 @@ export default function SearchScreen() {
 
       {/* Search Input Box */}
       <View
-        className="flex-row items-center px-3.5 h-12 rounded-xl border mb-4"
-        style={{
-          backgroundColor: theme.surfaceElevated,
-          borderColor: theme.border,
-        }}
+        className="flex-row items-center px-4 h-13 rounded-2xl border border-[#2B233D] bg-[#161224] mb-5 shadow-sm"
       >
-        <Icon name="search" size={20} color={theme.textMuted} />
+        <Icon name="search" size={20} color="#C084FC" />
 
         <TextInput
           value={query}
           onChangeText={setQuery}
           placeholder="Search songs, artists, albums, playlists..."
-          placeholderTextColor={theme.textSecondary}
-          className="flex-1 ml-2.5 text-sm font-medium h-full"
-          style={{ color: theme.textPrimary }}
+          placeholderTextColor="#52525B"
+          className="flex-1 ml-3 text-base font-semibold text-white h-full py-0"
           accessibilityLabel="Search music input"
           autoCorrect={false}
         />
@@ -291,20 +286,20 @@ export default function SearchScreen() {
             accessibilityRole="button"
             accessibilityLabel="Clear search input"
           >
-            <AppText className="text-xs text-zinc-400 font-bold px-1">✕</AppText>
+            <Icon name="x" size={18} color="#9CA3AF" />
           </Pressable>
         )}
       </View>
 
       {/* Recent Searches Row with Edge-to-Edge Horizontal Scroll */}
       {!query.trim() && recentSearches.length > 0 && (
-        <View className="mb-4">
-          <View className="flex-row items-center justify-between mb-2">
-            <AppText variant="caption" className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold">
+        <View className="mb-5">
+          <View className="flex-row items-center justify-between mb-2.5">
+            <AppText variant="caption" className="text-xs uppercase tracking-wider text-zinc-400 font-bold ml-1">
               Recent Searches
             </AppText>
             <Pressable onPress={handleClearHistory} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear all search history">
-              <AppText className="text-xs text-purple-400 font-semibold">Clear All</AppText>
+              <AppText className="text-xs text-purple-400 font-bold">Clear All</AppText>
             </Pressable>
           </View>
           <ScrollView
@@ -316,7 +311,7 @@ export default function SearchScreen() {
             {recentSearches.map((term) => (
               <View
                 key={term}
-                className="flex-row items-center rounded-full bg-white/5 border border-white/10 pl-3 pr-1 py-1"
+                className="flex-row items-center rounded-full bg-[#161224] border border-[#2B233D] pl-3.5 pr-1.5 py-1.5 active:scale-[0.96]"
               >
                 <Pressable
                   onPress={() => handleSelectRecentQuery(term)}
@@ -324,8 +319,8 @@ export default function SearchScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={`Search ${term}`}
                 >
-                  <Icon name="clock" size={12} color={theme.textMuted} />
-                  <AppText className="text-xs text-zinc-300 font-medium ml-1.5">{term}</AppText>
+                  <Icon name="clock" size={13} color="#C084FC" />
+                  <AppText className="text-xs text-zinc-200 font-semibold ml-2">{term}</AppText>
                 </Pressable>
 
                 <Pressable
@@ -335,7 +330,7 @@ export default function SearchScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${term} from search history`}
                 >
-                  <AppText className="text-[10px] text-zinc-400 font-bold px-1">✕</AppText>
+                  <Icon name="x" size={12} color="#9CA3AF" />
                 </Pressable>
               </View>
             ))}
@@ -346,7 +341,7 @@ export default function SearchScreen() {
       {/* Explore Category Pills Bar (when query is empty) */}
       {!query.trim() && (
         <View className="mb-5">
-          <AppText variant="caption" className="text-[11px] uppercase tracking-wider text-zinc-400 font-bold mb-2">
+          <AppText variant="caption" className="text-xs uppercase tracking-wider text-zinc-400 font-bold mb-2.5 ml-1">
             Explore
           </AppText>
           <ScrollView
@@ -361,15 +356,15 @@ export default function SearchScreen() {
                 <Pressable
                   key={cat.id}
                   onPress={() => handleSelectCategory(cat.label)}
-                  className={`px-4 py-2 rounded-full border ${
+                  className={`px-4 py-2 rounded-full border active:scale-[0.96] ${
                     isActive
-                      ? "bg-purple-600 border-purple-500"
-                      : "bg-white/5 border-white/10"
-                  } active:opacity-80`}
+                      ? "bg-purple-600 border-purple-500 shadow-md shadow-purple-950/30"
+                      : "bg-[#161224] border-[#2B233D]"
+                  }`}
                 >
                   <AppText
-                    className={`text-xs font-semibold ${
-                      isActive ? "text-white font-bold" : "text-zinc-300"
+                    className={`text-xs font-bold ${
+                      isActive ? "text-white" : "text-zinc-300"
                     }`}
                   >
                     {cat.label}
@@ -406,15 +401,15 @@ export default function SearchScreen() {
       {/* Loading, Error, or Results */}
       {loading ? (
         <View className="py-16 items-center justify-center">
-          <ActivityIndicator size="large" color={theme.primary} />
+          <ActivityIndicator size="large" color="#A855F7" />
           <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
             Searching catalog...
           </AppText>
         </View>
       ) : searchError ? (
         <View className="py-16 items-center px-6">
-          <Icon name="alert-circle" size={36} color={theme.textMuted} />
-          <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1">
+          <Icon name="alert-circle" size={36} color="#F87171" />
+          <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1 text-white">
             Couldn't load search results
           </AppText>
           <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center mb-4">
@@ -422,7 +417,7 @@ export default function SearchScreen() {
           </AppText>
           <Pressable
             onPress={handleRetrySearch}
-            className="px-5 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md"
+            className="px-5 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40"
             accessibilityRole="button"
             accessibilityLabel="Try search again"
           >
@@ -442,7 +437,7 @@ export default function SearchScreen() {
               {/* Artists Section */}
               {query.trim().length > 0 && showArtists && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-[11px] text-zinc-400 font-bold">
+                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
                     Artists
                   </AppText>
                   <ScrollView
@@ -455,13 +450,13 @@ export default function SearchScreen() {
                       <Pressable
                         key={artist.id}
                         onPress={() => router.push(`/artist/${encodeURIComponent(artist.query)}` as any)}
-                        className="w-44 flex-row items-center p-2.5 rounded-2xl bg-white/5 border border-white/10 active:opacity-80 pr-3"
+                        className="w-44 flex-row items-center p-2.5 rounded-2xl bg-[#161224] border border-[#2B233D] active:scale-[0.96] pr-3"
                       >
-                        <View className="w-11 h-11 rounded-full overflow-hidden mr-2.5 bg-zinc-800 border border-purple-500/40 shrink-0">
+                        <View className="w-11 h-11 rounded-full overflow-hidden mr-2.5 bg-zinc-900 border border-purple-500/40 shrink-0">
                           <ArtworkImage uri={artist.imageUrl} iconSize={18} className="w-full h-full" />
                         </View>
                         <View className="flex-1 min-w-0 justify-center">
-                          <AppText variant="songTitle" className="text-xs font-bold" numberOfLines={1}>
+                          <AppText variant="songTitle" className="text-xs font-bold text-white" numberOfLines={1}>
                             {artist.name}
                           </AppText>
                           <AppText variant="caption" className="text-[10px] text-zinc-400 font-medium" numberOfLines={1}>
@@ -477,7 +472,7 @@ export default function SearchScreen() {
               {/* Albums Section */}
               {query.trim().length > 0 && showAlbums && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-[11px] text-zinc-400 font-bold">
+                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
                     Albums
                   </AppText>
                   <ScrollView
@@ -490,15 +485,15 @@ export default function SearchScreen() {
                       <Pressable
                         key={album.id}
                         onPress={() => router.push(`/album/${encodeURIComponent(album.title)}` as any)}
-                        className="w-32 active:opacity-85"
+                        className="w-32 active:scale-[0.96]"
                       >
-                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-zinc-800 border border-white/10 shadow-md">
+                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
                           <ArtworkImage uri={album.artwork} iconSize={24} className="w-full h-full" />
                         </View>
-                        <AppText variant="songTitle" className="text-xs font-semibold mb-0.5" numberOfLines={1}>
+                        <AppText variant="songTitle" className="text-xs font-bold text-white mb-0.5" numberOfLines={1}>
                           {album.title}
                         </AppText>
-                        <AppText variant="artist" className="text-[10px] text-zinc-400 font-medium" numberOfLines={1}>
+                        <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
                           {album.artist}
                         </AppText>
                       </Pressable>
@@ -510,7 +505,7 @@ export default function SearchScreen() {
               {/* Playlists Section */}
               {query.trim().length > 0 && showPlaylists && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-[11px] text-zinc-400 font-bold">
+                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
                     Playlists
                   </AppText>
                   <ScrollView
@@ -523,15 +518,15 @@ export default function SearchScreen() {
                       <Pressable
                         key={playlist.id}
                         onPress={() => router.push(`/playlist/${encodeURIComponent(playlist.id)}` as any)}
-                        className="w-32 active:opacity-85"
+                        className="w-32 active:scale-[0.96]"
                       >
-                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-zinc-800 border border-purple-500/20 shadow-md">
+                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
                           <ArtworkImage uri={playlist.artwork} iconSize={24} className="w-full h-full" />
                         </View>
-                        <AppText variant="songTitle" className="text-xs font-semibold mb-0.5" numberOfLines={1}>
+                        <AppText variant="songTitle" className="text-xs font-bold text-white mb-0.5" numberOfLines={1}>
                           {playlist.title}
                         </AppText>
-                        <AppText variant="artist" className="text-[10px] text-zinc-400 font-medium" numberOfLines={1}>
+                        <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
                           {playlist.subtitle}
                         </AppText>
                       </Pressable>
@@ -541,7 +536,7 @@ export default function SearchScreen() {
               )}
 
               {showSongs && (
-                <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-[11px] text-zinc-400 font-bold">
+                <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
                   {query.trim() ? "Songs" : `${activeCategory} Feed`}
                 </AppText>
               )}
@@ -552,7 +547,7 @@ export default function SearchScreen() {
               <View className="py-4 items-center justify-center">
                 {loadingMore ? (
                   <View className="flex-row items-center">
-                    <ActivityIndicator size="small" color={theme.primary} />
+                    <ActivityIndicator size="small" color="#A855F7" />
                     <AppText variant="caption" className="ml-2 text-xs text-zinc-400 font-medium">
                       Loading more songs...
                     </AppText>
@@ -560,9 +555,9 @@ export default function SearchScreen() {
                 ) : paginationError ? (
                   <Pressable
                     onPress={handleLoadMoreSongs}
-                    className="px-4 py-2 rounded-full bg-white/5 border border-white/10 active:bg-white/10"
+                    className="px-4 py-2 rounded-full bg-[#161224] border border-[#2B233D] active:bg-[#201A30]"
                   >
-                    <AppText className="text-xs text-purple-400 font-semibold">
+                    <AppText className="text-xs text-purple-400 font-bold">
                       Couldn't load more. Tap to retry
                     </AppText>
                   </Pressable>
@@ -573,8 +568,8 @@ export default function SearchScreen() {
           ListEmptyComponent={
             query.trim() ? (
               <View className="py-16 items-center px-6">
-                <Icon name="search" size={36} color={theme.textMuted} />
-                <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1">
+                <Icon name="search" size={36} color="#9CA3AF" />
+                <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1 text-white">
                   No results for "{query}"
                 </AppText>
                 <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center">
@@ -594,28 +589,32 @@ export default function SearchScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center py-2 px-1 rounded-xl mb-1 active:bg-white/5"
+                className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                  isCurrent
+                    ? 'bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40'
+                    : 'bg-[#161224]/80 border-[#2B233D]/60'
+                }`}
               >
                 {/* Artwork */}
-                <View className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 bg-zinc-800 shrink-0">
+                <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
                   <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
                   {isCurrent && (
-                    <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                    <View className="absolute inset-0 bg-black/60 items-center justify-center">
                       <Icon
                         name={isPlaying ? "pause" : "play"}
                         size={16}
-                        color="#FFFFFF"
+                        color="#C084FC"
                       />
                     </View>
                   )}
                 </View>
 
                 {/* Song Title & Artist info with clean flex truncation */}
-                <View className="flex-1 min-w-0 mr-2 justify-center">
+                <View className="flex-1 min-w-0 mr-3 justify-center">
                   <AppText
                     variant="songTitle"
                     className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-400 font-bold" : ""
+                      isCurrent ? "text-purple-300 font-bold" : "text-white"
                     }`}
                     numberOfLines={1}
                   >
@@ -630,62 +629,48 @@ export default function SearchScreen() {
                   </AppText>
                 </View>
 
-                {/* Action Buttons */}
-                <View className="flex-row items-center gap-x-1 mr-1.5 shrink-0">
-                  <Pressable
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      playNext(item, "search");
-                      showToast(`Added to Up Next: ${item.title}`, "success");
-                    }}
-                    className="px-2 py-1 rounded-full bg-purple-600/30 active:bg-purple-600/50 border border-purple-500/40"
-                    hitSlop={4}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Play next ${item.title}`}
-                  >
-                    <AppText className="text-[10px] text-purple-300 font-bold">Play Next</AppText>
-                  </Pressable>
-
+                {/* Streamlined Action Section */}
+                <View className="flex-row items-center gap-x-2 shrink-0">
+                  {/* Quick Queue Action */}
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();
                       addToQueue(item, "search");
                       showToast(`Added to queue: ${item.title}`, "info");
                     }}
-                    className="px-2 py-1 rounded-full bg-white/5 active:bg-white/15 border border-white/10"
+                    className="px-2.5 py-1 rounded-full bg-purple-600/20 active:bg-purple-600/40 border border-purple-500/40"
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to queue`}
                   >
-                    <AppText className="text-[10px] text-zinc-300 font-bold">+ Queue</AppText>
+                    <AppText className="text-[10px] text-purple-300 font-bold">+ Queue</AppText>
                   </Pressable>
 
+                  {/* Add to Playlist Modal Action */}
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();
                       setSelectedSongForPlaylist(item);
                       setShowAddToPlaylistModal(true);
                     }}
-                    className="p-1 rounded-full bg-white/5 active:bg-white/15 border border-white/10"
-                    hitSlop={4}
+                    className="w-7 h-7 rounded-full bg-white/5 active:bg-white/15 border border-white/10 items-center justify-center"
+                    hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}
                   >
-                    <Icon name="plus" size={12} color="#D4D4D8" />
+                    <Icon name="plus" size={13} color="#D4D4D8" />
                   </Pressable>
-                </View>
 
-                {/* Fixed-width Duration Column */}
-                {item.duration > 0 && (
-                  <View className="w-8 items-end shrink-0">
+                  {/* Track Duration */}
+                  {item.duration > 0 && (
                     <AppText
                       variant="caption"
-                      className="text-[11px] text-zinc-400 font-medium"
+                      className="text-[11px] text-zinc-400 font-medium ml-0.5"
                     >
                       {formatDuration(item.duration)}
                     </AppText>
-                  </View>
-                )}
+                  )}
+                </View>
               </Pressable>
             );
           }}

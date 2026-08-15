@@ -65,30 +65,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
       onRequestClose={onClose}
     >
       <View
-        className="flex-1 px-6 pt-12 pb-6"
-        style={{ backgroundColor: theme.background }}
+        className="flex-1 px-6 pt-12 pb-6 bg-[#0B0813]"
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-white/10">
-          <AppText variant="screenTitle" className="text-xl font-bold">
+        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-[#2B233D]">
+          <AppText variant="screenTitle" className="text-xl font-extrabold text-white tracking-tight">
             Settings & Account
           </AppText>
 
           <Pressable
             onPress={onClose}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full active:bg-white/10"
+            className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
           >
-            <Icon name="chevron-down" size={26} color={theme.textPrimary} />
+            <Icon name="chevron-down" size={24} color="#FFFFFF" />
           </Pressable>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
           {/* User Account Card */}
           {user && (
-            <View className="mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 flex-row items-center justify-between">
+            <View className="mb-6 p-4.5 rounded-2xl bg-[#161224] border border-[#2B233D] flex-row items-center justify-between shadow-sm">
               <View className="flex-1 mr-3">
-                <AppText variant="songTitle" className="text-base font-bold mb-0.5">
+                <AppText variant="songTitle" className="text-base font-bold text-white mb-0.5">
                   {profile?.display_name || profile?.username || "Authenticated User"}
                 </AppText>
                 <AppText variant="caption" className="text-xs text-zinc-400 font-medium">
@@ -101,19 +100,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                 )}
               </View>
 
-              <AppButton
-                title="Log Out"
+              <Pressable
                 onPress={handleLogout}
-                variant="outline"
-                size="sm"
-                className="border-red-500/30"
-              />
+                className="px-4 py-2 rounded-full bg-rose-500/10 active:bg-rose-500/20 border border-rose-500/30 active:scale-[0.96]"
+                accessibilityRole="button"
+                accessibilityLabel="Log Out"
+              >
+                <AppText className="text-xs text-rose-400 font-bold">Log Out</AppText>
+              </Pressable>
             </View>
           )}
 
           {/* Profile Completion Section */}
           {user && (
-            <View className="mb-8 p-5 rounded-3xl bg-purple-950/30 border border-purple-500/25">
+            <View className="mb-8 p-5 rounded-3xl bg-[#221A35] border border-purple-500/40 shadow-xl shadow-purple-950/40">
               <View className="flex-row items-center justify-between mb-2">
                 <AppText variant="sectionTitle" className="text-base font-bold text-white">
                   Profile Completion
@@ -137,7 +137,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                   <AppText variant="caption" className="text-xs font-medium text-zinc-300">
                     Display name
                   </AppText>
-                  <AppText className={`text-xs font-bold ${hasDisplayName ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <AppText className={`text-xs font-bold ${hasDisplayName ? 'text-emerald-400' : 'text-zinc-500'}`}>
                     {hasDisplayName ? '✓' : '○'}
                   </AppText>
                 </View>
@@ -146,7 +146,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                   <AppText variant="caption" className="text-xs font-medium text-zinc-300">
                     Username
                   </AppText>
-                  <AppText className={`text-xs font-bold ${hasUsername ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <AppText className={`text-xs font-bold ${hasUsername ? 'text-emerald-400' : 'text-zinc-500'}`}>
                     {hasUsername ? '✓' : '○'}
                   </AppText>
                 </View>
@@ -155,7 +155,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                   <AppText variant="caption" className="text-xs font-medium text-zinc-300">
                     Favorite genres
                   </AppText>
-                  <AppText className={`text-xs font-bold ${hasGenres ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <AppText className={`text-xs font-bold ${hasGenres ? 'text-emerald-400' : 'text-zinc-500'}`}>
                     {hasGenres ? '✓' : '○'}
                   </AppText>
                 </View>
@@ -164,25 +164,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                   <AppText variant="caption" className="text-xs font-medium text-zinc-300">
                     Favorite artists
                   </AppText>
-                  <AppText className={`text-xs font-bold ${hasArtists ? 'text-green-400' : 'text-zinc-500'}`}>
+                  <AppText className={`text-xs font-bold ${hasArtists ? 'text-emerald-400' : 'text-zinc-500'}`}>
                     {hasArtists ? '✓' : '○'}
                   </AppText>
                 </View>
               </View>
 
-              <AppButton
-                title={totalPoints === 100 ? "Edit Profile" : "Complete Profile"}
+              <Pressable
                 onPress={handleEditProfile}
-                variant="outline"
-                size="sm"
-                className="border-purple-500/40"
-              />
+                className="w-full py-2.5 rounded-full bg-purple-600/30 border border-purple-500/50 items-center active:bg-purple-600/50 active:scale-[0.98]"
+              >
+                <AppText className="text-xs font-bold text-purple-200">
+                  {totalPoints === 100 ? "Edit Profile" : "Complete Profile"}
+                </AppText>
+              </Pressable>
             </View>
           )}
 
           {/* Streaming Quality Setting */}
           <View className="mb-8">
-            <AppText variant="sectionTitle" className="text-base font-bold mb-1">
+            <AppText variant="sectionTitle" className="text-base font-bold text-white mb-1">
               Audio Streaming Quality
             </AppText>
             <AppText variant="caption" className="text-xs text-zinc-400 font-medium mb-4">
@@ -192,14 +193,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
             <View className="gap-y-3">
               <Pressable
                 onPress={() => handleSelectQuality("320kbps")}
-                className={`flex-row items-center justify-between p-4 rounded-2xl border ${
+                className={`flex-row items-center justify-between p-4 rounded-2xl border active:scale-[0.98] ${
                   audioQuality === "320kbps"
-                    ? "bg-purple-900/40 border-purple-500"
-                    : "bg-white/5 border-white/10"
-                } active:opacity-80`}
+                    ? "bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40"
+                    : "bg-[#161224] border-[#2B233D]"
+                }`}
               >
-                <View>
-                  <AppText variant="songTitle" className="text-sm font-bold mb-0.5">
+                <View className="flex-1 pr-3">
+                  <AppText variant="songTitle" className="text-sm font-bold text-white mb-0.5">
                     High Definition (320 kbps)
                   </AppText>
                   <AppText variant="caption" className="text-xs text-zinc-400 font-medium">
@@ -208,20 +209,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                 </View>
 
                 {audioQuality === "320kbps" && (
-                  <Icon name="heart-filled" size={20} color={theme.primary} />
+                  <View className="w-7 h-7 rounded-full bg-purple-600 items-center justify-center shadow-sm">
+                    <Icon name="check" size={14} color="#FFFFFF" />
+                  </View>
                 )}
               </Pressable>
 
               <Pressable
                 onPress={() => handleSelectQuality("160kbps")}
-                className={`flex-row items-center justify-between p-4 rounded-2xl border ${
+                className={`flex-row items-center justify-between p-4 rounded-2xl border active:scale-[0.98] ${
                   audioQuality === "160kbps"
-                    ? "bg-purple-900/40 border-purple-500"
-                    : "bg-white/5 border-white/10"
-                } active:opacity-80`}
+                    ? "bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40"
+                    : "bg-[#161224] border-[#2B233D]"
+                }`}
               >
-                <View>
-                  <AppText variant="songTitle" className="text-sm font-bold mb-0.5">
+                <View className="flex-1 pr-3">
+                  <AppText variant="songTitle" className="text-sm font-bold text-white mb-0.5">
                     Data Saver (160 kbps)
                   </AppText>
                   <AppText variant="caption" className="text-xs text-zinc-400 font-medium">
@@ -230,15 +233,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }
                 </View>
 
                 {audioQuality === "160kbps" && (
-                  <Icon name="heart-filled" size={20} color={theme.primary} />
+                  <View className="w-7 h-7 rounded-full bg-purple-600 items-center justify-center shadow-sm">
+                    <Icon name="check" size={14} color="#FFFFFF" />
+                  </View>
                 )}
               </Pressable>
             </View>
           </View>
 
           {/* App Info Card */}
-          <View className="mt-4 p-5 rounded-2xl bg-white/5 border border-white/10 items-center">
-            <AppText variant="songTitle" className="text-base font-bold mb-1">
+          <View className="mt-2 p-5 rounded-2xl bg-[#161224] border border-[#2B233D] items-center">
+            <AppText variant="songTitle" className="text-base font-bold text-white mb-1">
               Jamkudi Music Player
             </AppText>
             <AppText variant="caption" className="text-xs text-zinc-400 font-medium">

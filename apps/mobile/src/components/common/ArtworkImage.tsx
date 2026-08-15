@@ -75,8 +75,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
         transition={150}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
-        onError={(err) => {
-          console.log("Artwork load error for URI:", sanitizedUri, err);
+        onError={() => {
           setIsLoading(false);
           setHasError(true);
         }}

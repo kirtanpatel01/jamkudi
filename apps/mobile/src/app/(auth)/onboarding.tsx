@@ -122,9 +122,10 @@ export default function OnboardingScreen() {
   );
 
   const hasName = displayName.trim().length > 0;
-  const isSelected = (artist: SelectedArtist) => artists.some(
-    (selected) => selected.id === artist.id || selected.name.toLowerCase() === artist.name.toLowerCase()
-  );
+  const isSelected = (artist: SelectedArtist) =>
+    artists.some(
+      (selected) => selected.id === artist.id || selected.name.toLowerCase() === artist.name.toLowerCase()
+    );
 
   const goToStep = (nextStep: Step) => {
     Keyboard.dismiss();
@@ -132,12 +133,16 @@ export default function OnboardingScreen() {
   };
 
   const toggleGenre = (label: string) => {
-    setGenres((current) => current.includes(label) ? current.filter((genre) => genre !== label) : [...current, label]);
+    setGenres((current) =>
+      current.includes(label) ? current.filter((genre) => genre !== label) : [...current, label]
+    );
   };
 
   const toggleArtist = (artist: SelectedArtist) => {
     if (isSelected(artist)) {
-      setArtists((current) => current.filter((item) => item.id !== artist.id && item.name.toLowerCase() !== artist.name.toLowerCase()));
+      setArtists((current) =>
+        current.filter((item) => item.id !== artist.id && item.name.toLowerCase() !== artist.name.toLowerCase())
+      );
       return;
     }
     if (artists.length >= MAX_ARTISTS) {
@@ -185,91 +190,302 @@ export default function OnboardingScreen() {
     else finish();
   };
 
-  const surfaceStyle = { backgroundColor: theme.surfaceElevated, borderColor: theme.border };
-  const mutedStyle = { color: theme.textSecondary };
-
   return (
-    <Screen paddingHorizontal={20}>
+    <Screen paddingHorizontal={24} hasMiniPlayer={false}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1">
+        {/* Header Bar */}
         <View className="flex-row items-center justify-between pt-2 pb-4 min-h-[48px]">
           {step > 1 ? (
-            <Pressable onPress={() => goToStep((step - 1) as Step)} hitSlop={12} className="flex-row items-center py-2 pr-3" accessibilityRole="button" accessibilityLabel="Go back">
-              <Icon name="chevron-left" size={22} color={theme.textPrimary} />
-              <AppText variant="caption" className="font-bold ml-1" style={{ color: theme.textPrimary }}>Back</AppText>
+            <Pressable
+              onPress={() => goToStep((step - 1) as Step)}
+              hitSlop={12}
+              className="flex-row items-center py-2 pr-3 active:opacity-75"
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Icon name="chevron-left" size={22} color="#FFFFFF" />
+              <AppText variant="caption" className="font-bold text-white ml-1">
+                Back
+              </AppText>
             </Pressable>
-          ) : <View />}
-          <Pressable onPress={skip} hitSlop={12} className="py-2" accessibilityRole="button" accessibilityLabel="Skip setup for now">
-            <AppText variant="caption" className="font-bold" style={{ color: theme.primary }}>Skip for now</AppText>
+          ) : (
+            <View />
+          )}
+
+          <Pressable
+            onPress={skip}
+            hitSlop={12}
+            className="py-2 active:opacity-75"
+            accessibilityRole="button"
+            accessibilityLabel="Skip setup for now"
+          >
+            <AppText variant="caption" className="font-bold text-purple-400">
+              Skip for now
+            </AppText>
           </Pressable>
         </View>
 
-        <View className="flex-row items-center mb-4" accessibilityLabel={`Step ${step} of 3`}>
+        {/* Step Progress Bar */}
+        <View className="flex-row items-center mb-6" accessibilityLabel={`Step ${step} of 3`}>
           {[1, 2, 3].map((item) => (
-            <View key={item} className="flex-1 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: item <= step ? theme.primary : theme.border }} />
+            <View
+              key={item}
+              className={`flex-1 h-1.5 rounded-full mr-2 ${
+                item <= step ? 'bg-purple-600' : 'bg-zinc-800 border border-zinc-700/50'
+              }`}
+            />
           ))}
         </View>
 
-        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 12 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <Animated.View style={{ opacity: transition, transform: [{ translateY: transition.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }] }}>
-            <View className="w-16 h-16 rounded-3xl items-center justify-center mb-6" style={{ backgroundColor: theme.primarySubtle }}>
-              <Icon name={step === 1 ? 'user' : step === 2 ? 'disc' : 'music'} size={31} color={theme.primary} />
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Animated.View
+            style={{
+              opacity: transition,
+              transform: [
+                {
+                  translateY: transition.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [12, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            {/* Step Icon Badge */}
+            <View className="w-16 h-16 rounded-3xl items-center justify-center mb-6 border border-purple-500/30 bg-[#191428] shadow-lg shadow-purple-950/40">
+              <Icon name={step === 1 ? 'user' : step === 2 ? 'disc' : 'music'} size={28} color="#C084FC" />
             </View>
 
-            {step === 1 && <>
-              <AppText variant="screenTitle" className="text-3xl font-bold tracking-tight mb-2" style={{ color: theme.textPrimary }}>Make it yours</AppText>
-              <AppText variant="body" className="text-base leading-6 mb-8" style={mutedStyle}>What should we call you? This is how Jamkudi will greet you.</AppText>
-              <AppText variant="caption" className="font-bold mb-2 ml-1" style={{ color: theme.textPrimary }}>YOUR NAME</AppText>
-              <Pressable onPress={() => nameRef.current?.focus()} className="h-14 px-4 rounded-2xl border flex-row items-center" style={{ ...surfaceStyle, borderColor: isNameFocused ? theme.primary : theme.border }}>
-                <Icon name="user" size={20} color={isNameFocused ? theme.primary : theme.textMuted} />
-                <TextInput ref={nameRef} value={displayName} onChangeText={setDisplayName} onFocus={() => setIsNameFocused(true)} onBlur={() => setIsNameFocused(false)} placeholder="Your name" placeholderTextColor={theme.textMuted} autoCapitalize="words" autoFocus returnKeyType="next" onSubmitEditing={next} className="flex-1 h-full ml-3 text-base" style={{ color: theme.textPrimary, fontFamily: 'Nunito_600SemiBold' }} />
-              </Pressable>
-              <AppText variant="caption" className="mt-3 ml-1" style={mutedStyle}>You can change this anytime in Settings.</AppText>
-            </>}
+            {/* STEP 1: Display Name */}
+            {step === 1 && (
+              <>
+                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                  Make it yours
+                </AppText>
+                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-8">
+                  What should we call you? This is how Jamkudi will greet you.
+                </AppText>
 
-            {step === 2 && <>
-              <AppText variant="screenTitle" className="text-3xl font-bold tracking-tight mb-2" style={{ color: theme.textPrimary }}>Set the vibe</AppText>
-              <AppText variant="body" className="text-base leading-6 mb-5" style={mutedStyle}>Pick any genres you enjoy. These help shape your first recommendations.</AppText>
-              <AppText variant="caption" className="font-bold mb-3" style={{ color: theme.primary }}>{genres.length ? `${genres.length} selected` : 'OPTIONAL — PICK AS MANY AS YOU LIKE'}</AppText>
-              <View className="flex-row flex-wrap" style={{ gap: 10 }}>
-                {GENRES.map((genre) => {
-                  const selected = genres.includes(genre.label);
-                  return <Pressable key={genre.id} onPress={() => toggleGenre(genre.label)} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} className="px-4 py-3 rounded-2xl border flex-row items-center" style={{ backgroundColor: selected ? theme.primary : theme.surfaceElevated, borderColor: selected ? theme.primary : theme.border }}>
-                    <AppText className="text-base mr-2">{genre.emoji}</AppText>
-                    <AppText variant="caption" className="font-bold" style={{ color: selected ? theme.onPrimary : theme.textPrimary }}>{genre.label}</AppText>
-                    {selected && <Icon name="check" size={16} color={theme.onPrimary} style={{ marginLeft: 7 }} />}
-                  </Pressable>;
-                })}
-              </View>
-            </>}
+                <AppText variant="caption" className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2 ml-1">
+                  YOUR NAME
+                </AppText>
 
-            {step === 3 && <>
-              <AppText variant="screenTitle" className="text-3xl font-bold tracking-tight mb-2" style={{ color: theme.textPrimary }}>Who’s on repeat?</AppText>
-              <AppText variant="body" className="text-base leading-6 mb-5" style={mutedStyle}>Choose up to {MAX_ARTISTS} artists, or leave this for later.</AppText>
-              <View className="h-13 px-4 rounded-2xl border flex-row items-center mb-5" style={surfaceStyle}>
-                <Icon name="search" size={20} color={theme.textMuted} />
-                <TextInput value={query} onChangeText={setQuery} placeholder="Search artists" placeholderTextColor={theme.textMuted} returnKeyType="search" className="flex-1 h-full ml-3 text-base" style={{ color: theme.textPrimary, fontFamily: 'Nunito_600SemiBold' }} />
-                {isSearching ? <ActivityIndicator size="small" color={theme.primary} /> : query ? <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityLabel="Clear search"><Icon name="x" size={20} color={theme.textMuted} /></Pressable> : null}
-              </View>
-              {artists.length > 0 && <View className="mb-5 rounded-2xl border p-3" style={{ backgroundColor: theme.primarySubtle, borderColor: theme.primary }}>
-                <AppText variant="caption" className="font-bold mb-2" style={{ color: theme.primary }}>YOUR PICKS · {artists.length}/{MAX_ARTISTS}</AppText>
-                <View className="flex-row flex-wrap" style={{ gap: 8 }}>{artists.map((artist) => <Pressable key={artist.id} onPress={() => toggleArtist(artist)} className="flex-row items-center px-3 py-2 rounded-full" style={{ backgroundColor: theme.primary }} accessibilityLabel={`Remove ${artist.name}`}><AppText variant="caption" className="font-bold mr-1.5" style={{ color: theme.onPrimary }}>{artist.name}</AppText><Icon name="x" size={14} color={theme.onPrimary} /></Pressable>)}</View>
-              </View>}
-              <AppText variant="caption" className="font-bold mb-3" style={{ color: theme.textSecondary }}>{query ? 'SEARCH RESULTS' : 'POPULAR ON JAMKUDI'}</AppText>
-              {searchFailed ? <View className="rounded-2xl border p-4" style={surfaceStyle}><AppText variant="body" style={mutedStyle}>Search is unavailable right now. You can still choose from the artists below.</AppText></View> : null}
-              {!isSearching && query && suggestedArtists.length === 0 ? <View className="rounded-2xl border p-5 items-center" style={surfaceStyle}><AppText variant="body" style={mutedStyle}>No artists found. Try a different spelling.</AppText></View> : <View className="flex-row flex-wrap" style={{ gap: 14 }}>{suggestedArtists.map((artist) => {
-                const selected = isSelected(artist);
-                return <Pressable key={artist.id} onPress={() => toggleArtist(artist)} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} className="items-center" style={{ width: '29%' }}>
-                  <View className="w-18 h-18 rounded-full overflow-hidden border-2 items-center justify-center" style={{ borderColor: selected ? theme.primary : theme.border, backgroundColor: theme.surface }}><ArtworkImage uri={artist.imageUrl} iconSize={22} className="w-full h-full" />{selected && <View className="absolute inset-0 items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.42)' }}><View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: theme.primary }}><Icon name="check" size={17} color={theme.onPrimary} /></View></View>}</View>
-                  <AppText variant="caption" className="font-bold text-center mt-2" numberOfLines={1} style={{ color: selected ? theme.primary : theme.textPrimary }}>{artist.name}</AppText>
-                </Pressable>;
-              })}</View>}
-            </>}
+                <Pressable
+                  onPress={() => nameRef.current?.focus()}
+                  className="w-full h-14 px-4 rounded-2xl border flex-row items-center"
+                  style={{
+                    borderColor: isNameFocused ? '#A855F7' : '#2B233D',
+                    backgroundColor: isNameFocused ? '#1C162E' : '#161224',
+                  }}
+                >
+                  <Icon name="user" size={20} color={isNameFocused ? '#C084FC' : '#9CA3AF'} className="mr-3" />
+                  <TextInput
+                    ref={nameRef}
+                    value={displayName}
+                    onChangeText={setDisplayName}
+                    onFocus={() => setIsNameFocused(true)}
+                    onBlur={() => setIsNameFocused(false)}
+                    placeholder="Your name"
+                    placeholderTextColor="#52525B"
+                    autoCapitalize="words"
+                    autoFocus
+                    returnKeyType="next"
+                    onSubmitEditing={next}
+                    className="flex-1 h-full text-base font-semibold text-white py-0"
+                  />
+                </Pressable>
+
+                <AppText variant="caption" className="text-xs text-zinc-500 font-medium mt-3 ml-1">
+                  You can change this anytime in Settings.
+                </AppText>
+              </>
+            )}
+
+            {/* STEP 2: Genres Selection */}
+            {step === 2 && (
+              <>
+                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                  Set the vibe
+                </AppText>
+                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-5">
+                  Pick any genres you enjoy. These help shape your first recommendations.
+                </AppText>
+                <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3">
+                  {genres.length ? `${genres.length} SELECTED` : 'OPTIONAL — PICK AS MANY AS YOU LIKE'}
+                </AppText>
+
+                <View className="flex-row flex-wrap" style={{ gap: 10 }}>
+                  {GENRES.map((genre) => {
+                    const selected = genres.includes(genre.label);
+                    return (
+                      <Pressable
+                        key={genre.id}
+                        onPress={() => toggleGenre(genre.label)}
+                        accessibilityRole="checkbox"
+                        accessibilityState={{ checked: selected }}
+                        className={`px-4 py-3 rounded-2xl border flex-row items-center active:scale-[0.96] ${
+                          selected
+                            ? 'bg-purple-600 border-purple-500 shadow-md shadow-purple-950/40'
+                            : 'bg-[#161224] border-[#2B233D] active:bg-[#201A30]'
+                        }`}
+                      >
+                        <AppText className="text-base mr-2">{genre.emoji}</AppText>
+                        <AppText variant="caption" className={`font-bold ${selected ? 'text-white' : 'text-zinc-200'}`}>
+                          {genre.label}
+                        </AppText>
+                        {selected && <Icon name="check" size={16} color="#FFFFFF" className="ml-2" />}
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </>
+            )}
+
+            {/* STEP 3: Artists Selection */}
+            {step === 3 && (
+              <>
+                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                  Who's on repeat?
+                </AppText>
+                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-5">
+                  Choose up to {MAX_ARTISTS} artists, or leave this for later.
+                </AppText>
+
+                {/* Search Bar */}
+                <View className="h-13 px-4 rounded-2xl border border-[#2B233D] bg-[#161224] flex-row items-center mb-5">
+                  <Icon name="search" size={20} color="#9CA3AF" />
+                  <TextInput
+                    value={query}
+                    onChangeText={setQuery}
+                    placeholder="Search artists"
+                    placeholderTextColor="#52525B"
+                    returnKeyType="search"
+                    className="flex-1 h-full ml-3 text-base font-semibold text-white py-0"
+                  />
+                  {isSearching ? (
+                    <ActivityIndicator size="small" color="#C084FC" />
+                  ) : query ? (
+                    <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityLabel="Clear search">
+                      <Icon name="x" size={20} color="#9CA3AF" />
+                    </Pressable>
+                  ) : null}
+                </View>
+
+                {/* Selected Picks Chips */}
+                {artists.length > 0 && (
+                  <View className="mb-5 rounded-2xl border border-purple-500/40 bg-[#1C162E] p-3.5">
+                    <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">
+                      YOUR PICKS · {artists.length}/{MAX_ARTISTS}
+                    </AppText>
+                    <View className="flex-row flex-wrap" style={{ gap: 8 }}>
+                      {artists.map((artist) => (
+                        <Pressable
+                          key={artist.id}
+                          onPress={() => toggleArtist(artist)}
+                          className="flex-row items-center px-3.5 py-2 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.96]"
+                          accessibilityLabel={`Remove ${artist.name}`}
+                        >
+                          <AppText variant="caption" className="font-bold text-white mr-1.5">
+                            {artist.name}
+                          </AppText>
+                          <Icon name="x" size={14} color="#FFFFFF" />
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                <AppText variant="caption" className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
+                  {query ? 'SEARCH RESULTS' : 'POPULAR ON JAMKUDI'}
+                </AppText>
+
+                {searchFailed ? (
+                  <View className="rounded-2xl border border-[#2B233D] bg-[#161224] p-4">
+                    <AppText variant="body" className="text-zinc-400">
+                      Search is unavailable right now. You can still choose from the artists below.
+                    </AppText>
+                  </View>
+                ) : null}
+
+                {!isSearching && query && suggestedArtists.length === 0 ? (
+                  <View className="rounded-2xl border border-[#2B233D] bg-[#161224] p-5 items-center">
+                    <AppText variant="body" className="text-zinc-400">
+                      No artists found. Try a different spelling.
+                    </AppText>
+                  </View>
+                ) : (
+                  <View className="flex-row flex-wrap" style={{ gap: 14 }}>
+                    {suggestedArtists.map((artist) => {
+                      const selected = isSelected(artist);
+                      return (
+                        <Pressable
+                          key={artist.id}
+                          onPress={() => toggleArtist(artist)}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: selected }}
+                          className="items-center active:scale-[0.95]"
+                          style={{ width: '29%' }}
+                        >
+                          <View
+                            className={`w-18 h-18 rounded-full overflow-hidden border-2 items-center justify-center ${
+                              selected ? 'border-purple-500 bg-purple-950' : 'border-zinc-800 bg-zinc-900'
+                            }`}
+                          >
+                            <ArtworkImage uri={artist.imageUrl} iconSize={22} className="w-full h-full" />
+                            {selected && (
+                              <View
+                                className="absolute inset-0 items-center justify-center"
+                                style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+                              >
+                                <View className="w-7 h-7 rounded-full items-center justify-center bg-purple-600">
+                                  <Icon name="check" size={17} color="#FFFFFF" />
+                                </View>
+                              </View>
+                            )}
+                          </View>
+                          <AppText
+                            variant="caption"
+                            className={`font-bold text-center mt-2 ${selected ? 'text-purple-400' : 'text-white'}`}
+                            numberOfLines={1}
+                          >
+                            {artist.name}
+                          </AppText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
           </Animated.View>
         </ScrollView>
 
-        <View className="pt-4">
-          <AppButton title={step === 3 ? 'Start listening' : 'Continue'} onPress={next} disabled={isSaving} loading={isSaving} size="lg" className="w-full" rightIcon={step === 3 ? 'music' : undefined} />
-          {step > 1 && <Pressable onPress={() => step === 2 ? goToStep(3) : finish()} className="py-4 items-center" disabled={isSaving}><AppText variant="caption" className="font-bold" style={{ color: theme.textSecondary }}>{step === 2 ? 'I’ll choose genres later' : 'I’ll choose artists later'}</AppText></Pressable>}
+        {/* Bottom CTA Action Bar */}
+        <View className="py-4 border-t border-zinc-900">
+          <AppButton
+            title={step === 3 ? 'Start listening' : 'Continue'}
+            onPress={next}
+            disabled={isSaving}
+            loading={isSaving}
+            size="lg"
+            className="w-full"
+            rightIcon={step === 3 ? 'music' : undefined}
+          />
+          {step > 1 && (
+            <Pressable
+              onPress={() => (step === 2 ? goToStep(3) : finish())}
+              className="py-3 items-center active:opacity-75"
+              disabled={isSaving}
+            >
+              <AppText variant="caption" className="font-bold text-zinc-400">
+                {step === 2 ? "I'll choose genres later" : "I'll choose artists later"}
+              </AppText>
+            </Pressable>
+          )}
         </View>
       </KeyboardAvoidingView>
     </Screen>
