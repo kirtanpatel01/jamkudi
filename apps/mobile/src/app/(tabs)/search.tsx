@@ -264,7 +264,8 @@ export default function SearchScreen() {
 
       {/* Search Input Box */}
       <View
-        className="flex-row items-center px-4 h-13 rounded-2xl border border-[#2B233D] bg-[#161224] mb-5 shadow-sm"
+        className="flex-row items-center px-4 h-13 rounded-2xl border mb-5 shadow-sm"
+        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
       >
         <Icon name="search" size={20} color="#C084FC" />
 
@@ -272,8 +273,9 @@ export default function SearchScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search songs, artists, albums, playlists..."
-          placeholderTextColor="#52525B"
-          className="flex-1 ml-3 text-base font-semibold text-white h-full py-0"
+          placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
+          className="flex-1 ml-3 text-base font-semibold h-full py-0"
+          style={{ color: theme.textPrimary }}
           accessibilityLabel="Search music input"
           autoCorrect={false}
         />
@@ -281,12 +283,12 @@ export default function SearchScreen() {
         {query.length > 0 && (
           <Pressable
             onPress={() => setQuery("")}
-            className="p-1.5 rounded-full active:bg-white/10"
+            className="p-1.5 rounded-full active:opacity-70"
             hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel="Clear search input"
           >
-            <Icon name="x" size={18} color="#9CA3AF" />
+            <Icon name="x" size={18} color={theme.textMuted} />
           </Pressable>
         )}
       </View>
@@ -295,7 +297,7 @@ export default function SearchScreen() {
       {!query.trim() && recentSearches.length > 0 && (
         <View className="mb-5">
           <View className="flex-row items-center justify-between mb-2.5">
-            <AppText variant="caption" className="text-xs uppercase tracking-wider text-zinc-400 font-bold ml-1">
+            <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold ml-1">
               Recent Searches
             </AppText>
             <Pressable onPress={handleClearHistory} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear all search history">
@@ -311,7 +313,8 @@ export default function SearchScreen() {
             {recentSearches.map((term) => (
               <View
                 key={term}
-                className="flex-row items-center rounded-full bg-[#161224] border border-[#2B233D] pl-3.5 pr-1.5 py-1.5 active:scale-[0.96]"
+                className="flex-row items-center rounded-full border pl-3.5 pr-1.5 py-1.5 active:scale-[0.96]"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
               >
                 <Pressable
                   onPress={() => handleSelectRecentQuery(term)}
@@ -320,17 +323,17 @@ export default function SearchScreen() {
                   accessibilityLabel={`Search ${term}`}
                 >
                   <Icon name="clock" size={13} color="#C084FC" />
-                  <AppText className="text-xs text-zinc-200 font-semibold ml-2">{term}</AppText>
+                  <AppText variant="caption" color="textPrimary" className="text-xs font-semibold ml-2">{term}</AppText>
                 </Pressable>
 
                 <Pressable
                   onPress={() => handleRemoveRecentQuery(term)}
                   hitSlop={8}
-                  className="p-1 rounded-full active:bg-white/10"
+                  className="p-1 rounded-full active:opacity-70"
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${term} from search history`}
                 >
-                  <Icon name="x" size={12} color="#9CA3AF" />
+                  <Icon name="x" size={12} color={theme.textMuted} />
                 </Pressable>
               </View>
             ))}
@@ -341,7 +344,7 @@ export default function SearchScreen() {
       {/* Explore Category Pills Bar (when query is empty) */}
       {!query.trim() && (
         <View className="mb-5">
-          <AppText variant="caption" className="text-xs uppercase tracking-wider text-zinc-400 font-bold mb-2.5 ml-1">
+          <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-2.5 ml-1">
             Explore
           </AppText>
           <ScrollView
@@ -359,13 +362,14 @@ export default function SearchScreen() {
                   className={`px-4 py-2 rounded-full border active:scale-[0.96] ${
                     isActive
                       ? "bg-purple-600 border-purple-500 shadow-md shadow-purple-950/30"
-                      : "bg-[#161224] border-[#2B233D]"
+                      : ""
                   }`}
+                  style={!isActive ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
                 >
                   <AppText
-                    className={`text-xs font-bold ${
-                      isActive ? "text-white" : "text-zinc-300"
-                    }`}
+                    variant="caption"
+                    color={isActive ? "onPrimary" : "textPrimary"}
+                    className="text-xs font-bold"
                   >
                     {cat.label}
                   </AppText>
@@ -402,17 +406,17 @@ export default function SearchScreen() {
       {loading ? (
         <View className="py-16 items-center justify-center">
           <ActivityIndicator size="large" color="#A855F7" />
-          <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
+          <AppText variant="caption" color="textSecondary" className="mt-3 font-medium">
             Searching catalog...
           </AppText>
         </View>
       ) : searchError ? (
         <View className="py-16 items-center px-6">
           <Icon name="alert-circle" size={36} color="#F87171" />
-          <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1 text-white">
+          <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1">
             Couldn't load search results
           </AppText>
-          <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center mb-4">
+          <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center mb-4">
             Please check your network connection and try again.
           </AppText>
           <Pressable
@@ -437,7 +441,7 @@ export default function SearchScreen() {
               {/* Artists Section */}
               {query.trim().length > 0 && showArtists && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                  <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
                     Artists
                   </AppText>
                   <ScrollView
@@ -450,16 +454,20 @@ export default function SearchScreen() {
                       <Pressable
                         key={artist.id}
                         onPress={() => router.push(`/artist/${encodeURIComponent(artist.query)}` as any)}
-                        className="w-44 flex-row items-center p-2.5 rounded-2xl bg-[#161224] border border-[#2B233D] active:scale-[0.96] pr-3"
+                        className="w-44 flex-row items-center p-2.5 rounded-2xl border active:scale-[0.96] pr-3"
+                        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                       >
-                        <View className="w-11 h-11 rounded-full overflow-hidden mr-2.5 bg-zinc-900 border border-purple-500/40 shrink-0">
+                        <View
+                          className="w-11 h-11 rounded-full overflow-hidden mr-2.5 border border-purple-500/40 shrink-0"
+                          style={{ backgroundColor: theme.surfacePressed }}
+                        >
                           <ArtworkImage uri={artist.imageUrl} iconSize={18} className="w-full h-full" />
                         </View>
                         <View className="flex-1 min-w-0 justify-center">
-                          <AppText variant="songTitle" className="text-xs font-bold text-white" numberOfLines={1}>
+                          <AppText variant="songTitle" color="textPrimary" className="text-xs font-bold" numberOfLines={1}>
                             {artist.name}
                           </AppText>
-                          <AppText variant="caption" className="text-[10px] text-zinc-400 font-medium" numberOfLines={1}>
+                          <AppText variant="caption" color="textSecondary" className="text-[10px] font-medium" numberOfLines={1}>
                             Artist Profile
                           </AppText>
                         </View>
@@ -472,7 +480,7 @@ export default function SearchScreen() {
               {/* Albums Section */}
               {query.trim().length > 0 && showAlbums && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                  <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
                     Albums
                   </AppText>
                   <ScrollView
@@ -487,13 +495,16 @@ export default function SearchScreen() {
                         onPress={() => router.push(`/album/${encodeURIComponent(album.title)}` as any)}
                         className="w-32 active:scale-[0.96]"
                       >
-                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
+                        <View
+                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
+                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                        >
                           <ArtworkImage uri={album.artwork} iconSize={24} className="w-full h-full" />
                         </View>
-                        <AppText variant="songTitle" className="text-xs font-bold text-white mb-0.5" numberOfLines={1}>
+                        <AppText variant="songTitle" color="textPrimary" className="text-xs font-bold mb-0.5" numberOfLines={1}>
                           {album.title}
                         </AppText>
-                        <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
+                        <AppText variant="artist" color="textSecondary" className="text-[11px] font-medium" numberOfLines={1}>
                           {album.artist}
                         </AppText>
                       </Pressable>
@@ -505,7 +516,7 @@ export default function SearchScreen() {
               {/* Playlists Section */}
               {query.trim().length > 0 && showPlaylists && (
                 <View className="mb-6">
-                  <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                  <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
                     Playlists
                   </AppText>
                   <ScrollView
@@ -520,13 +531,16 @@ export default function SearchScreen() {
                         onPress={() => router.push(`/playlist/${encodeURIComponent(playlist.id)}` as any)}
                         className="w-32 active:scale-[0.96]"
                       >
-                        <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
+                        <View
+                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
+                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                        >
                           <ArtworkImage uri={playlist.artwork} iconSize={24} className="w-full h-full" />
                         </View>
-                        <AppText variant="songTitle" className="text-xs font-bold text-white mb-0.5" numberOfLines={1}>
+                        <AppText variant="songTitle" color="textPrimary" className="text-xs font-bold mb-0.5" numberOfLines={1}>
                           {playlist.title}
                         </AppText>
-                        <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
+                        <AppText variant="artist" color="textSecondary" className="text-[11px] font-medium" numberOfLines={1}>
                           {playlist.subtitle}
                         </AppText>
                       </Pressable>
@@ -536,7 +550,7 @@ export default function SearchScreen() {
               )}
 
               {showSongs && (
-                <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
                   {query.trim() ? "Songs" : `${activeCategory} Feed`}
                 </AppText>
               )}
@@ -548,14 +562,15 @@ export default function SearchScreen() {
                 {loadingMore ? (
                   <View className="flex-row items-center">
                     <ActivityIndicator size="small" color="#A855F7" />
-                    <AppText variant="caption" className="ml-2 text-xs text-zinc-400 font-medium">
+                    <AppText variant="caption" color="textSecondary" className="ml-2 text-xs font-medium">
                       Loading more songs...
                     </AppText>
                   </View>
                 ) : paginationError ? (
                   <Pressable
                     onPress={handleLoadMoreSongs}
-                    className="px-4 py-2 rounded-full bg-[#161224] border border-[#2B233D] active:bg-[#201A30]"
+                    className="px-4 py-2 rounded-full border active:opacity-80"
+                    style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                   >
                     <AppText className="text-xs text-purple-400 font-bold">
                       Couldn't load more. Tap to retry
@@ -568,17 +583,17 @@ export default function SearchScreen() {
           ListEmptyComponent={
             query.trim() ? (
               <View className="py-16 items-center px-6">
-                <Icon name="search" size={36} color="#9CA3AF" />
-                <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1 text-white">
+                <Icon name="search" size={36} color={theme.textMuted} />
+                <AppText variant="songTitle" className="text-base font-bold text-center mt-3 mb-1">
                   No results for "{query}"
                 </AppText>
-                <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center">
+                <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center">
                   Try checking the spelling or search for an artist, song, or album.
                 </AppText>
               </View>
             ) : (
               <View className="py-12 items-center px-4">
-                <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center">
+                <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center">
                   Search for a song, artist, or album, or pick a category above to explore.
                 </AppText>
               </View>
@@ -589,14 +604,18 @@ export default function SearchScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                style={
                   isCurrent
-                    ? 'bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40'
-                    : 'bg-[#161224]/80 border-[#2B233D]/60'
-                }`}
+                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
+                    : { backgroundColor: theme.surface, borderColor: theme.border }
+                }
               >
                 {/* Artwork */}
-                <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+                <View
+                  className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0"
+                  style={{ backgroundColor: theme.surfacePressed }}
+                >
                   <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
                   {isCurrent && (
                     <View className="absolute inset-0 bg-black/60 items-center justify-center">
@@ -613,8 +632,9 @@ export default function SearchScreen() {
                 <View className="flex-1 min-w-0 mr-3 justify-center">
                   <AppText
                     variant="songTitle"
+                    color={isCurrent ? undefined : 'textPrimary'}
                     className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-300 font-bold" : "text-white"
+                      isCurrent ? "text-purple-300 font-bold" : ""
                     }`}
                     numberOfLines={1}
                   >
@@ -622,7 +642,8 @@ export default function SearchScreen() {
                   </AppText>
                   <AppText
                     variant="artist"
-                    className="text-xs text-zinc-400 font-medium"
+                    color="textSecondary"
+                    className="text-xs font-medium"
                     numberOfLines={1}
                   >
                     {item.artist} • {item.album}
@@ -653,19 +674,21 @@ export default function SearchScreen() {
                       setSelectedSongForPlaylist(item);
                       setShowAddToPlaylistModal(true);
                     }}
-                    className="w-7 h-7 rounded-full bg-white/5 active:bg-white/15 border border-white/10 items-center justify-center"
+                    className="w-7 h-7 rounded-full border items-center justify-center active:opacity-75"
+                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
                     hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}
                   >
-                    <Icon name="plus" size={13} color="#D4D4D8" />
+                    <Icon name="plus" size={13} color={theme.textPrimary} />
                   </Pressable>
 
                   {/* Track Duration */}
                   {item.duration > 0 && (
                     <AppText
                       variant="caption"
-                      className="text-[11px] text-zinc-400 font-medium ml-0.5"
+                      color="textMuted"
+                      className="text-[11px] font-medium ml-0.5"
                     >
                       {formatDuration(item.duration)}
                     </AppText>

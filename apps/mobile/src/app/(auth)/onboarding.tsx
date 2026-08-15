@@ -6,7 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
+  TextInput as RNTextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/common/Screen';
@@ -18,7 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { useTheme } from '@/hooks/useTheme';
 import { FEATURED_ARTISTS, searchArtists } from '@/services/jiosaavn';
-import { Pressable, View } from '@/tw';
+import { Pressable, View, TextInput } from '@/tw';
 
 type Step = 1 | 2 | 3;
 
@@ -33,13 +33,13 @@ const GENRES = [
   { id: 'hip-hop', label: 'Hip-Hop', emoji: '🎧' },
   { id: 'bollywood', label: 'Bollywood', emoji: '🎬' },
   { id: 'indie', label: 'Indie', emoji: '🎸' },
-  { id: 'rock', label: 'Rock', emoji: '⚡' },
+  { id: 'rock', label: 'Rock', emoji: '🤘' },
   { id: 'rnb', label: 'R&B', emoji: '🎷' },
-  { id: 'electronic', label: 'Electronic', emoji: '🎛️' },
+  { id: 'electronic', label: 'Electronic', emoji: '🎹' },
   { id: 'lo-fi', label: 'Lo-fi', emoji: '☕' },
   { id: 'classical', label: 'Classical', emoji: '🎻' },
   { id: 'gujarati', label: 'Gujarati', emoji: '🪘' },
-  { id: 'punjabi', label: 'Punjabi', emoji: '🪕' },
+  { id: 'punjabi', label: 'Punjabi', emoji: '🪗' },
 ];
 
 const MAX_ARTISTS = 5;
@@ -79,7 +79,7 @@ export default function OnboardingScreen() {
   const [searchFailed, setSearchFailed] = useState(false);
   const [isNameFocused, setIsNameFocused] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const nameRef = useRef<TextInput>(null);
+  const nameRef = useRef<RNTextInput>(null);
   const transition = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -263,14 +263,14 @@ export default function OnboardingScreen() {
             {/* STEP 1: Display Name */}
             {step === 1 && (
               <>
-                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                <AppText variant="screenTitle" className="text-3xl font-extrabold tracking-tight mb-2">
                   Make it yours
                 </AppText>
-                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-8">
+                <AppText variant="body" color="textSecondary" className="text-base leading-6 font-medium mb-8">
                   What should we call you? This is how Jamkudi will greet you.
                 </AppText>
 
-                <AppText variant="caption" className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2 ml-1">
+                <AppText variant="caption" color="textSecondary" className="text-xs font-bold uppercase tracking-wider mb-2 ml-1">
                   YOUR NAME
                 </AppText>
 
@@ -278,11 +278,11 @@ export default function OnboardingScreen() {
                   onPress={() => nameRef.current?.focus()}
                   className="w-full h-14 px-4 rounded-2xl border flex-row items-center"
                   style={{
-                    borderColor: isNameFocused ? '#A855F7' : '#2B233D',
-                    backgroundColor: isNameFocused ? '#1C162E' : '#161224',
+                    borderColor: isNameFocused ? '#A855F7' : theme.border,
+                    backgroundColor: isNameFocused ? (theme.isDark ? '#1C162E' : '#F9F5FF') : theme.surface,
                   }}
                 >
-                  <Icon name="user" size={20} color={isNameFocused ? '#C084FC' : '#9CA3AF'} className="mr-3" />
+                  <Icon name="user" size={20} color={isNameFocused ? '#C084FC' : theme.textMuted} className="mr-3" />
                   <TextInput
                     ref={nameRef}
                     value={displayName}
@@ -290,16 +290,17 @@ export default function OnboardingScreen() {
                     onFocus={() => setIsNameFocused(true)}
                     onBlur={() => setIsNameFocused(false)}
                     placeholder="Your name"
-                    placeholderTextColor="#52525B"
+                    placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
                     autoCapitalize="words"
                     autoFocus
                     returnKeyType="next"
                     onSubmitEditing={next}
-                    className="flex-1 h-full text-base font-semibold text-white py-0"
+                    className="flex-1 h-full text-base font-semibold py-0"
+                    style={{ color: theme.textPrimary }}
                   />
                 </Pressable>
 
-                <AppText variant="caption" className="text-xs text-zinc-500 font-medium mt-3 ml-1">
+                <AppText variant="caption" color="textMuted" className="text-xs font-medium mt-3 ml-1">
                   You can change this anytime in Settings.
                 </AppText>
               </>
@@ -308,10 +309,10 @@ export default function OnboardingScreen() {
             {/* STEP 2: Genres Selection */}
             {step === 2 && (
               <>
-                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                <AppText variant="screenTitle" className="text-3xl font-extrabold tracking-tight mb-2">
                   Set the vibe
                 </AppText>
-                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-5">
+                <AppText variant="body" color="textSecondary" className="text-base leading-6 font-medium mb-5">
                   Pick any genres you enjoy. These help shape your first recommendations.
                 </AppText>
                 <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3">
@@ -330,11 +331,16 @@ export default function OnboardingScreen() {
                         className={`px-4 py-3 rounded-2xl border flex-row items-center active:scale-[0.96] ${
                           selected
                             ? 'bg-purple-600 border-purple-500 shadow-md shadow-purple-950/40'
-                            : 'bg-[#161224] border-[#2B233D] active:bg-[#201A30]'
+                            : 'active:opacity-80'
                         }`}
+                        style={!selected ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
                       >
                         <AppText className="text-base mr-2">{genre.emoji}</AppText>
-                        <AppText variant="caption" className={`font-bold ${selected ? 'text-white' : 'text-zinc-200'}`}>
+                        <AppText
+                          variant="caption"
+                          color={selected ? 'onPrimary' : 'textPrimary'}
+                          className="font-bold"
+                        >
                           {genre.label}
                         </AppText>
                         {selected && <Icon name="check" size={16} color="#FFFFFF" className="ml-2" />}
@@ -348,36 +354,43 @@ export default function OnboardingScreen() {
             {/* STEP 3: Artists Selection */}
             {step === 3 && (
               <>
-                <AppText variant="screenTitle" className="text-3xl font-extrabold text-white tracking-tight mb-2">
+                <AppText variant="screenTitle" className="text-3xl font-extrabold tracking-tight mb-2">
                   Who's on repeat?
                 </AppText>
-                <AppText variant="body" className="text-base leading-6 text-zinc-400 font-medium mb-5">
+                <AppText variant="body" color="textSecondary" className="text-base leading-6 font-medium mb-5">
                   Choose up to {MAX_ARTISTS} artists, or leave this for later.
                 </AppText>
 
                 {/* Search Bar */}
-                <View className="h-13 px-4 rounded-2xl border border-[#2B233D] bg-[#161224] flex-row items-center mb-5">
-                  <Icon name="search" size={20} color="#9CA3AF" />
+                <View
+                  className="h-13 px-4 rounded-2xl border flex-row items-center mb-5"
+                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                >
+                  <Icon name="search" size={20} color={theme.textMuted} />
                   <TextInput
                     value={query}
                     onChangeText={setQuery}
                     placeholder="Search artists"
-                    placeholderTextColor="#52525B"
+                    placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
                     returnKeyType="search"
-                    className="flex-1 h-full ml-3 text-base font-semibold text-white py-0"
+                    className="flex-1 h-full ml-3 text-base font-semibold py-0"
+                    style={{ color: theme.textPrimary }}
                   />
                   {isSearching ? (
                     <ActivityIndicator size="small" color="#C084FC" />
                   ) : query ? (
                     <Pressable onPress={() => setQuery('')} hitSlop={10} accessibilityLabel="Clear search">
-                      <Icon name="x" size={20} color="#9CA3AF" />
+                      <Icon name="x" size={20} color={theme.textMuted} />
                     </Pressable>
                   ) : null}
                 </View>
 
                 {/* Selected Picks Chips */}
                 {artists.length > 0 && (
-                  <View className="mb-5 rounded-2xl border border-purple-500/40 bg-[#1C162E] p-3.5">
+                  <View
+                    className="mb-5 rounded-2xl border p-3.5"
+                    style={{ backgroundColor: theme.isDark ? '#1C162E' : theme.surfaceElevated, borderColor: '#A855F7' }}
+                  >
                     <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">
                       YOUR PICKS · {artists.length}/{MAX_ARTISTS}
                     </AppText>
@@ -399,21 +412,21 @@ export default function OnboardingScreen() {
                   </View>
                 )}
 
-                <AppText variant="caption" className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
+                <AppText variant="caption" color="textSecondary" className="text-xs font-bold uppercase tracking-wider mb-3">
                   {query ? 'SEARCH RESULTS' : 'POPULAR ON JAMKUDI'}
                 </AppText>
 
                 {searchFailed ? (
-                  <View className="rounded-2xl border border-[#2B233D] bg-[#161224] p-4">
-                    <AppText variant="body" className="text-zinc-400">
+                  <View className="rounded-2xl border p-4" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+                    <AppText variant="body" color="textSecondary">
                       Search is unavailable right now. You can still choose from the artists below.
                     </AppText>
                   </View>
                 ) : null}
 
                 {!isSearching && query && suggestedArtists.length === 0 ? (
-                  <View className="rounded-2xl border border-[#2B233D] bg-[#161224] p-5 items-center">
-                    <AppText variant="body" className="text-zinc-400">
+                  <View className="rounded-2xl border p-5 items-center" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+                    <AppText variant="body" color="textSecondary">
                       No artists found. Try a different spelling.
                     </AppText>
                   </View>
@@ -432,8 +445,9 @@ export default function OnboardingScreen() {
                         >
                           <View
                             className={`w-18 h-18 rounded-full overflow-hidden border-2 items-center justify-center ${
-                              selected ? 'border-purple-500 bg-purple-950' : 'border-zinc-800 bg-zinc-900'
+                              selected ? 'border-purple-500 bg-purple-950' : 'bg-zinc-800'
                             }`}
+                            style={!selected ? { borderColor: theme.border, backgroundColor: theme.surface } : undefined}
                           >
                             <ArtworkImage uri={artist.imageUrl} iconSize={22} className="w-full h-full" />
                             {selected && (
@@ -449,7 +463,8 @@ export default function OnboardingScreen() {
                           </View>
                           <AppText
                             variant="caption"
-                            className={`font-bold text-center mt-2 ${selected ? 'text-purple-400' : 'text-white'}`}
+                            color={selected ? undefined : 'textPrimary'}
+                            className={`font-bold text-center mt-2 ${selected ? 'text-purple-400' : ''}`}
                             numberOfLines={1}
                           >
                             {artist.name}
@@ -465,7 +480,7 @@ export default function OnboardingScreen() {
         </ScrollView>
 
         {/* Bottom CTA Action Bar */}
-        <View className="py-4 border-t border-zinc-900">
+        <View className="py-4 border-t" style={{ borderTopColor: theme.border }}>
           <AppButton
             title={step === 3 ? 'Start listening' : 'Continue'}
             onPress={next}
@@ -481,7 +496,7 @@ export default function OnboardingScreen() {
               className="py-3 items-center active:opacity-75"
               disabled={isSaving}
             >
-              <AppText variant="caption" className="font-bold text-zinc-400">
+              <AppText variant="caption" color="textSecondary" className="font-bold">
                 {step === 2 ? "I'll choose genres later" : "I'll choose artists later"}
               </AppText>
             </Pressable>

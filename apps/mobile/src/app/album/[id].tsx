@@ -8,15 +8,19 @@ import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
-import { AlbumDetails, JioSaavnSong } from "@/services/jiosaavn";
+import { AlbumDetails } from "@/services/jiosaavn";
 import { fetchAlbumCatalog } from "@/services/catalogEngine";
 import { View, Pressable } from "@/tw";
 
-function formatDuration(seconds: number): string {
-  if (!seconds || isNaN(seconds)) return "";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+function cleanTitle(str?: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
 }
 
 export default function AlbumDetailScreen() {
@@ -49,14 +53,14 @@ export default function AlbumDetailScreen() {
   const handlePlayAll = async () => {
     if (album && album.tracks.length > 0) {
       await playQueue(album.tracks, 0);
-      showToast(`Playing album: ${album.title}`, "success");
+      showToast(`Playing album: ${cleanTitle(album.title)}`, "success");
     }
   };
 
   const handleSelectSong = async (song: JioSaavnSong, index: number) => {
     if (album) {
       await playQueue(album.tracks, index);
-      showToast(`Playing ${song.title}`, "info");
+      showToast(`Playing ${cleanTitle(song.title)}`, "info");
     }
   };
 
@@ -67,12 +71,13 @@ export default function AlbumDetailScreen() {
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
-          className="w-10 h-10 items-center justify-center rounded-full active:bg-white/10"
+          className="w-10 h-10 items-center justify-center rounded-full border active:opacity-80 active:scale-[0.94]"
+          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
         >
-          <Icon name="skip-back" size={24} color={theme.textPrimary} />
+          <Icon name="skip-back" size={22} color={theme.textPrimary} />
         </Pressable>
 
-        <AppText variant="caption" className="uppercase tracking-widest text-[10px] text-zinc-400 font-bold">
+        <AppText variant="caption" className="uppercase tracking-widest text-xs text-purple-400 font-extrabold">
           ALBUM DISCOVERY
         </AppText>
 
@@ -81,14 +86,14 @@ export default function AlbumDetailScreen() {
 
       {loading ? (
         <View className="py-24 items-center justify-center">
-          <ActivityIndicator size="large" color={theme.primary} />
-          <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
+          <ActivityIndicator size="large" color="#A855F7" />
+          <AppText variant="caption" color="textSecondary" className="mt-3 font-medium">
             Loading album details...
           </AppText>
         </View>
       ) : !album ? (
         <View className="py-24 items-center">
-          <AppText variant="body" className="text-zinc-400">
+          <AppText variant="body" color="textSecondary">
             Album details not found.
           </AppText>
         </View>
@@ -97,11 +102,14 @@ export default function AlbumDetailScreen() {
           data={album.tracks}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-24"
+          contentContainerClassName="pb-28"
           ListHeaderComponent={
             <View className="items-center mb-6">
               {/* Album Artwork */}
-              <View className="w-44 h-44 rounded-3xl overflow-hidden mb-4 bg-zinc-800 border border-white/10 shadow-2xl">
+              <View
+                className="w-44 h-44 rounded-3xl overflow-hidden mb-4 border shadow-2xl shadow-purple-950/60"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+              >
                 <ArtworkImage
                   uri={album.artwork}
                   iconSize={48}
@@ -109,21 +117,21 @@ export default function AlbumDetailScreen() {
                 />
               </View>
 
-              <AppText variant="screenTitle" className="text-xl font-bold text-center mb-0.5">
-                {album.title}
+              <AppText variant="screenTitle" className="text-xl font-extrabold text-center mb-0.5 tracking-tight px-4">
+                {cleanTitle(album.title)}
               </AppText>
-              <AppText variant="artist" className="text-sm text-zinc-400 font-medium text-center mb-4">
-                {album.artist} • {album.tracks.length} Songs
+              <AppText variant="artist" color="textSecondary" className="text-sm font-medium text-center mb-4 px-4">
+                {cleanTitle(album.artist)} • {album.tracks.length} Songs
               </AppText>
 
               {/* Action Bar */}
               <View className="flex-row items-center gap-x-3 mb-2">
                 <Pressable
                   onPress={handlePlayAll}
-                  className="flex-row items-center px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md"
+                  className="flex-row items-center px-7 py-3 rounded-full bg-purple-600 active:bg-purple-700 shadow-lg shadow-purple-950/50 active:scale-[0.96]"
                 >
                   <Icon name="play" size={18} color="#FFFFFF" />
-                  <AppText className="ml-2 text-xs font-bold text-white">Play Album</AppText>
+                  <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Play Album</AppText>
                 </Pressable>
               </View>
             </View>
@@ -133,38 +141,47 @@ export default function AlbumDetailScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center py-2.5 px-1 rounded-xl mb-1 active:bg-white/5"
+                className="flex-row items-center p-3.5 rounded-2xl mb-2 border active:scale-[0.99]"
+                style={
+                  isCurrent
+                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
+                    : { backgroundColor: theme.surface, borderColor: theme.border }
+                }
               >
                 <AppText
                   variant="caption"
-                  className="w-6 text-xs text-zinc-400 font-bold text-center mr-2"
+                  color="textMuted"
+                  className="w-6 text-xs font-bold text-center mr-2 shrink-0"
                 >
                   {index + 1}
                 </AppText>
 
-                <View className="flex-1 mr-2">
+                <View className="flex-1 mr-2 min-w-0">
                   <AppText
                     variant="songTitle"
-                    className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-400 font-bold" : ""
+                    color={isCurrent ? undefined : 'textPrimary'}
+                    className={`text-sm font-bold mb-0.5 ${
+                      isCurrent ? "text-purple-300 font-bold" : ""
                     }`}
                     numberOfLines={1}
                   >
-                    {item.title}
+                    {cleanTitle(item.title)}
                   </AppText>
                   <AppText
                     variant="artist"
-                    className="text-xs text-zinc-400 font-medium"
+                    color="textSecondary"
+                    className="text-xs font-medium"
                     numberOfLines={1}
                   >
-                    {item.artist}
+                    {cleanTitle(item.artist)}
                   </AppText>
                 </View>
 
                 {item.duration > 0 && (
                   <AppText
                     variant="caption"
-                    className="text-xs text-zinc-400 font-medium"
+                    color="textMuted"
+                    className="text-xs font-medium shrink-0"
                   >
                     {formatDuration(item.duration)}
                   </AppText>

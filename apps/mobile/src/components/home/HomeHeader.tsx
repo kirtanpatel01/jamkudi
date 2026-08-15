@@ -9,9 +9,9 @@ export const HomeHeader: React.FC = () => {
 
   const getGreeting = () => {
     const hours = new Date().getHours();
-    if (hours < 12) return "Good Morning Ji ❤️";
-    if (hours < 18) return "Good Afternoon Ji 😏";
-    return "Good Evening Ji 😌";
+    if (hours < 12) return "Good Morning";
+    if (hours < 18) return "Good Afternoon";
+    return "Good Evening";
   };
 
   return (

@@ -1,9 +1,9 @@
 import React, { forwardRef, useState } from 'react';
-import { TextInput, TextInputProps } from 'react-native';
+import { type TextInputProps, TextInput as RNTextInput } from 'react-native';
 import { AppText } from '@/components/common/AppText';
 import { Icon, IconName } from '@/components/common/Icon';
 import { useTheme } from '@/hooks/useTheme';
-import { View, Pressable } from '@/tw';
+import { View, Pressable, TextInput } from '@/tw';
 
 export interface AuthInputProps extends Omit<TextInputProps, 'style'> {
   label: string;
@@ -12,7 +12,7 @@ export interface AuthInputProps extends Omit<TextInputProps, 'style'> {
   isPassword?: boolean;
 }
 
-export const AuthInput = forwardRef<TextInput, AuthInputProps>(({
+export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
   label,
   icon,
   error,
@@ -45,7 +45,7 @@ export const AuthInput = forwardRef<TextInput, AuthInputProps>(({
   return (
     <View className="mb-5 w-full">
       {/* Field Label */}
-      <AppText variant="caption" className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2 ml-1">
+      <AppText variant="caption" color="textSecondary" className="text-xs font-bold uppercase tracking-wider mb-2 ml-1">
         {label}
       </AppText>
 

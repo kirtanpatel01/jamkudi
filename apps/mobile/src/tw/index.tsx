@@ -48,11 +48,39 @@ View.displayName = "CSS(View)";
 export const Text = (
   props: React.ComponentProps<typeof RNText> & { className?: string }
 ) => {
+  const { className = "", style, ...rest } = props;
+
+  let fontFamily = "Nunito_400Regular";
+  const isFredoka = className.includes("font-fredoka");
+
+  if (isFredoka) {
+    if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
+      fontFamily = "Fredoka_700Bold";
+    } else if (className.includes("font-semibold")) {
+      fontFamily = "Fredoka_600SemiBold";
+    } else if (className.includes("font-medium")) {
+      fontFamily = "Fredoka_500Medium";
+    } else {
+      fontFamily = "Fredoka_400Regular";
+    }
+  } else {
+    if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
+      fontFamily = "Nunito_700Bold";
+    } else if (className.includes("font-semibold")) {
+      fontFamily = "Nunito_600SemiBold";
+    } else if (className.includes("font-medium")) {
+      fontFamily = "Nunito_500Medium";
+    } else {
+      fontFamily = "Nunito_400Regular";
+    }
+  }
+
   return useCssElement(
     RNText as any,
     {
-      style: { fontFamily: "Nunito_400Regular" },
-      ...props,
+      ...rest,
+      className,
+      style: [{ fontFamily }, style, { fontWeight: "normal" }],
     },
     { className: "style" }
   );
@@ -85,9 +113,24 @@ Pressable.displayName = "CSS(Pressable)";
 export const TextInput = (
   props: React.ComponentProps<typeof RNTextInput> & { className?: string }
 ) => {
+  const { className = "", style, ...rest } = props;
+
+  let fontFamily = "Nunito_400Regular";
+  if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
+    fontFamily = "Nunito_700Bold";
+  } else if (className.includes("font-semibold")) {
+    fontFamily = "Nunito_600SemiBold";
+  } else if (className.includes("font-medium")) {
+    fontFamily = "Nunito_500Medium";
+  }
+
   return useCssElement(
     RNTextInput as any,
-    { style: { fontFamily: "Nunito_400Regular" }, ...props },
+    {
+      ...rest,
+      className,
+      style: [{ fontFamily }, style, { fontWeight: "normal" }],
+    },
     { className: "style" }
   );
 };

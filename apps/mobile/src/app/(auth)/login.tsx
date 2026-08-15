@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput as RNTextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '@/components/common/Screen';
 import { AppText } from '@/components/common/AppText';
@@ -8,7 +8,7 @@ import { AuthButton } from '@/components/auth/AuthButton';
 import { Icon } from '@/components/common/Icon';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { View, Pressable } from '@/tw';
+import { View, Pressable, TextInput } from '@/tw';
 
 const JAMKUDI_LOGO = require('../../../assets/images/icon.jpg');
 
@@ -17,7 +17,7 @@ export default function LoginScreen() {
   const { signIn, error, clearError } = useAuth();
   const { showToast } = useToast();
 
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<RNTextInput>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,11 +89,11 @@ export default function LoginScreen() {
               />
             </View>
 
-            <AppText variant="screenTitle" className="text-3xl font-extrabold text-center mb-1.5 text-white tracking-tight">
+            <AppText variant="screenTitle" className="text-3xl font-extrabold text-center mb-1.5 tracking-tight">
               Jamkudi Music
             </AppText>
 
-            <AppText variant="caption" className="text-sm text-zinc-400 font-medium text-center px-4 leading-5">
+            <AppText variant="caption" color="textSecondary" className="text-sm font-medium text-center px-4 leading-5">
               Sign in to continue listening to your personal library
             </AppText>
           </View>
@@ -160,7 +160,7 @@ export default function LoginScreen() {
 
           {/* Navigation Link to Signup */}
           <View className="flex-row items-center justify-center py-2">
-            <AppText variant="caption" className="text-sm text-zinc-400 font-medium mr-1.5">
+            <AppText variant="caption" color="textSecondary" className="text-sm font-medium mr-1.5">
               Don't have an account?
             </AppText>
             <Pressable

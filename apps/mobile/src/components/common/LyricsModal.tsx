@@ -56,12 +56,13 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
       onRequestClose={onClose}
     >
       <View
-        className="flex-1 px-6 pt-12 pb-6 bg-[#0B0813]"
+        className="flex-1 px-6 pt-12 pb-6"
+        style={{ backgroundColor: theme.background }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6 pb-4 border-b border-[#2B233D]">
+        <View className="flex-row items-center justify-between mb-6 pb-4 border-b" style={{ borderBottomColor: theme.border }}>
           <View className="flex-row items-center flex-1 mr-4">
-            <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+            <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
               <ArtworkImage
                 uri={currentTrack?.artwork}
                 iconSize={20}
@@ -72,14 +73,16 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
             <View className="flex-1 min-w-0">
               <AppText
                 variant="songTitle"
-                className="text-base font-bold text-white mb-0.5"
+                color="textPrimary"
+                className="text-base font-bold mb-0.5"
                 numberOfLines={1}
               >
                 {cleanTitle(currentTrack?.title) || "Song Lyrics"}
               </AppText>
               <AppText
                 variant="artist"
-                className="text-xs text-zinc-400 font-medium"
+                color="textSecondary"
+                className="text-xs font-medium"
                 numberOfLines={1}
               >
                 {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
@@ -90,9 +93,10 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
           <Pressable
             onPress={onClose}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
+            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-70"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           >
-            <Icon name="chevron-down" size={24} color="#FFFFFF" />
+            <Icon name="chevron-down" size={24} color={theme.textPrimary} />
           </Pressable>
         </View>
 
@@ -100,7 +104,7 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
         {loading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#A855F7" />
-            <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
+            <AppText variant="caption" color="textSecondary" className="mt-3 font-medium">
               Loading Lyrics...
             </AppText>
           </View>
@@ -112,7 +116,8 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
             {lyrics ? (
               <AppText
                 variant="body"
-                className="text-lg leading-9 text-center font-semibold text-zinc-200"
+                color="textPrimary"
+                className="text-lg leading-9 text-center font-semibold"
               >
                 {lyrics}
               </AppText>
@@ -121,7 +126,8 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
                 <Icon name="music" size={48} color={theme.textMuted} />
                 <AppText
                   variant="body"
-                  className="mt-4 text-center text-zinc-400 font-medium px-4 mb-4"
+                  color="textSecondary"
+                  className="mt-4 text-center font-medium px-4 mb-4"
                 >
                   Lyrics are unavailable for this song.
                 </AppText>

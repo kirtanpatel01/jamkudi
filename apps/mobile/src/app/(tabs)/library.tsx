@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, TextInput } from "react-native";
+import { ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
@@ -17,7 +17,7 @@ import { CreatePlaylistModal } from "@/components/common/CreatePlaylistModal";
 import { SpotifyImportModal } from "@/components/common/SpotifyImportModal";
 import { MADE_FOR_YOU_DATA } from "@/data/mockMusic";
 import { Track } from "@/types/track";
-import { View, Pressable } from "@/tw";
+import { View, Pressable, TextInput } from "@/tw";
 
 type LibraryFilter = "All" | "Liked" | "Recent" | "Playlists";
 
@@ -143,25 +143,27 @@ export default function LibraryScreen() {
       {/* 2. Library Search Bar (Primary interaction placed before filters) */}
       {!isLibraryEmpty && (
         <View
-          className="flex-row items-center px-4 h-12 rounded-2xl border border-[#2B233D] bg-[#161224] mb-3.5 shadow-sm"
+          className="flex-row items-center px-4 h-12 rounded-2xl border mb-3.5 shadow-sm"
+          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
         >
           <Icon name="search" size={18} color="#C084FC" />
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search in your library..."
-            placeholderTextColor="#52525B"
-            className="flex-1 ml-3 text-sm font-semibold text-white h-full py-0"
+            placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
+            className="flex-1 ml-3 text-sm font-semibold h-full py-0"
+            style={{ color: theme.textPrimary }}
             accessibilityLabel="Search in library input"
             autoCorrect={false}
           />
           {searchQuery.length > 0 && (
             <Pressable
               onPress={() => setSearchQuery("")}
-              className="p-1.5 rounded-full active:bg-white/10"
+              className="p-1.5 rounded-full active:opacity-70"
               hitSlop={8}
             >
-              <Icon name="x" size={16} color="#9CA3AF" />
+              <Icon name="x" size={16} color={theme.textMuted} />
             </Pressable>
           )}
         </View>
@@ -189,54 +191,69 @@ export default function LibraryScreen() {
 
       {/* Complete Empty Library State */}
       {isLibraryEmpty ? (
-        <View className="py-16 items-center px-6 rounded-3xl bg-[#161224] border border-[#2B233D] my-4 shadow-lg shadow-purple-950/30">
-          <View className="w-16 h-16 rounded-3xl items-center justify-center bg-purple-600/20 border border-purple-500/30 mb-4">
-            <Icon name="music" size={32} color="#C084FC" />
-          </View>
-          <AppText variant="songTitle" className="text-lg font-bold text-center text-white mb-1.5">
-            Your Library is empty
+        <View
+          className="py-16 items-center px-6 rounded-3xl border my-4"
+          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+        >
+          <Icon name="library" size={44} color={theme.textMuted} />
+          <AppText variant="songTitle" className="text-base font-bold text-center mt-4 mb-1">
+            Your library is empty
           </AppText>
-          <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center mb-6 max-w-[260px]">
+          <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center mb-6 leading-5">
             Like songs, listen to tracks, or explore playlists to build your personal music collection.
           </AppText>
           <Pressable
             onPress={() => router.push("/(tabs)/search")}
-            className="px-6 py-3 rounded-full bg-purple-600 active:bg-purple-700 shadow-lg shadow-purple-950/40 flex-row items-center gap-x-2 active:scale-[0.98]"
+            className="px-6 py-3 rounded-full bg-purple-600 active:bg-purple-700 flex-row items-center gap-x-2 active:scale-[0.98]"
             accessibilityRole="button"
             accessibilityLabel="Start exploring music"
           >
-            <Icon name="search" size={16} color="#FFFFFF" />
-            <AppText className="text-xs font-bold text-white uppercase tracking-wider">
-              Start Exploring
-            </AppText>
+            <Icon name="search" size={18} color="#FFFFFF" />
+            <AppText className="text-xs font-bold text-white uppercase tracking-wider">Explore Music</AppText>
           </Pressable>
         </View>
       ) : (
-        <>
-          {/* Liked Songs Featured Banner (Single Clear Entry Point) */}
-          {showLikedSection && (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
+          {/* Featured Banner: Liked Songs Card (Visible when "All" or "Liked" filter active) */}
+          {(activeFilter === "All" || activeFilter === "Liked") && (
             <View className="mb-6">
               <Pressable
                 onPress={handlePlayLiked}
-                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden bg-purple-900 border border-purple-500/40 shadow-xl shadow-purple-950/50 active:scale-[0.98]"
+                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border shadow-md active:scale-[0.98]"
+                style={{
+                  backgroundColor: theme.isDark ? '#251540' : theme.surfaceElevated,
+                  borderColor: theme.isDark ? 'rgba(168, 85, 247, 0.4)' : theme.border,
+                }}
               >
                 <View className="flex-1 pr-4">
-                  <View className="w-10 h-10 rounded-full items-center justify-center bg-white/20 mb-3 border border-white/20">
-                    <Icon name="heart-filled" size={20} color="#FFFFFF" />
+                  <View
+                    className="w-10 h-10 rounded-full items-center justify-center mb-3 border"
+                    style={{
+                      backgroundColor: theme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(168,85,247,0.12)',
+                      borderColor: theme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(168,85,247,0.3)',
+                    }}
+                  >
+                    <Icon name="heart-filled" size={20} color={theme.isDark ? "#FFFFFF" : "#A855F7"} />
                   </View>
 
-                  <AppText variant="songTitle" className="text-xl font-extrabold text-white mb-0.5 tracking-tight">
+                  <AppText variant="songTitle" color="textPrimary" className="text-xl font-extrabold mb-0.5 tracking-tight">
                     Liked Songs
                   </AppText>
-                  <AppText variant="caption" className="text-xs text-purple-200 font-medium">
+                  <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
                     {likedTracks.length > 0
                       ? `${likedTracks.length} saved ${likedTracks.length === 1 ? "track" : "tracks"}`
-                      : "No liked songs yet • Tap ❤️ on any song to save it here."}
+                      : "No liked songs yet. Tap the heart on any song to save it here."}
                   </AppText>
                 </View>
 
                 {likedTracks.length > 0 && (
-                  <View className="w-12 h-12 rounded-full items-center justify-center bg-white/20 border border-white/30 shadow-md">
+                  <View
+                    className="w-12 h-12 rounded-full items-center justify-center border"
+                    style={{
+                      backgroundColor: theme.isDark ? 'rgba(255,255,255,0.2)' : '#A855F7',
+                      borderColor: theme.isDark ? 'rgba(255,255,255,0.3)' : '#A855F7',
+                    }}
+                  >
                     <Icon name="play" size={22} color="#FFFFFF" />
                   </View>
                 )}
@@ -245,7 +262,7 @@ export default function LibraryScreen() {
               {/* Show Liked Songs List inline when Liked filter is specifically active */}
               {activeFilter === "Liked" && filteredLikedTracks.length > 0 && (
                 <View className="mt-4 gap-y-1">
-                  <AppText variant="caption" className="mb-2 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                  <AppText variant="caption" color="textSecondary" className="mb-2 uppercase tracking-wider text-xs font-bold ml-1">
                     Tracks ({filteredLikedTracks.length})
                   </AppText>
                   {filteredLikedTracks.map((item, idx) => {
@@ -254,13 +271,17 @@ export default function LibraryScreen() {
                       <Pressable
                         key={`liked-${item.id}-${idx}`}
                         onPress={() => handlePlayLikedSong(item, idx)}
-                        className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                        className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                        style={
                           isCurrent
-                            ? 'bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40'
-                            : 'bg-[#161224]/80 border-[#2B233D]/60'
-                        }`}
+                            ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
+                            : { backgroundColor: theme.surface, borderColor: theme.border }
+                        }
                       >
-                        <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+                        <View
+                          className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0"
+                          style={{ backgroundColor: theme.surfacePressed }}
+                        >
                           <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
                           {isCurrent && (
                             <View className="absolute inset-0 bg-black/60 items-center justify-center">
@@ -276,8 +297,9 @@ export default function LibraryScreen() {
                         <View className="flex-1 min-w-0 mr-3 justify-center">
                           <AppText
                             variant="songTitle"
+                            color={isCurrent ? undefined : 'textPrimary'}
                             className={`text-sm font-semibold mb-0.5 ${
-                              isCurrent ? "text-purple-300 font-bold" : "text-white"
+                              isCurrent ? "text-purple-300 font-bold" : ""
                             }`}
                             numberOfLines={1}
                           >
@@ -285,7 +307,8 @@ export default function LibraryScreen() {
                           </AppText>
                           <AppText
                             variant="artist"
-                            className="text-xs text-zinc-400 font-medium"
+                            color="textSecondary"
+                            className="text-xs font-medium"
                             numberOfLines={1}
                           >
                             {item.artist}
@@ -306,7 +329,7 @@ export default function LibraryScreen() {
                           </Pressable>
 
                           {item.duration > 0 && (
-                            <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium ml-0.5">
+                            <AppText variant="caption" color="textMuted" className="text-[11px] font-medium ml-0.5">
                               {formatDuration(item.duration)}
                             </AppText>
                           )}
@@ -322,7 +345,7 @@ export default function LibraryScreen() {
           {/* Recently Played Carousel */}
           {showRecentSection && (
             <View className="mb-6">
-              <AppText variant="caption" className="mb-2.5 uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+              <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
                 RECENTLY PLAYED
               </AppText>
 
@@ -341,7 +364,10 @@ export default function LibraryScreen() {
                         onPress={() => handlePlayRecentTrack(idx)}
                         className="w-32 active:scale-[0.96]"
                       >
-                        <View className="relative w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
+                        <View
+                          className="relative w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
+                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                        >
                           <ArtworkImage uri={item.artwork} iconSize={24} className="w-full h-full" />
                           {isCurrent && (
                             <View className="absolute inset-0 bg-black/60 items-center justify-center">
@@ -355,10 +381,15 @@ export default function LibraryScreen() {
                             </View>
                           )}
                         </View>
-                        <AppText variant="songTitle" className={`text-xs font-bold mb-0.5 ${isCurrent ? "text-purple-400" : "text-white"}`} numberOfLines={1}>
+                        <AppText
+                          variant="songTitle"
+                          color={isCurrent ? undefined : 'textPrimary'}
+                          className={`text-xs font-bold mb-0.5 ${isCurrent ? "text-purple-400" : ""}`}
+                          numberOfLines={1}
+                        >
                           {item.title}
                         </AppText>
-                        <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
+                        <AppText variant="artist" color="textSecondary" className="text-[11px] font-medium" numberOfLines={1}>
                           {item.artist}
                         </AppText>
                       </Pressable>
@@ -366,12 +397,15 @@ export default function LibraryScreen() {
                   })}
                 </ScrollView>
               ) : (
-                <View className="py-7 items-center px-4 rounded-2xl bg-[#161224] border border-[#2B233D]">
-                  <Icon name="clock" size={24} color="#9CA3AF" />
-                  <AppText variant="songTitle" className="text-xs font-bold text-center text-white mt-2 mb-0.5">
+                <View
+                  className="py-7 items-center px-4 rounded-2xl border"
+                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                >
+                  <Icon name="clock" size={24} color={theme.textMuted} />
+                  <AppText variant="songTitle" className="text-xs font-bold text-center mt-2 mb-0.5">
                     Nothing played yet
                   </AppText>
-                  <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium text-center">
+                  <AppText variant="caption" color="textSecondary" className="text-[11px] font-medium text-center">
                     Start listening and your history will appear here.
                   </AppText>
                 </View>
@@ -383,7 +417,7 @@ export default function LibraryScreen() {
           {showPlaylistsSection && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-2.5">
-                <AppText variant="caption" className="uppercase tracking-wider text-xs text-zinc-400 font-bold ml-1">
+                <AppText variant="caption" color="textSecondary" className="uppercase tracking-wider text-xs font-bold ml-1">
                   YOUR PLAYLISTS
                 </AppText>
                 <View className="flex-row items-center gap-x-2">
@@ -422,25 +456,31 @@ export default function LibraryScreen() {
                       onPress={() => router.push(`/playlist/${encodeURIComponent(playlist.id)}` as any)}
                       className="w-32 active:scale-[0.96]"
                     >
-                      <View className="w-32 h-32 rounded-2xl overflow-hidden mb-2 bg-[#161224] border border-[#2B233D] shadow-md shadow-purple-950/30">
+                      <View
+                        className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
+                        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                      >
                         <ArtworkImage uri={playlist.imageUrl} iconSize={24} className="w-full h-full" />
                       </View>
-                      <AppText variant="songTitle" className="text-xs font-bold text-white mb-0.5" numberOfLines={1}>
+                      <AppText variant="songTitle" color="textPrimary" className="text-xs font-bold mb-0.5" numberOfLines={1}>
                         {playlist.title}
                       </AppText>
-                      <AppText variant="artist" className="text-[11px] text-zinc-400 font-medium" numberOfLines={1}>
+                      <AppText variant="artist" color="textSecondary" className="text-[11px] font-medium" numberOfLines={1}>
                         {playlist.description || "Playlist"}
                       </AppText>
                     </Pressable>
                   ))}
                 </ScrollView>
               ) : (
-                <View className="py-7 items-center px-4 rounded-2xl bg-[#161224] border border-[#2B233D]">
-                  <Icon name="music" size={24} color="#9CA3AF" />
-                  <AppText variant="songTitle" className="text-xs font-bold text-center text-white mt-2 mb-0.5">
+                <View
+                  className="py-7 items-center px-4 rounded-2xl border"
+                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                >
+                  <Icon name="music" size={24} color={theme.textMuted} />
+                  <AppText variant="songTitle" className="text-xs font-bold text-center mt-2 mb-0.5">
                     No custom playlists yet
                   </AppText>
-                  <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium text-center mb-3">
+                  <AppText variant="caption" color="textSecondary" className="text-[11px] font-medium text-center mb-3">
                     Create custom playlists or import existing Spotify playlists.
                   </AppText>
                   <View className="flex-row items-center gap-x-2">
@@ -462,7 +502,7 @@ export default function LibraryScreen() {
               )}
             </View>
           )}
-        </>
+        </ScrollView>
       )}
 
       {/* Bottom padding for tab bar & mini player */}

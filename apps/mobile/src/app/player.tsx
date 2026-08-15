@@ -94,21 +94,24 @@ export default function PlayerScreen() {
           <Pressable
             onPress={() => router.back()}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
+            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-75"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           >
-            <Icon name="chevron-down" size={24} color="#FFFFFF" />
+            <Icon name="chevron-down" size={24} color={theme.textPrimary} />
           </Pressable>
 
           <View className="items-center max-w-[200px]">
             <AppText
               variant="caption"
-              className="uppercase tracking-widest text-[10px] font-extrabold text-zinc-400"
+              color="textSecondary"
+              className="uppercase tracking-widest text-[10px] font-extrabold"
             >
               NOW PLAYING
             </AppText>
             <AppText
               variant="body"
-              className="text-xs font-bold text-zinc-300"
+              color="textSecondary"
+              className="text-xs font-bold"
               numberOfLines={1}
             >
               {cleanTitle(currentTrack?.album) || "JioSaavn"}
@@ -118,13 +121,14 @@ export default function PlayerScreen() {
           <Pressable
             onPress={handleToggleLike}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
+            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-75"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
             accessibilityLabel={liked ? "Unlike Song" : "Like Song"}
           >
             <Icon
               name={liked ? "heart-filled" : "heart"}
               size={20}
-              color={liked ? "#F43F5E" : "#9CA3AF"}
+              color={liked ? "#F43F5E" : theme.textMuted}
             />
           </Pressable>
         </View>
@@ -132,8 +136,8 @@ export default function PlayerScreen() {
         {/* Album Artwork */}
         <View className="items-center my-3">
           <View
-            className="rounded-3xl overflow-hidden shadow-2xl shadow-purple-950/60 bg-[#161224] border border-[#2B233D]"
-            style={{ width: ARTWORK_SIZE, height: ARTWORK_SIZE }}
+            className="rounded-3xl overflow-hidden border shadow-2xl shadow-purple-950/40"
+            style={{ width: ARTWORK_SIZE, height: ARTWORK_SIZE, backgroundColor: theme.surface, borderColor: theme.border }}
           >
             <ArtworkImage
               uri={currentTrack?.artwork}
@@ -145,10 +149,10 @@ export default function PlayerScreen() {
 
         {/* Track Title & Artist */}
         <View className="mb-2">
-          <AppText variant="songTitle" className="text-xl font-extrabold text-white mb-1 tracking-tight" numberOfLines={2}>
+          <AppText variant="screenTitle" color="textPrimary" className="text-xl font-extrabold mb-1 tracking-tight" numberOfLines={2}>
             {cleanTitle(currentTrack?.title) || "No Track Selected"}
           </AppText>
-          <AppText variant="artist" className="text-sm font-semibold text-zinc-400" numberOfLines={1}>
+          <AppText variant="artist" color="textSecondary" className="text-sm font-semibold" numberOfLines={1}>
             {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
           </AppText>
         </View>
@@ -161,7 +165,7 @@ export default function PlayerScreen() {
             maximumValue={maxDuration}
             value={displayPosition}
             minimumTrackTintColor="#A855F7"
-            maximumTrackTintColor="#2B233D"
+            maximumTrackTintColor={theme.isDark ? '#2B233D' : '#E9E5ED'}
             thumbTintColor="#C084FC"
             onValueChange={(val) => {
               setIsSliding(true);
@@ -173,10 +177,10 @@ export default function PlayerScreen() {
             }}
           />
           <View className="flex-row justify-between px-1 mt-0.5">
-            <AppText variant="caption" className="text-xs font-semibold text-zinc-400">
+            <AppText variant="caption" color="textSecondary" className="text-xs font-semibold">
               {formatTime(displayPosition)}
             </AppText>
-            <AppText variant="caption" className="text-xs font-semibold text-zinc-400">
+            <AppText variant="caption" color="textSecondary" className="text-xs font-semibold">
               {formatTime(maxDuration)}
             </AppText>
           </View>
@@ -199,7 +203,7 @@ export default function PlayerScreen() {
             <Icon
               name="shuffle"
               size={22}
-              color={shuffleEnabled ? "#C084FC" : "#9CA3AF"}
+              color={shuffleEnabled ? "#C084FC" : theme.textMuted}
             />
           </Pressable>
 
@@ -209,13 +213,13 @@ export default function PlayerScreen() {
             className="p-2.5 rounded-full active:scale-[0.90]"
             accessibilityLabel="Previous Song"
           >
-            <Icon name="skip-back" size={28} color="#FFFFFF" />
+            <Icon name="skip-back" size={28} color={theme.textPrimary} />
           </Pressable>
 
           {/* Main Play/Pause Button */}
           <Pressable
             onPress={togglePlayPause}
-            className="w-16 h-16 rounded-full items-center justify-center bg-purple-600 active:bg-purple-700 active:scale-[0.94] shadow-xl shadow-purple-950/50"
+            className="w-16 h-16 rounded-full items-center justify-center bg-purple-600 active:bg-purple-700 active:scale-[0.94] shadow-lg shadow-purple-950/50"
             accessibilityRole="button"
             accessibilityLabel={isPlaying ? "Pause" : "Play"}
           >
@@ -236,7 +240,7 @@ export default function PlayerScreen() {
             className="p-2.5 rounded-full active:scale-[0.90]"
             accessibilityLabel="Next Song"
           >
-            <Icon name="skip-forward" size={28} color="#FFFFFF" />
+            <Icon name="skip-forward" size={28} color={theme.textPrimary} />
           </Pressable>
 
           {/* Repeat Mode Toggle */}
@@ -253,7 +257,7 @@ export default function PlayerScreen() {
             <Icon
               name={repeatMode === "ONE" ? "repeat-one" : "repeat"}
               size={22}
-              color={repeatMode !== "OFF" ? "#C084FC" : "#9CA3AF"}
+              color={repeatMode !== "OFF" ? "#C084FC" : theme.textMuted}
             />
           </Pressable>
         </View>
@@ -262,30 +266,33 @@ export default function PlayerScreen() {
         <View className="flex-row items-center justify-center gap-x-3 pt-1">
           <Pressable
             onPress={() => setShowQueue(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full bg-[#161224] border border-[#2B233D] active:scale-[0.96] active:bg-[#201A30]"
+            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           >
             <Icon name="library" size={15} color="#C084FC" />
-            <AppText className="ml-2 text-xs font-bold text-zinc-200">
+            <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">
               Queue
             </AppText>
           </Pressable>
 
           <Pressable
             onPress={() => setShowAddToPlaylist(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full bg-[#161224] border border-[#2B233D] active:scale-[0.96] active:bg-[#201A30]"
+            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           >
             <Icon name="plus" size={15} color="#C084FC" />
-            <AppText className="ml-2 text-xs font-bold text-zinc-200">
+            <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">
               Playlist
             </AppText>
           </Pressable>
 
           <Pressable
             onPress={() => setShowLyrics(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full bg-[#161224] border border-[#2B233D] active:scale-[0.96] active:bg-[#201A30]"
+            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           >
             <Icon name="music" size={15} color="#C084FC" />
-            <AppText className="ml-2 text-xs font-bold text-zinc-200">
+            <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">
               Lyrics
             </AppText>
           </Pressable>

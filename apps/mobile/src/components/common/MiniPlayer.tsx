@@ -8,6 +8,17 @@ import { Icon } from "@/components/common/Icon";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { View, Pressable } from "@/tw";
 
+function cleanTitle(str?: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 export const MiniPlayer: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -35,7 +46,7 @@ export const MiniPlayer: React.FC = () => {
     pathname === "/library" ||
     pathname.startsWith("/(tabs)");
 
-  const bottomOffset = isTabScreen ? 64 : 16;
+  const bottomOffset = isTabScreen ? 68 : 16;
   const isBuffering = playbackState === "buffering" || playbackState === "loading";
   const progressPercent =
     duration > 0 ? Math.min(100, Math.max(0, (position / duration) * 100)) : 0;
@@ -43,31 +54,34 @@ export const MiniPlayer: React.FC = () => {
   return (
     <Pressable
       onPress={() => router.push("/player")}
-      className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3 shadow-2xl overflow-hidden active:opacity-95"
+      className="absolute left-3 right-3 h-16 rounded-3xl flex-row items-center px-3.5 overflow-hidden border active:scale-[0.98]"
       style={{
-        bottom: bottomOffset,
-        backgroundColor: theme.surfaceElevated,
-        borderWidth: 1,
+        backgroundColor: theme.isDark ? '#161224' : theme.surfaceElevated,
         borderColor: theme.border,
-        elevation: 10,
+        bottom: bottomOffset,
         zIndex: 99,
       }}
       accessibilityRole="button"
       accessibilityLabel={`Now playing ${currentTrack.title}. Tap to expand.`}
     >
       {/* Top Mini Progress Bar */}
-      <View className="absolute top-0 left-0 right-0 h-[2.5px] bg-white/10">
+      <View
+        className="absolute top-0 left-0 right-0 h-[3px]"
+        style={{ backgroundColor: theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' }}
+      >
         <View
-          className="h-full rounded-r"
+          className="h-full rounded-r bg-purple-500 shadow-sm shadow-purple-400"
           style={{
             width: `${progressPercent}%`,
-            backgroundColor: theme.primary,
           }}
         />
       </View>
 
       {/* Album Artwork */}
-      <View className="w-11 h-11 rounded-xl overflow-hidden bg-zinc-800 mr-3 items-center justify-center">
+      <View
+        className="w-11 h-11 rounded-2xl overflow-hidden mr-3 items-center justify-center border shrink-0"
+        style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+      >
         <ArtworkImage
           uri={currentTrack.artwork}
           iconSize={20}
@@ -76,41 +90,43 @@ export const MiniPlayer: React.FC = () => {
       </View>
 
       {/* Title & Artist Info */}
-      <View className="flex-1 mr-2">
+      <View className="flex-1 mr-2 min-w-0 justify-center">
         <AppText
           variant="songTitle"
-          className="text-sm font-semibold mb-0.5"
+          color="textPrimary"
+          className="text-sm font-bold mb-0.5"
           numberOfLines={1}
         >
-          {currentTrack.title}
+          {cleanTitle(currentTrack.title)}
         </AppText>
         <AppText
           variant="artist"
-          className="text-xs text-zinc-400 font-medium"
+          color="textSecondary"
+          className="text-xs font-medium"
           numberOfLines={1}
         >
-          {currentTrack.artist}
+          {cleanTitle(currentTrack.artist)}
         </AppText>
       </View>
 
       {/* Quick Play/Pause & Next Controls */}
-      <View className="flex-row items-center gap-x-1">
+      <View className="flex-row items-center gap-x-1.5 shrink-0">
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
             togglePlayPause();
           }}
-          className="w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+          className="w-10 h-10 items-center justify-center rounded-full bg-purple-600/30 border border-purple-500/40 active:bg-purple-600 active:scale-[0.92]"
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? "Pause" : "Play"}
         >
           {isBuffering ? (
-            <ActivityIndicator size="small" color={theme.textPrimary} />
+            <ActivityIndicator size="small" color="#C084FC" />
           ) : (
             <Icon
               name={isPlaying ? "pause" : "play"}
-              size={24}
-              color={theme.textPrimary}
+              size={20}
+              color="#C084FC"
             />
           )}
         </Pressable>
@@ -120,11 +136,11 @@ export const MiniPlayer: React.FC = () => {
             e.stopPropagation();
             skipToNext();
           }}
-          className="w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+          className="w-9 h-9 items-center justify-center rounded-full active:opacity-70 active:scale-[0.92]"
           accessibilityRole="button"
           accessibilityLabel="Next song"
         >
-          <Icon name="skip-forward" size={22} color={theme.textMuted} />
+          <Icon name="skip-forward" size={20} color={theme.textPrimary} />
         </Pressable>
       </View>
     </Pressable>

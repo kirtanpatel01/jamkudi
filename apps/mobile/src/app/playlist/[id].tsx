@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Alert, Modal, TextInput } from "react-native";
+import { ActivityIndicator, FlatList, Alert, Modal } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
@@ -10,9 +10,9 @@ import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
 import { usePlaylists } from "@/context/PlaylistContext";
-import { PlaylistDetails, JioSaavnSong } from "@/services/jiosaavn";
+import { PlaylistDetails } from "@/services/jiosaavn";
 import { fetchPlaylistCatalog } from "@/services/catalogEngine";
-import { View, Pressable } from "@/tw";
+import { View, Pressable, TextInput } from "@/tw";
 
 function formatDuration(seconds: number): string {
   if (!seconds || isNaN(seconds)) return "";
@@ -192,15 +192,16 @@ export default function PlaylistDetailScreen() {
       <View className="flex-row items-center justify-between mt-1 mb-4">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full items-center justify-center bg-white/5 border border-white/10 active:bg-white/15"
+          className="w-10 h-10 rounded-full items-center justify-center border active:opacity-80"
+          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
-          <Icon name="chevron-left" size={22} color="#FFFFFF" />
+          <Icon name="chevron-left" size={22} color={theme.textPrimary} />
         </Pressable>
 
-        <AppText variant="caption" className="text-xs uppercase tracking-widest text-zinc-400 font-extrabold">
+        <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-widest font-extrabold">
           YOUR PLAYLIST
         </AppText>
 
@@ -222,17 +223,17 @@ export default function PlaylistDetailScreen() {
       {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#A855F7" />
-          <AppText variant="caption" className="mt-3 text-zinc-400 font-medium">
+          <AppText variant="caption" color="textSecondary" className="mt-3 font-medium">
             Loading playlist...
           </AppText>
         </View>
       ) : !playlist ? (
         <View className="flex-1 items-center justify-center px-6">
           <Icon name="alert-circle" size={40} color="#F87171" />
-          <AppText variant="songTitle" className="text-lg font-bold text-center text-white mt-3 mb-1">
+          <AppText variant="songTitle" className="text-lg font-bold text-center mt-3 mb-1">
             Playlist Not Found
           </AppText>
-          <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center mb-6">
+          <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center mb-6">
             The playlist you are looking for does not exist or has been removed.
           </AppText>
           <Pressable
@@ -251,7 +252,10 @@ export default function PlaylistDetailScreen() {
           ListHeaderComponent={
             <View className="items-center mb-5">
               {/* 2. Scaled Artwork */}
-              <View className="w-40 h-40 rounded-3xl overflow-hidden mb-3.5 bg-[#161224] border border-[#2B233D] shadow-xl shadow-purple-950/40 items-center justify-center">
+              <View
+                className="w-40 h-40 rounded-3xl overflow-hidden mb-3.5 border shadow-xl shadow-purple-950/40 items-center justify-center"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+              >
                 <ArtworkImage
                   uri={playlist.artwork}
                   iconSize={48}
@@ -261,7 +265,7 @@ export default function PlaylistDetailScreen() {
 
               {/* 3. Playlist Title & Inline Edit Icon */}
               <View className="flex-row items-center justify-center gap-x-2 px-4 mb-1">
-                <AppText variant="screenTitle" className="text-xl font-extrabold text-center text-white tracking-tight" numberOfLines={1}>
+                <AppText variant="screenTitle" className="text-xl font-extrabold text-center tracking-tight" numberOfLines={1}>
                   {cleanTitle(playlist.title)}
                 </AppText>
                 {isUserPlaylist && (
@@ -271,7 +275,7 @@ export default function PlaylistDetailScreen() {
                       setEditDesc(playlist.subtitle || "");
                       setShowEditModal(true);
                     }}
-                    className="p-1 rounded-full active:bg-white/10"
+                    className="p-1 rounded-full active:opacity-70"
                     hitSlop={8}
                     accessibilityRole="button"
                     accessibilityLabel="Edit playlist details"
@@ -282,7 +286,7 @@ export default function PlaylistDetailScreen() {
               </View>
 
               {/* 4. Description & Song Count */}
-              <AppText variant="artist" className="text-xs text-zinc-400 font-medium text-center mb-4 px-6" numberOfLines={1}>
+              <AppText variant="artist" color="textSecondary" className="text-xs font-medium text-center mb-4 px-6" numberOfLines={1}>
                 {cleanTitle(playlist.subtitle || "Custom User Playlist")} • {playlist.tracks.length} {playlist.tracks.length === 1 ? "song" : "songs"}
               </AppText>
 
@@ -299,15 +303,19 @@ export default function PlaylistDetailScreen() {
 
                   <Pressable
                     onPress={handleShufflePlay}
-                    className="flex-row items-center px-6 py-2.5 rounded-full bg-[#161224] border border-[#2B233D] active:scale-[0.96]"
+                    className="flex-row items-center px-6 py-2.5 rounded-full border active:scale-[0.96]"
+                    style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                   >
-                    <Icon name="shuffle" size={16} color="#FFFFFF" />
-                    <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Shuffle</AppText>
+                    <Icon name="shuffle" size={16} color={theme.textPrimary} />
+                    <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold uppercase tracking-wider">Shuffle</AppText>
                   </Pressable>
                 </View>
               ) : (
-                <View className="py-6 items-center px-4 rounded-2xl bg-[#161224] border border-[#2B233D] w-full my-2">
-                  <AppText variant="caption" className="text-xs text-zinc-400 text-center mb-3">
+                <View
+                  className="py-6 items-center px-4 rounded-2xl border w-full my-2"
+                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                >
+                  <AppText variant="caption" color="textSecondary" className="text-xs text-center mb-3">
                     This playlist is currently empty. Add songs from Search to start building it!
                   </AppText>
                   <Pressable
@@ -325,11 +333,12 @@ export default function PlaylistDetailScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className={`flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99] ${
+                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                style={
                   isCurrent
-                    ? 'bg-[#221A35] border-purple-500/60 shadow-md shadow-purple-950/40'
-                    : 'bg-[#161224]/80 border-[#2B233D]/60'
-                }`}
+                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
+                    : { backgroundColor: theme.surface, borderColor: theme.border }
+                }
               >
                 {/* 6. Reordering Controls (Vertically centered) */}
                 {isUserPlaylist && playlist.tracks.length > 1 ? (
@@ -341,7 +350,7 @@ export default function PlaylistDetailScreen() {
                       style={{ opacity: index === 0 ? 0.2 : 0.7 }}
                       hitSlop={6}
                     >
-                      <Icon name="chevron-up" size={14} color="#9CA3AF" />
+                      <Icon name="chevron-up" size={14} color={theme.textMuted} />
                     </Pressable>
                     <Pressable
                       onPress={() => handleMoveTrack(index, "down")}
@@ -350,20 +359,24 @@ export default function PlaylistDetailScreen() {
                       style={{ opacity: index === playlist.tracks.length - 1 ? 0.2 : 0.7 }}
                       hitSlop={6}
                     >
-                      <Icon name="chevron-down" size={14} color="#9CA3AF" />
+                      <Icon name="chevron-down" size={14} color={theme.textMuted} />
                     </Pressable>
                   </View>
                 ) : (
                   <AppText
                     variant="caption"
-                    className="w-5 text-xs text-zinc-400 font-bold text-center mr-2"
+                    color="textMuted"
+                    className="w-5 text-xs font-bold text-center mr-2"
                   >
                     {index + 1}
                   </AppText>
                 )}
 
                 {/* 7. Artwork */}
-                <View className="relative w-11 h-11 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+                <View
+                  className="relative w-11 h-11 rounded-xl overflow-hidden mr-3 shrink-0"
+                  style={{ backgroundColor: theme.surfacePressed }}
+                >
                   <ArtworkImage uri={item.artwork} iconSize={16} className="w-full h-full" />
                   {isCurrent && (
                     <View className="absolute inset-0 bg-black/60 items-center justify-center">
@@ -380,8 +393,9 @@ export default function PlaylistDetailScreen() {
                 <View className="flex-1 min-w-0 mr-3 justify-center">
                   <AppText
                     variant="songTitle"
+                    color={isCurrent ? undefined : 'textPrimary'}
                     className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-300 font-bold" : "text-white"
+                      isCurrent ? "text-purple-300 font-bold" : ""
                     }`}
                     numberOfLines={1}
                   >
@@ -389,7 +403,8 @@ export default function PlaylistDetailScreen() {
                   </AppText>
                   <AppText
                     variant="artist"
-                    className="text-xs text-zinc-400 font-medium"
+                    color="textSecondary"
+                    className="text-xs font-medium"
                     numberOfLines={1}
                   >
                     {cleanTitle(item.artist)}
@@ -404,12 +419,13 @@ export default function PlaylistDetailScreen() {
                       setSelectedSongForAdd(item);
                       setShowAddOtherModal(true);
                     }}
-                    className="w-7 h-7 rounded-full bg-white/5 active:bg-white/15 border border-white/10 items-center justify-center"
+                    className="w-7 h-7 rounded-full border items-center justify-center active:opacity-75"
+                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
                     hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}
                   >
-                    <Icon name="plus" size={13} color="#D4D4D8" />
+                    <Icon name="plus" size={13} color={theme.textPrimary} />
                   </Pressable>
 
                   {isUserPlaylist && (
@@ -429,7 +445,7 @@ export default function PlaylistDetailScreen() {
 
                   {/* 10. Track Duration */}
                   {item.duration > 0 && (
-                    <AppText variant="caption" className="text-[11px] text-zinc-400 font-medium ml-0.5">
+                    <AppText variant="caption" color="textMuted" className="text-[11px] font-medium ml-0.5">
                       {formatDuration(item.duration)}
                     </AppText>
                   )}

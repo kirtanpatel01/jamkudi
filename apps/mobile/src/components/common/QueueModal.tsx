@@ -88,15 +88,16 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
       onRequestClose={onClose}
     >
       <View
-        className="flex-1 px-4 pt-12 pb-6 bg-[#0B0813]"
+        className="flex-1 px-4 pt-12 pb-6"
+        style={{ backgroundColor: theme.background }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-4 pb-3 border-b border-[#2B233D]">
+        <View className="flex-row items-center justify-between mb-4 pb-3 border-b" style={{ borderBottomColor: theme.border }}>
           <View>
-            <AppText variant="screenTitle" className="text-xl font-extrabold text-white tracking-tight">
+            <AppText variant="screenTitle" className="text-xl font-extrabold tracking-tight">
               Up Next Queue
             </AppText>
-            <AppText variant="caption" className="text-xs text-zinc-400 font-medium mt-0.5">
+            <AppText variant="caption" color="textSecondary" className="text-xs font-medium mt-0.5">
               {upcomingItems.length > 0
                 ? `${upcomingItems.length} ${upcomingItems.length === 1 ? "track" : "tracks"} up next`
                 : "No tracks up next"}
@@ -116,22 +117,26 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
             <Pressable
               onPress={onClose}
               hitSlop={12}
-              className="w-10 h-10 items-center justify-center rounded-full bg-white/5 border border-white/10 active:bg-white/15"
+              className="w-10 h-10 items-center justify-center rounded-full border active:opacity-70"
+              style={{ backgroundColor: theme.surface, borderColor: theme.border }}
             >
-              <Icon name="chevron-down" size={24} color="#FFFFFF" />
+              <Icon name="chevron-down" size={24} color={theme.textPrimary} />
             </Pressable>
           </View>
         </View>
 
         {/* Section 1: NOW PLAYING */}
         {currentTrack && (
-          <View className="mb-5 p-4 rounded-3xl bg-[#221A35] border border-purple-500/50 shadow-xl shadow-purple-950/40">
+          <View
+            className="mb-5 p-4 rounded-3xl border shadow-md"
+            style={{ backgroundColor: theme.isDark ? '#221A35' : theme.surfaceElevated, borderColor: '#A855F7' }}
+          >
             <AppText variant="caption" className="text-[11px] uppercase tracking-wider text-purple-400 font-bold mb-2.5 ml-0.5">
               NOW PLAYING
             </AppText>
 
             <View className="flex-row items-center">
-              <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+              <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
                 <ArtworkImage
                   uri={currentTrack.artwork}
                   iconSize={18}
@@ -147,16 +152,16 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
               </View>
 
               <View className="flex-1 mr-3 justify-center min-w-0">
-                <AppText variant="songTitle" className="text-sm font-bold text-purple-300 mb-0.5" numberOfLines={1}>
+                <AppText variant="songTitle" className="text-sm font-bold text-purple-400 mb-0.5" numberOfLines={1}>
                   {cleanTitle(currentTrack.title)}
                 </AppText>
-                <AppText variant="artist" className="text-xs text-zinc-400 font-medium" numberOfLines={1}>
+                <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
                   {cleanTitle(currentTrack.artist)}
                 </AppText>
               </View>
 
               {currentTrack.duration > 0 && (
-                <AppText variant="caption" className="text-xs text-zinc-400 font-medium shrink-0">
+                <AppText variant="caption" color="textMuted" className="text-xs font-medium shrink-0">
                   {formatDuration(currentTrack.duration)}
                 </AppText>
               )}
@@ -165,7 +170,7 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
         )}
 
         {/* Section 2: UP NEXT LIST */}
-        <AppText variant="caption" className="text-xs uppercase tracking-wider text-zinc-400 font-bold mb-2.5 ml-1">
+        <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-2.5 ml-1">
           UP NEXT
         </AppText>
 
@@ -175,12 +180,15 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-12"
           ListEmptyComponent={
-            <View className="py-16 items-center justify-center px-4 rounded-3xl bg-[#161224] border border-[#2B233D] my-2 shadow-lg shadow-purple-950/30">
-              <Icon name="music" size={40} color="#9CA3AF" />
-              <AppText variant="songTitle" className="text-sm font-bold text-center text-white mt-3 mb-1">
+            <View
+              className="py-16 items-center justify-center px-4 rounded-3xl border my-2"
+              style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            >
+              <Icon name="music" size={40} color={theme.textMuted} />
+              <AppText variant="songTitle" className="text-sm font-bold text-center mt-3 mb-1">
                 No tracks up next
               </AppText>
-              <AppText variant="caption" className="text-xs text-zinc-400 font-medium text-center">
+              <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center">
                 Add songs from Search, Albums, Artists, or your Library.
               </AppText>
             </View>
@@ -191,7 +199,10 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
             const isLast = index === upcomingItems.length - 1;
 
             return (
-              <View className="flex-row items-center p-3 rounded-2xl mb-2 bg-[#161224] border border-[#2B233D] active:scale-[0.99] active:bg-[#201A30]">
+              <View
+                className="flex-row items-center p-3 rounded-2xl mb-2 border active:scale-[0.99]"
+                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+              >
                 <Pressable
                   onPress={() => {
                     playFromQueue(item.queueId);
@@ -203,13 +214,14 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                   {/* Upcoming Rank Index */}
                   <AppText
                     variant="caption"
-                    className="w-6 text-xs text-zinc-400 font-bold text-center mr-2 shrink-0"
+                    color="textMuted"
+                    className="w-6 text-xs font-bold text-center mr-2 shrink-0"
                   >
                     {(index + 1).toString().padStart(2, "0")}
                   </AppText>
 
                   {/* Track Artwork */}
-                  <View className="relative w-11 h-11 rounded-xl overflow-hidden mr-3 bg-zinc-800 shrink-0">
+                  <View className="relative w-11 h-11 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
                     <ArtworkImage
                       uri={track.artwork}
                       iconSize={18}
@@ -221,14 +233,16 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                   <View className="flex-1 mr-2 justify-center min-w-0">
                     <AppText
                       variant="songTitle"
-                      className="text-sm font-bold text-white mb-0.5"
+                      color="textPrimary"
+                      className="text-sm font-bold mb-0.5"
                       numberOfLines={1}
                     >
                       {cleanTitle(track.title)}
                     </AppText>
                     <AppText
                       variant="artist"
-                      className="text-xs text-zinc-400 font-medium"
+                      color="textSecondary"
+                      className="text-xs font-medium"
                       numberOfLines={1}
                     >
                       {cleanTitle(track.artist)}
@@ -239,7 +253,8 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                   {track.duration > 0 && (
                     <AppText
                       variant="caption"
-                      className="text-xs text-zinc-400 font-medium mr-3 shrink-0"
+                      color="textMuted"
+                      className="text-xs font-medium mr-3 shrink-0"
                     >
                       {formatDuration(track.duration)}
                     </AppText>
@@ -251,22 +266,24 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                   <Pressable
                     onPress={() => handleMoveUp(index)}
                     disabled={isFirst}
-                    className={`w-6 h-5 rounded items-center justify-center bg-white/5 active:bg-white/15 ${isFirst ? "opacity-30" : ""}`}
+                    className={`w-6 h-5 rounded items-center justify-center border ${isFirst ? "opacity-30" : ""}`}
+                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Move ${track.title} up in queue`}
                   >
-                    <Icon name="chevron-up" size={12} color="#D4D4D8" />
+                    <Icon name="chevron-up" size={12} color={theme.textPrimary} />
                   </Pressable>
                   <Pressable
                     onPress={() => handleMoveDown(index)}
                     disabled={isLast}
-                    className={`w-6 h-5 rounded items-center justify-center bg-white/5 active:bg-white/15 ${isLast ? "opacity-30" : ""}`}
+                    className={`w-6 h-5 rounded items-center justify-center border ${isLast ? "opacity-30" : ""}`}
+                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Move ${track.title} down in queue`}
                   >
-                    <Icon name="chevron-down" size={12} color="#D4D4D8" />
+                    <Icon name="chevron-down" size={12} color={theme.textPrimary} />
                   </Pressable>
                 </View>
 
@@ -277,11 +294,12 @@ export const QueueModal: React.FC<QueueModalProps> = ({ visible, onClose }) => {
                     showToast("Removed from queue", "info");
                   }}
                   hitSlop={6}
-                  className="w-7 h-7 rounded-full bg-white/5 active:bg-white/15 border border-white/10 items-center justify-center shrink-0"
+                  className="w-7 h-7 rounded-full border items-center justify-center shrink-0 active:opacity-75"
+                  style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
                   accessibilityRole="button"
                   accessibilityLabel={`Remove ${track.title} from queue`}
                 >
-                  <Icon name="x" size={13} color="#9CA3AF" />
+                  <Icon name="x" size={13} color={theme.textMuted} />
                 </Pressable>
               </View>
             );
