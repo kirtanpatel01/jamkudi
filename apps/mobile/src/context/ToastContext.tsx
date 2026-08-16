@@ -3,6 +3,7 @@ import { Animated, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "@/components/common/Icon";
 import { AppText } from "@/components/common/AppText";
+import { useTheme } from "@/hooks/useTheme";
 import { View } from "@/tw";
 
 export type ToastType = "success" | "error" | "info";
@@ -34,6 +35,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [translateY] = useState(new Animated.Value(-20));
@@ -83,11 +85,11 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   const getIconDetails = (type: ToastType) => {
     switch (type) {
       case "success":
-        return { name: "check" as const, color: "#34D399" }; // Emerald 400
+        return { name: "check" as const, color: "#10B981" }; // Emerald 500
       case "error":
-        return { name: "alert-circle" as const, color: "#F87171" }; // Red 400
+        return { name: "alert-circle" as const, color: "#EF4444" }; // Red 500
       default:
-        return { name: "music" as const, color: "#C084FC" }; // Purple 400
+        return { name: "music" as const, color: "#9B7CFF" }; // Jamkudi Purple
     }
   };
 
@@ -110,14 +112,27 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
           pointerEvents="none"
         >
           <View
-            className="flex-row items-center px-5 py-3 rounded-full border border-purple-500/30 bg-[#231D33]"
+            className="flex-row items-center px-5 py-3 rounded-full border shadow-lg"
+            style={{
+              backgroundColor: theme.surfaceElevated,
+              borderColor: theme.isDark ? "rgba(155, 124, 255, 0.3)" : "rgba(155, 124, 255, 0.25)",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: theme.isDark ? 0.4 : 0.15,
+              shadowRadius: 8,
+              elevation: 6,
+            }}
           >
             <Icon
               name={iconDetails.name}
               size={18}
               color={iconDetails.color}
             />
-            <AppText variant="body" className="ml-2.5 text-xs font-bold text-white tracking-wide">
+            <AppText
+              variant="body"
+              color="textPrimary"
+              className="ml-2.5 text-xs font-bold tracking-wide"
+            >
               {toast.message}
             </AppText>
           </View>

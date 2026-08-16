@@ -38,7 +38,10 @@ export type IconName =
   | "plus"
   | "trash"
   | "edit"
-  | "chevron-up";
+  | "chevron-up"
+  | "download"
+  | "check-circle"
+  | "chevron-right";
 
 export interface IconProps {
   name: IconName;
@@ -72,6 +75,7 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   "chevron-down": { outline: "keyboard-arrow-down", filled: "keyboard-arrow-down" },
   "chevron-up": { outline: "keyboard-arrow-up", filled: "keyboard-arrow-up" },
   "chevron-left": { outline: "keyboard-arrow-left", filled: "keyboard-arrow-left" },
+  "chevron-right": { outline: "keyboard-arrow-right", filled: "keyboard-arrow-right" },
   "skip-back": { outline: "skip-previous", filled: "skip-previous" },
   "skip-forward": { outline: "skip-next", filled: "skip-next" },
   "alert-circle": { outline: "error-outline", filled: "error" },
@@ -82,6 +86,8 @@ const ICON_MAP: Record<IconName, { outline: MatName; filled: MatName }> = {
   mail: { outline: "email", filled: "email" },
   disc: { outline: "album", filled: "album" },
   check: { outline: "check", filled: "check" },
+  "check-circle": { outline: "check-circle-outline", filled: "check-circle" },
+  download: { outline: "file-download", filled: "file-download" },
   x: { outline: "close", filled: "close" },
   shuffle: { outline: "shuffle", filled: "shuffle" },
   repeat: { outline: "repeat", filled: "repeat" },

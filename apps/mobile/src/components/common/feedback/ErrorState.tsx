@@ -15,8 +15,8 @@ export interface ErrorStateProps {
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({
-  title = "Something went wrong",
-  message = "Unable to load data. Please check your connection and try again.",
+  title = "Something went a little wrong",
+  message = "Unable to load music. Let's try again in a moment.",
   onRetry,
   style,
   className = "",
@@ -24,26 +24,26 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   const theme = useTheme();
 
   return (
-    <View className={`items-center justify-center p-8 my-6 ${className}`} style={style}>
+    <View className={`items-center justify-center p-6 my-4 ${className}`} style={style}>
       <View
-        className="w-16 h-16 rounded-full items-center justify-center mb-4"
-        style={{ backgroundColor: theme.surface }}
+        className="w-14 h-14 rounded-2xl items-center justify-center mb-3 border"
+        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
       >
-        <Icon name="bell" size={32} color={theme.error} />
+        <Icon name="alert-circle" size={26} color="#EFAFC6" />
       </View>
-      <AppText variant="sectionTitle" className="text-center mb-1">
+      <AppText variant="sectionTitle" className="text-center text-base font-bold mb-1">
         {title}
       </AppText>
-      <AppText variant="body" color={theme.textSecondary} className="text-center mb-6">
+      <AppText variant="body" color="textSecondary" className="text-center text-xs max-w-[260px] mb-5 leading-5">
         {message}
       </AppText>
       {onRetry ? (
         <AppButton
           title="Try Again"
           onPress={onRetry}
-          variant="outline"
+          variant="secondary"
           size="md"
-          className="min-w-[120px]"
+          className="min-w-[130px]"
         />
       ) : null}
     </View>

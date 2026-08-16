@@ -46,8 +46,8 @@ export const FilterChip: React.FC<FilterChipProps> = ({
     >
       <AppText
         variant="caption"
-        color={active ? theme.onPrimary : theme.textPrimary}
-        className="text-[13px] leading-[16px]"
+        color={active ? "onPrimary" : "textSecondary"}
+        className={`text-xs ${active ? "font-bold" : "font-medium"}`}
       >
         {label}
       </AppText>

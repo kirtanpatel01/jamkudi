@@ -5,12 +5,15 @@ import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
+import { SongRow } from "@/components/common/SongRow";
 import { AddToPlaylistModal } from "@/components/common/AddToPlaylistModal";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
 import { usePlaylists } from "@/context/PlaylistContext";
-import { PlaylistDetails } from "@/services/jiosaavn";
+import { useDownloads } from "@/context/DownloadContext";
+import { DownloadButton } from "@/components/common/DownloadButton";
+import { PlaylistDetails, JioSaavnSong } from "@/services/jiosaavn";
 import { fetchPlaylistCatalog } from "@/services/catalogEngine";
 import { View, Pressable, TextInput } from "@/tw";
 
@@ -46,6 +49,13 @@ export default function PlaylistDetailScreen() {
     removeTrackFromPlaylist,
     reorderPlaylistTracks,
   } = usePlaylists();
+  const {
+    downloadPlaylistTracks,
+    getPlaylistStatus,
+    isSongDownloaded,
+    downloadSongTrack,
+    removeSongDownload,
+  } = useDownloads();
 
   const [playlist, setPlaylist] = useState<PlaylistDetails | null>(null);
   const [isUserPlaylist, setIsUserPlaylist] = useState(false);
@@ -290,12 +300,12 @@ export default function PlaylistDetailScreen() {
                 {cleanTitle(playlist.subtitle || "Custom User Playlist")} • {playlist.tracks.length} {playlist.tracks.length === 1 ? "song" : "songs"}
               </AppText>
 
-              {/* 5. Play & Shuffle Controls */}
+              {/* 5. Play, Shuffle & Download Controls */}
               {playlist.tracks.length > 0 ? (
-                <View className="flex-row items-center justify-center gap-x-3 mb-4">
+                <View className="flex-row items-center justify-center gap-x-2.5 mb-4">
                   <Pressable
                     onPress={handlePlayAll}
-                    className="flex-row items-center px-7 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40 active:scale-[0.96]"
+                    className="flex-row items-center px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40 active:scale-[0.96]"
                   >
                     <Icon name="play" size={16} color="#FFFFFF" />
                     <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Play</AppText>
@@ -303,12 +313,56 @@ export default function PlaylistDetailScreen() {
 
                   <Pressable
                     onPress={handleShufflePlay}
-                    className="flex-row items-center px-6 py-2.5 rounded-full border active:scale-[0.96]"
+                    className="flex-row items-center px-5 py-2.5 rounded-full border active:scale-[0.96]"
                     style={{ backgroundColor: theme.surface, borderColor: theme.border }}
                   >
                     <Icon name="shuffle" size={16} color={theme.textPrimary} />
                     <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold uppercase tracking-wider">Shuffle</AppText>
                   </Pressable>
+
+                  {/* Download Playlist Button */}
+                  {(() => {
+                    const statusMeta = getPlaylistStatus(playlist.id);
+                    const isFullyDownloaded = statusMeta?.status === "downloaded";
+                    const isDownloading = statusMeta?.status === "downloading";
+                    const isPartial = statusMeta?.status === "partially_downloaded";
+
+                    return (
+                      <Pressable
+                        onPress={() => {
+                          if (isDownloading) {
+                            showToast("Playlist is currently downloading...", "info");
+                          } else {
+                            downloadPlaylistTracks(playlist.id, playlist.title, playlist.tracks);
+                          }
+                        }}
+                        className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
+                        style={{
+                          backgroundColor: isFullyDownloaded ? "rgba(155, 124, 255, 0.15)" : theme.surface,
+                          borderColor: isFullyDownloaded ? "rgba(155, 124, 255, 0.4)" : theme.border,
+                        }}
+                      >
+                        <Icon
+                          name={isFullyDownloaded ? "check-circle" : isDownloading ? "download" : "download"}
+                          size={16}
+                          color={isFullyDownloaded ? "#9B7CFF" : theme.textPrimary}
+                        />
+                        <AppText
+                          variant="caption"
+                          color={isFullyDownloaded ? "primary" : "textPrimary"}
+                          className="ml-2 text-xs font-bold uppercase tracking-wider"
+                        >
+                          {isFullyDownloaded
+                            ? "Downloaded"
+                            : isDownloading
+                            ? `${statusMeta?.completedCount || 0}/${statusMeta?.totalCount || playlist.tracks.length}`
+                            : isPartial
+                            ? `${statusMeta?.completedCount}/${statusMeta?.totalCount}`
+                            : "Download"}
+                        </AppText>
+                      </Pressable>
+                    );
+                  })()}
                 </View>
               ) : (
                 <View
@@ -379,11 +433,11 @@ export default function PlaylistDetailScreen() {
                 >
                   <ArtworkImage uri={item.artwork} iconSize={16} className="w-full h-full" />
                   {isCurrent && (
-                    <View className="absolute inset-0 bg-black/60 items-center justify-center">
+                    <View className="absolute inset-0 bg-black/50 items-center justify-center">
                       <Icon
                         name={isPlaying ? "pause" : "play"}
                         size={14}
-                        color="#C084FC"
+                        color="#FFFFFF"
                       />
                     </View>
                   )}
@@ -393,9 +447,9 @@ export default function PlaylistDetailScreen() {
                 <View className="flex-1 min-w-0 mr-3 justify-center">
                   <AppText
                     variant="songTitle"
-                    color={isCurrent ? undefined : 'textPrimary'}
+                    color={isCurrent ? "primary" : "textPrimary"}
                     className={`text-sm font-semibold mb-0.5 ${
-                      isCurrent ? "text-purple-300 font-bold" : ""
+                      isCurrent ? "font-bold text-[#9B7CFF]" : ""
                     }`}
                     numberOfLines={1}
                   >
@@ -412,7 +466,21 @@ export default function PlaylistDetailScreen() {
                 </View>
 
                 {/* 9. Action Buttons */}
-                <View className="flex-row items-center gap-x-2 shrink-0">
+                <View className="flex-row items-center gap-x-1.5 shrink-0">
+                  <DownloadButton
+                    songId={item.id}
+                    songTitle={item.title}
+                    songArtist={item.artist}
+                    onPress={() => {
+                      if (isSongDownloaded(item.id, item.title, item.artist)) {
+                        removeSongDownload(item.id);
+                      } else {
+                        downloadSongTrack(item);
+                      }
+                    }}
+                    size="sm"
+                  />
+
                   <Pressable
                     onPress={(e) => {
                       e.stopPropagation();

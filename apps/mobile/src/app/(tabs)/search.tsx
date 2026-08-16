@@ -10,6 +10,8 @@ import { AddToPlaylistModal } from "@/components/common/AddToPlaylistModal";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
+import { useDownloads } from "@/context/DownloadContext";
+import { DownloadButton } from "@/components/common/DownloadButton";
 import { JioSaavnSong, searchSongs } from "@/services/jiosaavn";
 import {
   fetchSearchCatalog,
@@ -47,6 +49,7 @@ export default function SearchScreen() {
   const router = useRouter();
   const { showToast } = useToast();
   const { playQueue, playNext, addToQueue, currentTrack, isPlaying } = usePlayer();
+  const { isSongDownloaded, downloadSongTrack, removeSongDownload } = useDownloads();
 
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Popular");
@@ -258,23 +261,23 @@ export default function SearchScreen() {
 
   return (
     <Screen>
-      <AppText variant="screenTitle" className="mb-4">
+      <AppText variant="screenTitle" className="mb-4 text-2xl font-bold">
         Search
       </AppText>
 
       {/* Search Input Box */}
       <View
-        className="flex-row items-center px-4 h-13 rounded-2xl border mb-5 shadow-sm"
+        className="flex-row items-center px-4 h-12 rounded-2xl border mb-5"
         style={{ backgroundColor: theme.surface, borderColor: theme.border }}
       >
-        <Icon name="search" size={20} color="#C084FC" />
+        <Icon name="search" size={20} color={theme.textSecondary} />
 
         <TextInput
           value={query}
           onChangeText={setQuery}
           placeholder="Search songs, artists, albums, playlists..."
-          placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
-          className="flex-1 ml-3 text-base font-semibold h-full py-0"
+          placeholderTextColor={theme.isDark ? '#92909A' : '#92909A'}
+          className="flex-1 ml-3 text-sm font-semibold h-full py-0"
           style={{ color: theme.textPrimary }}
           accessibilityLabel="Search music input"
           autoCorrect={false}
@@ -301,7 +304,7 @@ export default function SearchScreen() {
               Recent Searches
             </AppText>
             <Pressable onPress={handleClearHistory} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear all search history">
-              <AppText className="text-xs text-purple-400 font-bold">Clear All</AppText>
+              <AppText variant="caption" color="primary" className="text-xs font-bold">Clear All</AppText>
             </Pressable>
           </View>
           <ScrollView
@@ -342,7 +345,7 @@ export default function SearchScreen() {
       ) : null}
 
       {/* Explore Category Pills Bar (when query is empty) */}
-      {!query.trim() ? (
+      {!query.trim() && (
         <View className="mb-5">
           <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-2.5 ml-1">
             Explore
@@ -652,6 +655,20 @@ export default function SearchScreen() {
 
                 {/* Streamlined Action Section */}
                 <View className="flex-row items-center gap-x-2 shrink-0">
+                  <DownloadButton
+                    songId={item.id}
+                    songTitle={item.title}
+                    songArtist={item.artist}
+                    onPress={() => {
+                      if (isSongDownloaded(item.id, item.title, item.artist)) {
+                        removeSongDownload(item.id);
+                      } else {
+                        downloadSongTrack(item);
+                      }
+                    }}
+                    size="sm"
+                  />
+
                   {/* Quick Queue Action */}
                   <Pressable
                     onPress={(e) => {

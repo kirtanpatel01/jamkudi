@@ -54,9 +54,9 @@ export const MiniPlayer: React.FC = () => {
   return (
     <Pressable
       onPress={() => router.push("/player")}
-      className="absolute left-3 right-3 h-16 rounded-3xl flex-row items-center px-3.5 overflow-hidden border active:scale-[0.98]"
+      className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3.5 overflow-hidden border active:scale-[0.98]"
       style={{
-        backgroundColor: theme.isDark ? '#161224' : theme.surfaceElevated,
+        backgroundColor: theme.surface,
         borderColor: theme.border,
         bottom: bottomOffset,
         zIndex: 99,
@@ -66,11 +66,11 @@ export const MiniPlayer: React.FC = () => {
     >
       {/* Top Mini Progress Bar */}
       <View
-        className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{ backgroundColor: theme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' }}
+        className="absolute top-0 left-0 right-0 h-[2.5px]"
+        style={{ backgroundColor: theme.divider }}
       >
         <View
-          className="h-full rounded-r bg-purple-500 shadow-sm shadow-purple-400"
+          className="h-full rounded-r bg-[#9B7CFF]"
           style={{
             width: `${progressPercent}%`,
           }}

@@ -32,14 +32,14 @@ export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
   const [showPassword, setShowPassword] = useState(false);
 
   const getBorderColor = () => {
-    if (error) return '#EF4444'; // Red-500
-    if (isFocused) return '#A855F7'; // Purple-500
-    return theme.isDark ? '#2B233D' : '#E9E5ED';
+    if (error) return '#EF4444';
+    if (isFocused) return theme.primary;
+    return theme.border;
   };
 
   const getBackgroundColor = () => {
-    if (isFocused) return theme.isDark ? '#1C162E' : '#F9F5FF';
-    return theme.isDark ? '#161224' : '#FFFFFF';
+    if (isFocused) return theme.surfacePressed;
+    return theme.surface;
   };
 
   return (

@@ -1,11 +1,13 @@
 import "../global.css";
 import { Stack, useSegments, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Platform, StatusBar as RNStatusBar, View, ActivityIndicator } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { PlaylistProvider } from "@/context/PlaylistContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { DownloadProvider } from "@/context/DownloadContext";
 import { MiniPlayer } from "@/components/common/MiniPlayer";
 import {
   useFonts,
@@ -22,7 +24,6 @@ import {
 } from "@expo-google-fonts/nunito";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -31,6 +32,13 @@ function RootNavigation() {
   const { session, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      RNStatusBar.setBackgroundColor(theme.background, true);
+      RNStatusBar.setBarStyle(theme.isDark ? "light-content" : "dark-content", true);
+    }
+  }, [theme.background, theme.isDark]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -58,7 +66,10 @@ function RootNavigation() {
 
   return (
     <>
-      <StatusBar style={theme.isDark ? "light" : "dark"} />
+      <StatusBar
+        style={theme.isDark ? "light" : "dark"}
+        animated={true}
+      />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -83,6 +94,7 @@ function RootNavigation() {
 }
 
 export default function RootLayout() {
+  const theme = useTheme();
   const [fontsLoaded, fontError] = useFonts({
     Fredoka_400Regular,
     Fredoka_500Medium,
@@ -95,24 +107,46 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    if (Platform.OS === "android") {
+      RNStatusBar.setBackgroundColor(theme.background, true);
+      RNStatusBar.setBarStyle(theme.isDark ? "light-content" : "dark-content", true);
+    }
+  }, [theme.background, theme.isDark]);
+
+  useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) {
-    return null;
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <StatusBar
+          style={theme.isDark ? "light" : "dark"}
+          animated={true}
+        />
+      </View>
+    );
   }
 
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <PlayerProvider>
-          <PlaylistProvider>
-            <RootNavigation />
-          </PlaylistProvider>
-        </PlayerProvider>
-      </AuthProvider>
-    </ToastProvider>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <StatusBar
+        style={theme.isDark ? "light" : "dark"}
+        animated={true}
+      />
+      <ToastProvider>
+        <AuthProvider>
+          <DownloadProvider>
+            <PlayerProvider>
+              <PlaylistProvider>
+                <RootNavigation />
+              </PlaylistProvider>
+            </PlayerProvider>
+          </DownloadProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </View>
   );
 }

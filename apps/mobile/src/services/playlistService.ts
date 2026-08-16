@@ -174,15 +174,25 @@ export async function addTrackToUserPlaylist(
   userId?: string
 ): Promise<{ success: boolean; isDuplicate: boolean }> {
   // Standardize track object
+  let rawAudio =
+    track.audioUrl ||
+    (track as any).url ||
+    (Array.isArray((track as any).downloadUrl)
+      ? (track as any).downloadUrl.find((d: any) => d?.quality === '320kbps')?.url ||
+        (track as any).downloadUrl[(track as any).downloadUrl.length - 1]?.url
+      : (track as any).downloadUrl) ||
+    '';
+
   const formattedSong: JioSaavnSong = {
-    id: track.id,
+    id: track.id || `${track.title}_${track.artist}`,
     title: track.title,
     artist: track.artist,
     album: track.album || "",
     artwork: track.artwork || "",
     duration: typeof track.duration === "number" ? track.duration : parseInt((track.duration as any) || "0", 10),
-    audioUrl: track.audioUrl || "",
-  };
+    audioUrl: rawAudio,
+    downloadUrl: (track as any).downloadUrl || rawAudio,
+  } as any;
 
   if (userId && !playlistId.startsWith("local_pl_")) {
     try {

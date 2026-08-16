@@ -39,37 +39,37 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
   const getVariantClasses = () => {
     if (disabled || loading) {
-      if (variant === "primary") return "bg-purple-800/60 opacity-60";
-      return "bg-zinc-800/60 opacity-60";
+      if (variant === "primary") return "bg-purple-500/40 opacity-60";
+      return "bg-neutral-800/40 opacity-60";
     }
 
     switch (variant) {
       case "primary":
-        return "bg-purple-600 active:bg-purple-700 active:scale-[0.98]";
+        return "bg-[#9B7CFF] active:bg-[#8062E8] active:scale-[0.98]";
       case "secondary":
         return theme.isDark
-          ? "bg-[#241E34] active:bg-[#312946] active:scale-[0.98]"
-          : "bg-purple-100 active:bg-purple-200 active:scale-[0.98]";
+          ? "bg-[#171A2B] active:bg-[#20243A] active:scale-[0.98] border border-[#262B45]"
+          : "bg-[#F6F2ED] active:bg-[#EEE9E3] active:scale-[0.98] border border-[#EEE9E3]";
       case "outline":
         return theme.isDark
-          ? "bg-transparent border border-purple-500/40 active:bg-purple-950/30 active:scale-[0.98]"
-          : "bg-transparent border border-purple-300 active:bg-purple-50 active:scale-[0.98]";
+          ? "bg-transparent border border-[#262B45] active:bg-[#171A2B] active:scale-[0.98]"
+          : "bg-transparent border border-[#EEE9E3] active:bg-[#F6F2ED] active:scale-[0.98]";
       case "ghost":
-        return "bg-transparent active:bg-white/10 active:scale-[0.98]";
+        return "bg-transparent active:bg-purple-500/10 active:scale-[0.98]";
       default:
-        return "bg-purple-600 active:bg-purple-700 active:scale-[0.98]";
+        return "bg-[#9B7CFF] active:bg-[#8062E8] active:scale-[0.98]";
     }
   };
 
   const getTextColorClass = () => {
-    if (variant === "primary") return disabled ? "text-purple-300" : "text-white";
-    if (disabled) return "text-zinc-500";
+    if (variant === "primary") return "text-white font-bold";
+    if (disabled) return "text-neutral-500";
 
     switch (variant) {
       case "secondary":
       case "outline":
       case "ghost":
-        return theme.isDark ? "text-white" : "text-zinc-900";
+        return theme.isDark ? "text-[#F5F2EE]" : "text-[#202033]";
       default:
         return "text-white";
     }
@@ -78,12 +78,10 @@ export const AppButton: React.FC<AppButtonProps> = ({
   const textColorClass = getTextColorClass();
   const iconColor =
     variant === "primary"
-      ? disabled
-        ? "#C084FC"
-        : "#FFFFFF"
-      : theme.isDark
       ? "#FFFFFF"
-      : "#18151D";
+      : theme.isDark
+      ? "#F5F2EE"
+      : "#202033";
 
   return (
     <Pressable
@@ -93,18 +91,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
       accessibilityLabel={accessibilityLabel || title}
       accessibilityState={{ disabled: disabled || loading }}
       className={`flex-row items-center justify-center min-w-[80px] ${heightClass} ${radiusClass} ${getVariantClasses()} ${className}`}
-      style={[
-        variant === "primary" && !disabled && !loading
-          ? {
-              shadowColor: "#A855F7",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 4,
-            }
-          : undefined,
-        style,
-      ]}
+      style={[style]}
     >
       {loading ? (
         <View className="flex-row items-center justify-center">

@@ -258,7 +258,7 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
           )}
 
           {/* STEP 2: Preview & Destination Selection */}
-          {step === "PREVIEW" && previewResult ? (
+          {step === "PREVIEW" && previewResult && (
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-[500px]">
               {/* Spotify Playlist Preview Header */}
               <View className="flex-row items-center p-3.5 rounded-2xl border mb-4" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>

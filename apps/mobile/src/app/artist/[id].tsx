@@ -5,12 +5,20 @@ import { Screen } from "@/components/common/Screen";
 import { AppText } from "@/components/common/AppText";
 import { Icon } from "@/components/common/Icon";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
+import { SongRow } from "@/components/common/SongRow";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
-import { ArtistDetails } from "@/services/jiosaavn";
+import { ArtistDetails, JioSaavnSong } from "@/services/jiosaavn";
 import { fetchArtistCatalog } from "@/services/catalogEngine";
 import { View, Pressable } from "@/tw";
+
+function formatDuration(seconds: number): string {
+  if (!seconds || isNaN(seconds)) return "";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+}
 
 function cleanTitle(str?: string): string {
   if (!str) return "";
@@ -136,75 +144,16 @@ export default function ArtistDetailScreen() {
               </View>
             </View>
           }
-          renderItem={({ item, index }) => {
-            const isCurrent = currentTrack?.id === item.id;
-            return (
-              <Pressable
-                onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center p-3 rounded-2xl mb-2 border active:scale-[0.99]"
-                style={
-                  isCurrent
-                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                    : { backgroundColor: theme.surface, borderColor: theme.border }
-                }
-              >
-                <AppText
-                  variant="caption"
-                  color="textMuted"
-                  className="w-6 text-xs font-bold text-center mr-2 shrink-0"
-                >
-                  {index + 1}
-                </AppText>
-
-                <View
-                  className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0"
-                  style={{ backgroundColor: theme.surfacePressed }}
-                >
-                  <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
-                  {isCurrent ? (
-                    <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                      <Icon
-                        name={isPlaying ? "pause" : "play"}
-                        size={16}
-                        color="#C084FC"
-                      />
-                    </View>
-                  ) : null}
-                </View>
-
-                <View className="flex-1 mr-2 min-w-0">
-                  <AppText
-                    variant="songTitle"
-                    color={isCurrent ? undefined : 'textPrimary'}
-                    className={`text-sm font-bold mb-0.5 ${
-                      isCurrent ? "text-purple-300 font-bold" : ""
-                    }`}
-                    numberOfLines={1}
-                  >
-                    {cleanTitle(item.title)}
-                  </AppText>
-                  <AppText
-                    variant="artist"
-                    color="textSecondary"
-                    className="text-xs font-medium"
-                    numberOfLines={1}
-                  >
-                    {cleanTitle(item.album)}
-                  </AppText>
-                </View>
-
-                {item.duration > 0 ? (
-                  <AppText
-                    variant="caption"
-                    color="textMuted"
-                    className="text-xs font-medium shrink-0"
-                  >
-                    {formatDuration(item.duration)}
-                  </AppText>
-                ) : null}
-              </Pressable>
-            );
-          }}
+          renderItem={({ item, index }) => (
+            <SongRow
+              title={cleanTitle(item.title)}
+              artist={cleanTitle(item.album || artist.name)}
+              artworkUri={item.artwork || artist.imageUrl}
+              duration={item.duration > 0 ? formatDuration(item.duration) : undefined}
+              isPlaying={currentTrack?.id === item.id}
+              onPress={() => handleSelectSong(item, index)}
+            />
+          )}
         />
       )}
     </Screen>

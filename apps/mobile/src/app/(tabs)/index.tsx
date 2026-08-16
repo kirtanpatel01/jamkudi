@@ -8,10 +8,16 @@ import { Icon } from "@/components/common/Icon";
 import { IconButton } from "@/components/common/IconButton";
 import { SettingsModal } from "@/components/common/SettingsModal";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
+import { EditorialHero } from "@/components/common/EditorialHero";
+import { MusicShelf } from "@/components/common/MusicShelf";
+import { ArtistPortrait } from "@/components/common/ArtistPortrait";
+import { JamkudiMascot } from "@/components/common/JamkudiMascot";
+import { SongRow } from "@/components/common/SongRow";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
+import { useDownloads } from "@/context/DownloadContext";
 import {
   JioSaavnSong,
   searchSongs,
@@ -40,11 +46,11 @@ function cleanTitle(str?: string): string {
   if (!str) return "";
   return str
     .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, '&')
+    .replace(/&amp;/g, "&")
     .replace(/&#039;/g, "'")
     .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
 }
 
 function getGreeting(displayName?: string | null): string {
@@ -54,7 +60,11 @@ function getGreeting(displayName?: string | null): string {
   else if (hour < 18) baseGreeting = "Good afternoon";
 
   const cleanName = displayName?.trim();
-  if (cleanName && cleanName.toLowerCase() !== "null" && cleanName.toLowerCase() !== "undefined") {
+  if (
+    cleanName &&
+    cleanName.toLowerCase() !== "null" &&
+    cleanName.toLowerCase() !== "undefined"
+  ) {
     return `${baseGreeting}, ${cleanName}`;
   }
   return baseGreeting;
@@ -130,12 +140,17 @@ export default function HomeScreen() {
   const { showToast } = useToast();
   const { playQueue, currentTrack, isPlaying, recentlyPlayed } = usePlayer();
   const { user, profile } = useAuth();
+  const { isSongDownloaded, downloadSongTrack, removeSongDownload } = useDownloads();
 
   // State for Authenticated Onboarded Users
-  const [favoriteArtistsList, setFavoriteArtistsList] = useState<FavoriteArtistItem[]>([]);
+  const [favoriteArtistsList, setFavoriteArtistsList] = useState<
+    FavoriteArtistItem[]
+  >([]);
   const [artistShelves, setArtistShelves] = useState<ArtistShelf[]>([]);
   const [genreShelves, setGenreShelves] = useState<GenreShelf[]>([]);
-  const [preferenceDiscovery, setPreferenceDiscovery] = useState<JioSaavnSong[]>([]);
+  const [preferenceDiscovery, setPreferenceDiscovery] = useState<
+    JioSaavnSong[]
+  >([]);
 
   // State for Anonymous / Un-onboarded Users
   const [popularSongs, setPopularSongs] = useState<JioSaavnSong[]>([]);
@@ -146,11 +161,11 @@ export default function HomeScreen() {
   const [reminderDismissed, setReminderDismissed] = useState(false);
 
   const isOnboardedUser = Boolean(
-    user && profile && (
-      profile.onboarding_completed ||
+    user &&
+    profile &&
+    (profile.onboarding_completed ||
       (profile.favorite_artists && profile.favorite_artists.length > 0) ||
-      (profile.favorite_genres && profile.favorite_genres.length > 0)
-    )
+      (profile.favorite_genres && profile.favorite_genres.length > 0)),
   );
 
   useEffect(() => {
@@ -161,9 +176,9 @@ export default function HomeScreen() {
       try {
         if (isOnboardedUser && profile) {
           const rawFavArtists: any[] = profile.favorite_artists || [];
-          const favArtistNames = rawFavArtists.map((item) =>
-            typeof item === "string" ? item : item?.name || ""
-          ).filter(Boolean);
+          const favArtistNames = rawFavArtists
+            .map((item) => (typeof item === "string" ? item : item?.name || ""))
+            .filter(Boolean);
 
           const favGenres = profile.favorite_genres || [];
 
@@ -171,7 +186,7 @@ export default function HomeScreen() {
           const resolvedFavArtists: FavoriteArtistItem[] = await Promise.all(
             favArtistNames.map(async (name) => {
               const matched = FEATURED_ARTISTS.find(
-                (fa) => fa.name.toLowerCase() === name.toLowerCase()
+                (fa) => fa.name.toLowerCase() === name.toLowerCase(),
               );
               if (matched && matched.imageUrl) {
                 return { name, imageUrl: matched.imageUrl };
@@ -183,29 +198,46 @@ export default function HomeScreen() {
                   let imgUrl = "";
                   if (typeof topResult.image === "string") {
                     imgUrl = topResult.image;
-                  } else if (Array.isArray(topResult.image) && topResult.image.length > 0) {
+                  } else if (
+                    Array.isArray(topResult.image) &&
+                    topResult.image.length > 0
+                  ) {
                     const best =
-                      topResult.image.find((i: any) => i?.quality === "500x500") ||
-                      topResult.image[topResult.image.length - 1];
-                    imgUrl = typeof best === "string" ? best : best?.url || best?.link || "";
+                      topResult.image.find(
+                        (i: any) => i?.quality === "500x500",
+                      ) || topResult.image[topResult.image.length - 1];
+                    imgUrl =
+                      typeof best === "string"
+                        ? best
+                        : best?.url || best?.link || "";
                   }
                   if (imgUrl) return { name, imageUrl: imgUrl };
                 }
               } catch {}
               return { name, imageUrl: "" };
-            })
+            }),
           );
 
           // 2. Fetch content for ALL favorite artists with artist-matching validation & fallback
           const perArtistDiscoveryPools: Record<string, JioSaavnSong[]> = {};
 
           const artistPromises = favArtistNames.map(async (artistName) => {
-            const primaryHits = await searchSongs(`${artistName} top hits`, 0, 20).catch(() => []);
-            let validSongs = primaryHits.filter((song) => isSongByArtist(song, artistName));
+            const primaryHits = await searchSongs(
+              `${artistName} top hits`,
+              0,
+              20,
+            ).catch(() => []);
+            let validSongs = primaryHits.filter((song) =>
+              isSongByArtist(song, artistName),
+            );
 
             if (validSongs.length < 6) {
-              const fallbackHits = await searchSongs(artistName, 0, 20).catch(() => []);
-              const validFallback = fallbackHits.filter((song) => isSongByArtist(song, artistName));
+              const fallbackHits = await searchSongs(artistName, 0, 20).catch(
+                () => [],
+              );
+              const validFallback = fallbackHits.filter((song) =>
+                isSongByArtist(song, artistName),
+              );
 
               const seenIds = new Set(validSongs.map((s) => s.id));
               validFallback.forEach((song) => {
@@ -225,7 +257,11 @@ export default function HomeScreen() {
           // 3. Fetch content for favorite genres
           const perGenreDiscoveryPools: Record<string, JioSaavnSong[]> = {};
           const genrePromises = favGenres.slice(0, 4).map(async (genreName) => {
-            const songs = await searchSongs(`${genreName} top songs`, 0, 15).catch(() => []);
+            const songs = await searchSongs(
+              `${genreName} top songs`,
+              0,
+              15,
+            ).catch(() => []);
             perGenreDiscoveryPools[genreName] = songs;
             return { genreName, songs: songs.slice(0, 10) };
           });
@@ -234,7 +270,9 @@ export default function HomeScreen() {
 
           // 4. Build balanced discovery feed by interleaving pools across ALL favorite artists & genres
           const poolsToInterleave: JioSaavnSong[][] = [
-            ...favArtistNames.map((name) => perArtistDiscoveryPools[name] || []),
+            ...favArtistNames.map(
+              (name) => perArtistDiscoveryPools[name] || [],
+            ),
             ...favGenres.map((name) => perGenreDiscoveryPools[name] || []),
           ];
 
@@ -242,13 +280,18 @@ export default function HomeScreen() {
 
           if (isMounted) {
             setFavoriteArtistsList(resolvedFavArtists);
-            setArtistShelves(resolvedArtistShelves.filter((a) => a.songs.length > 0));
-            setGenreShelves(resolvedGenreShelves.filter((g) => g.songs.length > 0));
+            setArtistShelves(
+              resolvedArtistShelves.filter((a) => a.songs.length > 0),
+            );
+            setGenreShelves(
+              resolvedGenreShelves.filter((g) => g.songs.length > 0),
+            );
             setPreferenceDiscovery(combinedDiscovery);
           }
         } else {
           // Anonymous / Incomplete profile catalog load
-          const { popularSongs: trending, discoverySongs: discovery } = await fetchHomeCatalog();
+          const { popularSongs: trending, discoverySongs: discovery } =
+            await fetchHomeCatalog();
           if (isMounted) {
             setPopularSongs(trending);
             setDiscoverySongs(discovery);
@@ -303,15 +346,19 @@ export default function HomeScreen() {
     });
   }
 
-  const deduplicatedArtistShelves = artistShelves.map((shelf) => {
-    const filteredSongs = shelf.songs.filter((song) => !isDuplicate(song));
-    return { ...shelf, songs: filteredSongs };
-  }).filter((shelf) => shelf.songs.length > 0);
+  const deduplicatedArtistShelves = artistShelves
+    .map((shelf) => {
+      const filteredSongs = shelf.songs.filter((song) => !isDuplicate(song));
+      return { ...shelf, songs: filteredSongs };
+    })
+    .filter((shelf) => shelf.songs.length > 0);
 
-  const deduplicatedGenreShelves = genreShelves.map((shelf) => {
-    const filteredSongs = shelf.songs.filter((song) => !isDuplicate(song));
-    return { ...shelf, songs: filteredSongs };
-  }).filter((shelf) => shelf.songs.length > 0);
+  const deduplicatedGenreShelves = genreShelves
+    .map((shelf) => {
+      const filteredSongs = shelf.songs.filter((song) => !isDuplicate(song));
+      return { ...shelf, songs: filteredSongs };
+    })
+    .filter((shelf) => shelf.songs.length > 0);
 
   const deduplicatedDiscovery: JioSaavnSong[] = [];
   preferenceDiscovery.forEach((song) => {
@@ -346,9 +393,15 @@ export default function HomeScreen() {
     <>
       <Screen scrollable paddingHorizontal={16}>
         {/* Header */}
-        <View className="flex-row items-center justify-between mt-2 mb-5">
+        <View className="flex-row items-center justify-between mt-2 mb-6">
           <View className="flex-row items-center flex-1 mr-3">
-            <View className="w-11 h-11 rounded-2xl overflow-hidden mr-3 bg-purple-950 border border-purple-500/40 shrink-0">
+            <View
+              className="w-11 h-11 rounded-full overflow-hidden mr-3 border shrink-0"
+              style={{
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+              }}
+            >
               <Image
                 source={require("../../../assets/images/icon.jpg")}
                 className="w-full h-full"
@@ -356,10 +409,19 @@ export default function HomeScreen() {
               />
             </View>
             <View className="flex-1 min-w-0">
-              <AppText variant="caption" className="text-xs text-purple-400 font-bold tracking-wider uppercase" numberOfLines={1}>
+              <AppText
+                variant="caption"
+                color="textSecondary"
+                className="text-xs font-bold tracking-wider uppercase"
+                numberOfLines={1}
+              >
                 {isOnboardedUser ? "Jamkudi" : "Welcome to Jamkudi"}
               </AppText>
-              <AppText variant="screenTitle" className="text-2xl font-extrabold tracking-tight" numberOfLines={1}>
+              <AppText
+                variant="screenTitle"
+                className="text-2xl font-bold tracking-tight"
+                numberOfLines={1}
+              >
                 {getGreeting(profile?.display_name)}
               </AppText>
             </View>
@@ -369,7 +431,10 @@ export default function HomeScreen() {
             <Pressable
               onPress={() => showToast("No new notifications", "info")}
               className="w-10 h-10 rounded-full items-center justify-center border active:opacity-80 active:scale-[0.94]"
-              style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+              style={{
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+              }}
               accessibilityRole="button"
               accessibilityLabel="Notifications"
             >
@@ -378,7 +443,10 @@ export default function HomeScreen() {
             <Pressable
               onPress={() => setShowSettings(true)}
               className="w-10 h-10 rounded-full items-center justify-center border active:opacity-80 active:scale-[0.94]"
-              style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+              style={{
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+              }}
               accessibilityRole="button"
               accessibilityLabel="Settings"
             >
@@ -388,110 +456,80 @@ export default function HomeScreen() {
         </View>
 
         {loading ? (
-          <View className="py-8">
-            {/* Skeleton Loader Placeholders */}
-            <View className="mb-8">
-              <View className="w-40 h-6 rounded-md mb-4" style={{ backgroundColor: theme.skeletonBase }} />
-              <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <View
-                    key={i}
-                    className="h-14 w-[48.5%] rounded-2xl border flex-row items-center overflow-hidden opacity-60"
-                    style={{ backgroundColor: theme.surface, borderColor: theme.border }}
-                  >
-                    <View className="w-14 h-14" style={{ backgroundColor: theme.skeletonHighlight }} />
-                    <View className="flex-1 px-3">
-                      <View className="w-full h-3 rounded mb-1.5" style={{ backgroundColor: theme.skeletonBase }} />
-                      <View className="w-2/3 h-2.5 rounded" style={{ backgroundColor: theme.skeletonHighlight }} />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View className="mb-8">
-              <View className="w-48 h-6 rounded-md mb-4" style={{ backgroundColor: theme.skeletonBase }} />
-              <View className="flex-row" style={{ gap: 16 }}>
-                {[1, 2, 3, 4].map((i) => (
-                  <View key={i} className="items-center w-20 opacity-60">
-                    <View className="w-20 h-20 rounded-full mb-2 border" style={{ backgroundColor: theme.skeletonHighlight, borderColor: theme.border }} />
-                    <View className="w-14 h-3 rounded" style={{ backgroundColor: theme.skeletonBase }} />
-                  </View>
-                ))}
-              </View>
-            </View>
+          <View className="py-12 items-center justify-center">
+            <ActivityIndicator size="large" color={theme.primary} />
+            <AppText
+              variant="caption"
+              color="textSecondary"
+              className="mt-3 font-medium text-xs"
+            >
+              Preparing your music sanctuary...
+            </AppText>
           </View>
         ) : isOnboardedUser ? (
           /* ============================================================== */
-          /* 1. AUTHENTICATED & ONBOARDED USER HOME (100% PERSONALIZED)     */
+          /* 1. AUTHENTICATED & ONBOARDED USER HOME (ORGANIC MUSIC FLOW)    */
           /* ============================================================== */
           <View>
-            {/* 1. Continue Listening (Shown ONLY if user has listening history) */}
+            {/* 1. Featured Listening Spotlight (EditorialHero) */}
             {onboardedRecentlyPlayed.length > 0 && (
-              <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
-                  Continue Listening
-                </AppText>
-                <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
-                  {onboardedRecentlyPlayed.map((item, idx) => {
-                    const isCurrent = currentTrack?.id === item.id;
-                    return (
-                      <Pressable
-                        key={`rec-${item.id}-${idx}`}
-                        onPress={() => handleSelectSong(onboardedRecentlyPlayed, idx)}
-                        className="h-14 w-[48.5%] rounded-2xl flex-row items-center overflow-hidden border active:scale-[0.97]"
-                        style={
-                          isCurrent
-                            ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.8)' }
-                            : { backgroundColor: theme.surface, borderColor: theme.border }
-                        }
-                      >
-                        <View className="w-14 h-14 relative shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
-                          <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
-                          {isCurrent && (
-                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#C084FC" />
-                            </View>
-                          )}
-                        </View>
-                        <AppText
-                          variant="body"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-xs font-semibold px-2.5 flex-1 ${isCurrent ? "text-purple-300 font-bold" : ""}`}
-                          numberOfLines={2}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
-                </View>
+              <View className="mb-6">
+                <EditorialHero
+                  title={cleanTitle(onboardedRecentlyPlayed[0].title)}
+                  subtitle={cleanTitle(onboardedRecentlyPlayed[0].artist)}
+                  artworkUri={onboardedRecentlyPlayed[0].artwork}
+                  badge="SANCTUARY FOCUS"
+                  isPlaying={
+                    currentTrack?.id === onboardedRecentlyPlayed[0].id &&
+                    isPlaying
+                  }
+                  onPlayPress={() =>
+                    handleSelectSong(onboardedRecentlyPlayed, 0)
+                  }
+                />
+
+                {/* Remaining Recently Played loose music shelf */}
+                {onboardedRecentlyPlayed.length > 1 && (
+                  <MusicShelf
+                    title="Recently Listened"
+                    items={onboardedRecentlyPlayed.slice(1).map((song) => ({
+                      id: song.id,
+                      title: cleanTitle(song.title),
+                      subtitle: cleanTitle(song.artist),
+                      artworkUri: song.artwork,
+                    }))}
+                    currentId={currentTrack?.id}
+                    isPlaying={isPlaying}
+                    itemWidth={128}
+                    onItemPress={(_, idx) =>
+                      handleSelectSong(onboardedRecentlyPlayed, idx + 1)
+                    }
+                  />
+                )}
               </View>
             )}
 
-            {/* 2. Your Favorite Artists (Visual photos of user's onboarding choices) */}
+            {/* 2. Your Favorite Artists (Circular portraits) */}
             {favoriteArtistsList.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText
+                  variant="sectionTitle"
+                  className="text-base font-bold mb-3.5 px-0.5"
+                >
                   Your Favorite Artists
                 </AppText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20 }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 18 }}
+                >
                   {favoriteArtistsList.map((artist, idx) => (
-                    <Pressable
+                    <ArtistPortrait
                       key={`favart-${artist.name}-${idx}`}
+                      name={cleanTitle(artist.name)}
+                      imageUrl={artist.imageUrl}
                       onPress={() => handleSelectArtist(artist.name)}
-                      className="items-center w-20 active:scale-[0.94]"
-                    >
-                      <View
-                        className="w-20 h-20 rounded-full overflow-hidden mb-2 border border-purple-500/40"
-                        style={{ backgroundColor: theme.surface }}
-                      >
-                        <ArtworkImage uri={artist.imageUrl} iconSize={26} className="w-full h-full" />
-                      </View>
-                      <AppText variant="caption" color="textSecondary" className="text-xs font-semibold text-center" numberOfLines={1}>
-                        {cleanTitle(artist.name)}
-                      </AppText>
-                    </Pressable>
+                    />
                   ))}
                 </ScrollView>
               </View>
@@ -499,148 +537,70 @@ export default function HomeScreen() {
 
             {/* 3. Because you like [Artist Name] Shelves */}
             {deduplicatedArtistShelves.map((shelf) => (
-              <View key={`shelf-art-${shelf.artistName}`} className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
-                  Because you like {cleanTitle(shelf.artistName)}
-                </AppText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
-                  {shelf.songs.map((item, idx) => {
-                    const isCurrent = currentTrack?.id === item.id;
-                    return (
-                      <Pressable
-                        key={`art-song-${item.id}`}
-                        onPress={() => handleSelectSong(shelf.songs, idx)}
-                        className="w-36 active:scale-[0.96]"
-                      >
-                        <View
-                          className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 border relative ${
-                            isCurrent ? 'border-purple-500' : ''
-                          }`}
-                          style={{ backgroundColor: theme.surface, borderColor: isCurrent ? undefined : theme.border }}
-                        >
-                          <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
-                          {isCurrent && (
-                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center">
-                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                        <AppText
-                          variant="songTitle"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
-                          numberOfLines={1}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
-                          {cleanTitle(item.artist)}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
+              <MusicShelf
+                key={`shelf-art-${shelf.artistName}`}
+                title={`Because you like ${cleanTitle(shelf.artistName)}`}
+                items={shelf.songs.map((song) => ({
+                  id: song.id,
+                  title: cleanTitle(song.title),
+                  subtitle: cleanTitle(song.artist),
+                  artworkUri: song.artwork,
+                }))}
+                currentId={currentTrack?.id}
+                isPlaying={isPlaying}
+                itemWidth={140}
+                onItemPress={(_, idx) => handleSelectSong(shelf.songs, idx)}
+              />
             ))}
 
             {/* 4. Made for your taste: [Genre Name] Shelves */}
             {deduplicatedGenreShelves.map((shelf) => (
-              <View key={`shelf-gnr-${shelf.genreName}`} className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
-                  Made for your taste: {cleanTitle(shelf.genreName)}
-                </AppText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
-                  {shelf.songs.map((item, idx) => {
-                    const isCurrent = currentTrack?.id === item.id;
-                    return (
-                      <Pressable
-                        key={`gnr-song-${item.id}`}
-                        onPress={() => handleSelectSong(shelf.songs, idx)}
-                        className="w-36 active:scale-[0.96]"
-                      >
-                        <View
-                          className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 border relative ${
-                            isCurrent ? 'border-purple-500' : ''
-                          }`}
-                          style={{ backgroundColor: theme.surface, borderColor: isCurrent ? undefined : theme.border }}
-                        >
-                          <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
-                          {isCurrent && (
-                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center">
-                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                        <AppText
-                          variant="songTitle"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
-                          numberOfLines={1}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
-                          {cleanTitle(item.artist)}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
+              <MusicShelf
+                key={`shelf-gnr-${shelf.genreName}`}
+                title={`Made for your taste: ${cleanTitle(shelf.genreName)}`}
+                items={shelf.songs.map((song) => ({
+                  id: song.id,
+                  title: cleanTitle(song.title),
+                  subtitle: cleanTitle(song.artist),
+                  artworkUri: song.artwork,
+                }))}
+                currentId={currentTrack?.id}
+                isPlaying={isPlaying}
+                itemWidth={140}
+                onItemPress={(_, idx) => handleSelectSong(shelf.songs, idx)}
+              />
             ))}
 
-            {/* 5. Preference-Aware Discovery */}
+            {/* 5. Preference-Aware Discovery Stream */}
             {deduplicatedDiscovery.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText
+                  variant="sectionTitle"
+                  className="text-base font-bold mb-3 px-0.5"
+                >
                   Discover More For You
                 </AppText>
-                {deduplicatedDiscovery.map((item, index) => {
-                  const isCurrent = currentTrack?.id === item.id;
-                  return (
-                    <Pressable
-                      key={`pref-disc-${item.id}`}
-                      onPress={() => handleSelectSong(deduplicatedDiscovery, index)}
-                      className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
-                      style={
-                        isCurrent
-                          ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                          : { backgroundColor: theme.surface, borderColor: theme.border }
+                {deduplicatedDiscovery.map((item, index) => (
+                  <SongRow
+                    key={`pref-disc-${item.id}`}
+                    songId={item.id}
+                    title={cleanTitle(item.title)}
+                    artist={cleanTitle(item.artist)}
+                    artworkUri={item.artwork}
+                    duration={formatDuration(item.duration)}
+                    isPlaying={currentTrack?.id === item.id}
+                    onPress={() =>
+                      handleSelectSong(deduplicatedDiscovery, index)
+                    }
+                    onDownloadPress={() => {
+                      if (isSongDownloaded(item.id)) {
+                        removeSongDownload(item.id);
+                      } else {
+                        downloadSongTrack(item);
                       }
-                    >
-                      <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
-                        <ArtworkImage uri={item.artwork} iconSize={20} className="w-full h-full" />
-                        {isCurrent && (
-                          <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#C084FC" />
-                          </View>
-                        )}
-                      </View>
-                      <View className="flex-1 mr-2 min-w-0">
-                        <AppText
-                          variant="songTitle"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
-                          numberOfLines={1}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
-                          {cleanTitle(item.artist)} {item.album ? `• ${cleanTitle(item.album)}` : ""}
-                        </AppText>
-                      </View>
-                      {item.duration > 0 && (
-                        <AppText variant="caption" color="textMuted" className="text-xs font-medium shrink-0">
-                          {formatDuration(item.duration)}
-                        </AppText>
-                      )}
-                    </Pressable>
-                  );
-                })}
+                    }}
+                  />
+                ))}
               </View>
             )}
           </View>
@@ -650,212 +610,144 @@ export default function HomeScreen() {
           /* ============================================================== */
           <View>
             {/* Gentle Profile Completion Reminder Card */}
-            {user && profile && !profile.onboarding_completed && !reminderDismissed && (
-              <View
-                className="mb-6 p-4 rounded-2xl border flex-row items-center justify-between"
-                style={{ backgroundColor: theme.isDark ? '#1C162E' : theme.surfaceElevated, borderColor: '#A855F7' }}
-              >
-                <View className="flex-1 mr-3">
-                  <AppText variant="songTitle" className="text-sm font-bold mb-0.5">
-                    Make Jamkudi more personal
-                  </AppText>
-                  <AppText variant="caption" color="textSecondary" className="text-xs font-medium leading-4">
-                    Add your favorite artists and genres to build your personalized home.
-                  </AppText>
-                </View>
-
-                <View className="flex-row items-center gap-x-2">
-                  <Pressable
-                    onPress={() => router.push("/(auth)/onboarding")}
-                    className="px-3.5 py-2 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.96]"
-                  >
-                    <AppText className="text-xs font-bold text-white">
-                      Complete profile
+            {user &&
+              profile &&
+              !profile.onboarding_completed &&
+              !reminderDismissed && (
+                <View
+                  className="mb-6 p-4 rounded-3xl border flex-row items-center justify-between"
+                  style={{
+                    backgroundColor: theme.surface,
+                    borderColor: theme.border,
+                  }}
+                >
+                  <View className="flex-1 mr-3">
+                    <AppText
+                      variant="songTitle"
+                      className="text-sm font-bold mb-0.5"
+                    >
+                      Make Jamkudi more personal
                     </AppText>
-                  </Pressable>
+                    <AppText
+                      variant="caption"
+                      color="textSecondary"
+                      className="text-xs font-medium leading-4"
+                    >
+                      Add your favorite artists and genres to build your
+                      personalized home.
+                    </AppText>
+                  </View>
 
-                  <Pressable
-                    onPress={() => setReminderDismissed(true)}
-                    hitSlop={8}
-                    className="p-1 rounded-full active:bg-white/10"
-                  >
-                    <Icon name="x" size={18} color={theme.textMuted} />
-                  </Pressable>
+                  <View className="flex-row items-center gap-x-2">
+                    <Pressable
+                      onPress={() => router.push("/(auth)/onboarding")}
+                      className="px-3.5 py-2 rounded-full bg-[#9B7CFF] active:bg-[#8062E8] active:scale-[0.96]"
+                    >
+                      <AppText className="text-xs font-bold text-white">
+                        Complete profile
+                      </AppText>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => setReminderDismissed(true)}
+                      hitSlop={8}
+                      className="p-1 rounded-full active:bg-white/10"
+                    >
+                      <Icon name="x" size={18} color={theme.textMuted} />
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
 
-            {/* Quick Picks */}
+            {/* Featured Hero for Anonymous Users */}
             {anonymousSection2.length > 0 && (
-              <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
-                  Quick Picks
-                </AppText>
-                <View className="flex-row flex-wrap justify-between" style={{ rowGap: 10 }}>
-                  {anonymousSection2.map((item, idx) => {
-                    const isCurrent = currentTrack?.id === item.id;
-                    return (
-                      <Pressable
-                        key={`anon-qp-${item.id}-${idx}`}
-                        onPress={() => handleSelectSong(anonymousSection2, idx)}
-                        className="h-14 w-[48.5%] rounded-2xl flex-row items-center overflow-hidden border active:scale-[0.97]"
-                        style={
-                          isCurrent
-                            ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.8)' }
-                            : { backgroundColor: theme.surface, borderColor: theme.border }
-                        }
-                      >
-                        <View className="w-14 h-14 relative shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
-                          <ArtworkImage uri={item.artwork} iconSize={18} className="w-full h-full" />
-                          {isCurrent && (
-                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <Icon name={isPlaying ? "pause" : "play"} size={16} color="#C084FC" />
-                            </View>
-                          )}
-                        </View>
-                        <AppText
-                          variant="body"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-xs font-semibold px-2.5 flex-1 ${isCurrent ? "text-purple-300 font-bold" : ""}`}
-                          numberOfLines={2}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
+              <EditorialHero
+                title={cleanTitle(anonymousSection2[0].title)}
+                subtitle={cleanTitle(anonymousSection2[0].artist)}
+                artworkUri={anonymousSection2[0].artwork}
+                badge="POPULAR PICK"
+                isPlaying={
+                  currentTrack?.id === anonymousSection2[0].id && isPlaying
+                }
+                onPlayPress={() => handleSelectSong(anonymousSection2, 0)}
+                className="mb-6"
+              />
             )}
 
-            {/* Popular Right Now */}
+            {/* Popular Right Now Shelf */}
             {popularFeed.length > 0 && (
-              <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
-                  Popular Right Now
-                </AppText>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16 }}>
-                  {popularFeed.map((item, idx) => {
-                    const isCurrent = currentTrack?.id === item.id;
-                    return (
-                      <Pressable
-                        key={`pop-${item.id}`}
-                        onPress={() => handleSelectSong(popularFeed, idx)}
-                        className="w-36 active:scale-[0.96]"
-                      >
-                        <View
-                          className={`w-36 h-36 rounded-2xl overflow-hidden mb-2.5 border relative ${
-                            isCurrent ? 'border-purple-500' : ''
-                          }`}
-                          style={{ backgroundColor: theme.surface, borderColor: isCurrent ? undefined : theme.border }}
-                        >
-                          <ArtworkImage uri={item.artwork} iconSize={32} className="w-full h-full" />
-                          {isCurrent && (
-                            <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <View className="w-10 h-10 rounded-full bg-purple-600 items-center justify-center">
-                                <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                        <AppText
-                          variant="songTitle"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
-                          numberOfLines={1}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
-                          {cleanTitle(item.artist)}
-                        </AppText>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              </View>
+              <MusicShelf
+                title="Popular Right Now"
+                items={popularFeed.map((song) => ({
+                  id: song.id,
+                  title: cleanTitle(song.title),
+                  subtitle: cleanTitle(song.artist),
+                  artworkUri: song.artwork,
+                }))}
+                currentId={currentTrack?.id}
+                isPlaying={isPlaying}
+                itemWidth={140}
+                onItemPress={(_, idx) => handleSelectSong(popularFeed, idx)}
+              />
             )}
 
             {/* Featured Artists */}
             <View className="mb-8">
-              <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+              <AppText
+                variant="sectionTitle"
+                className="text-base font-bold mb-3.5 px-0.5"
+              >
                 Featured Artists
               </AppText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 20 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 18 }}
+              >
                 {FEATURED_ARTISTS.map((artist) => (
-                  <Pressable
+                  <ArtistPortrait
                     key={`feat-art-${artist.id}`}
-                    onPress={() => router.push(`/artist/${encodeURIComponent(artist.query)}` as any)}
-                    className="items-center w-20 active:scale-[0.94]"
-                  >
-                    <View
-                      className="w-20 h-20 rounded-full overflow-hidden mb-2 border border-purple-500/40"
-                      style={{ backgroundColor: theme.surface }}
-                    >
-                      <ArtworkImage uri={artist.imageUrl} iconSize={24} className="w-full h-full" />
-                    </View>
-                    <AppText variant="caption" color="textSecondary" className="text-xs font-semibold text-center" numberOfLines={1}>
-                      {cleanTitle(artist.name)}
-                    </AppText>
-                  </Pressable>
+                    name={cleanTitle(artist.name)}
+                    imageUrl={artist.imageUrl}
+                    onPress={() =>
+                      router.push(
+                        `/artist/${encodeURIComponent(artist.query)}` as any,
+                      )
+                    }
+                  />
                 ))}
               </ScrollView>
             </View>
 
-            {/* Trending Discovery */}
+            {/* Trending Discovery Stream */}
             {discoveryFeed.length > 0 && (
               <View className="mb-8">
-                <AppText variant="sectionTitle" className="text-lg font-bold mb-3.5">
+                <AppText
+                  variant="sectionTitle"
+                  className="text-base font-bold mb-3 px-0.5"
+                >
                   Trending Discovery
                 </AppText>
-                {discoveryFeed.map((item, index) => {
-                  const isCurrent = currentTrack?.id === item.id;
-                  return (
-                    <Pressable
-                      key={`anon-disc-${item.id}`}
-                      onPress={() => handleSelectSong(discoveryFeed, index)}
-                      className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
-                      style={
-                        isCurrent
-                          ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                          : { backgroundColor: theme.surface, borderColor: theme.border }
-                      }
-                    >
-                      <View className="relative w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
-                        <ArtworkImage uri={item.artwork} iconSize={20} className="w-full h-full" />
-                        {isCurrent && (
-                          <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                            <Icon name={isPlaying ? "pause" : "play"} size={18} color="#C084FC" />
-                          </View>
-                        )}
-                      </View>
-                      <View className="flex-1 mr-2 min-w-0">
-                        <AppText
-                          variant="songTitle"
-                          color={isCurrent ? undefined : 'textPrimary'}
-                          className={`text-sm font-semibold mb-0.5 ${isCurrent ? "text-purple-400 font-bold" : ""}`}
-                          numberOfLines={1}
-                        >
-                          {cleanTitle(item.title)}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
-                          {cleanTitle(item.artist)} {item.album ? `• ${cleanTitle(item.album)}` : ""}
-                        </AppText>
-                      </View>
-                      {item.duration > 0 && (
-                        <AppText variant="caption" color="textMuted" className="text-xs font-medium shrink-0">
-                          {formatDuration(item.duration)}
-                        </AppText>
-                      )}
-                    </Pressable>
-                  );
-                })}
+                {discoveryFeed.map((item, index) => (
+                  <SongRow
+                    key={`anon-disc-${item.id}`}
+                    title={cleanTitle(item.title)}
+                    artist={cleanTitle(item.artist)}
+                    artworkUri={item.artwork}
+                    duration={formatDuration(item.duration)}
+                    isPlaying={currentTrack?.id === item.id}
+                    onPress={() => handleSelectSong(discoveryFeed, index)}
+                  />
+                ))}
               </View>
             )}
           </View>
         )}
       </Screen>
-      <SettingsModal visible={showSettings} onClose={() => setShowSettings(false)} />
+      <SettingsModal
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
     </>
   );
 }

@@ -1,6 +1,8 @@
-import { supabase } from '@/lib/supabase';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import { safeStorage } from '@/utils/safeStorage';
+
+const AUTH_TOKEN_KEY = 'jamkudi_auth_token';
 
 const getApiBaseUrl = (): string => {
   let url = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
@@ -32,25 +34,43 @@ export interface UserProfile {
   onboarding_completed?: boolean;
 }
 
-export interface AuthMeResponse {
-  user: {
-    id: string;
-    email: string | null;
-  };
+export interface User {
+  id: string;
+  email: string | null;
+}
+
+export interface Session {
+  access_token: string;
+  refresh_token?: string;
+  user?: User;
+}
+
+export interface AuthResponse {
+  user: User;
+  session: Session | null;
   profile: UserProfile;
 }
 
+export async function getStoredAuthToken(): Promise<string | null> {
+  return safeStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export async function setStoredAuthToken(token: string | null): Promise<void> {
+  if (token) {
+    await safeStorage.setItem(AUTH_TOKEN_KEY, token);
+  } else {
+    await safeStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+}
+
 /**
- * Reusable HTTP API request wrapper that attaches the active Supabase JWT access token.
+ * Reusable HTTP API request wrapper that attaches the active stored JWT access token.
  */
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const token = await getStoredAuthToken();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -82,10 +102,45 @@ export async function apiRequest<T>(
 }
 
 /**
+ * Calls backend POST /auth/login to authenticate with backend.
+ */
+export async function loginApi(email: string, password: string): Promise<AuthResponse> {
+  const res = await apiRequest<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  if (res.session?.access_token) {
+    await setStoredAuthToken(res.session.access_token);
+  }
+  return res;
+}
+
+/**
+ * Calls backend POST /auth/signup to register with backend.
+ */
+export async function signUpApi(email: string, password: string): Promise<AuthResponse> {
+  const res = await apiRequest<AuthResponse>('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  if (res.session?.access_token) {
+    await setStoredAuthToken(res.session.access_token);
+  }
+  return res;
+}
+
+/**
+ * Clears stored token on logout.
+ */
+export async function logoutApi(): Promise<void> {
+  await setStoredAuthToken(null);
+}
+
+/**
  * Calls backend GET /auth/me to retrieve authenticated user details and profile.
  */
-export async function fetchAuthMe(): Promise<AuthMeResponse> {
-  return apiRequest<AuthMeResponse>('/auth/me');
+export async function fetchAuthMe(): Promise<AuthResponse> {
+  return apiRequest<AuthResponse>('/auth/me');
 }
 
 /**

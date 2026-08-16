@@ -13,6 +13,8 @@ import { AddToPlaylistModal } from "@/components/common/AddToPlaylistModal";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
+import { useDownloads } from "@/context/DownloadContext";
+import { DownloadButton } from "@/components/common/DownloadButton";
 import { View, Pressable } from "@/tw";
 
 const { width } = Dimensions.get("window");
@@ -57,6 +59,7 @@ export default function PlayerScreen() {
     toggleLikeTrack,
     isLiked,
   } = usePlayer();
+  const { isSongDownloaded, downloadSongTrack, removeSongDownload } = useDownloads();
 
   const [isSliding, setIsSliding] = useState(false);
   const [slidePosition, setSlidePosition] = useState(0);
@@ -147,14 +150,41 @@ export default function PlayerScreen() {
           </View>
         </View>
 
-        {/* Track Title & Artist */}
-        <View className="mb-2">
-          <AppText variant="screenTitle" color="textPrimary" className="text-xl font-extrabold mb-1 tracking-tight" numberOfLines={2}>
-            {cleanTitle(currentTrack?.title) || "No Track Selected"}
-          </AppText>
-          <AppText variant="artist" color="textSecondary" className="text-sm font-semibold" numberOfLines={1}>
-            {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
-          </AppText>
+        {/* Track Title, Artist & Download Action */}
+        <View className="mb-2 flex-row items-center justify-between">
+          <View className="flex-1 mr-3">
+            <AppText variant="screenTitle" color="textPrimary" className="text-xl font-extrabold mb-1 tracking-tight" numberOfLines={2}>
+              {cleanTitle(currentTrack?.title) || "No Track Selected"}
+            </AppText>
+            <View className="flex-row items-center flex-wrap gap-x-2">
+              <AppText variant="artist" color="textSecondary" className="text-sm font-semibold" numberOfLines={1}>
+                {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
+              </AppText>
+              {currentTrack && isSongDownloaded(currentTrack.id) && (
+                <View className="px-2 py-0.5 rounded-full bg-purple-950/40 border border-purple-500/30">
+                  <AppText className="text-[10px] font-bold text-purple-300">
+                    Offline
+                  </AppText>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {currentTrack ? (
+            <DownloadButton
+              songId={currentTrack.id}
+              songTitle={currentTrack.title}
+              songArtist={currentTrack.artist}
+              onPress={() => {
+                if (isSongDownloaded(currentTrack.id, currentTrack.title, currentTrack.artist)) {
+                  removeSongDownload(currentTrack.id);
+                } else {
+                  downloadSongTrack(currentTrack as any);
+                }
+              }}
+              size="lg"
+            />
+          ) : null}
         </View>
 
         {/* Progress Seeker Bar */}
@@ -164,9 +194,9 @@ export default function PlayerScreen() {
             minimumValue={0}
             maximumValue={maxDuration}
             value={displayPosition}
-            minimumTrackTintColor="#A855F7"
-            maximumTrackTintColor={theme.isDark ? '#2B233D' : '#E9E5ED'}
-            thumbTintColor="#C084FC"
+            minimumTrackTintColor={theme.primary}
+            maximumTrackTintColor={theme.border}
+            thumbTintColor={theme.primary}
             onValueChange={(val) => {
               setIsSliding(true);
               setSlidePosition(val);
@@ -177,10 +207,10 @@ export default function PlayerScreen() {
             }}
           />
           <View className="flex-row justify-between px-1 mt-0.5">
-            <AppText variant="caption" color="textSecondary" className="text-xs font-semibold">
+            <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
               {formatTime(displayPosition)}
             </AppText>
-            <AppText variant="caption" color="textSecondary" className="text-xs font-semibold">
+            <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
               {formatTime(maxDuration)}
             </AppText>
           </View>
@@ -203,7 +233,7 @@ export default function PlayerScreen() {
             <Icon
               name="shuffle"
               size={22}
-              color={shuffleEnabled ? "#C084FC" : theme.textMuted}
+              color={shuffleEnabled ? theme.primary : theme.textMuted}
             />
           </Pressable>
 
@@ -219,7 +249,7 @@ export default function PlayerScreen() {
           {/* Main Play/Pause Button */}
           <Pressable
             onPress={togglePlayPause}
-            className="w-16 h-16 rounded-full items-center justify-center bg-purple-600 active:bg-purple-700 active:scale-[0.94] shadow-lg shadow-purple-950/50"
+            className="w-16 h-16 rounded-full items-center justify-center bg-[#9B7CFF] active:bg-[#8062E8] active:scale-[0.94]"
             accessibilityRole="button"
             accessibilityLabel={isPlaying ? "Pause" : "Play"}
           >
@@ -257,7 +287,7 @@ export default function PlayerScreen() {
             <Icon
               name={repeatMode === "ONE" ? "repeat-one" : "repeat"}
               size={22}
-              color={repeatMode !== "OFF" ? "#C084FC" : theme.textMuted}
+              color={repeatMode !== "OFF" ? theme.primary : theme.textMuted}
             />
           </Pressable>
         </View>

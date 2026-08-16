@@ -15,15 +15,16 @@ export default function TabLayout() {
           tabBarActiveTintColor: theme.tabActive,
           tabBarInactiveTintColor: theme.tabInactive,
           tabBarStyle: {
-            backgroundColor: theme.surfaceElevated,
+            backgroundColor: theme.background,
             borderTopColor: theme.border,
-            borderTopWidth: 0.5,
-            height: 60,
+            borderTopWidth: 1,
+            height: 64,
             paddingBottom: 8,
             paddingTop: 8,
+            elevation: 0,
           },
           tabBarLabelStyle: {
-            fontFamily: FontFamily.nunito.medium,
+            fontFamily: FontFamily.nunito.bold,
             fontSize: 11,
           },
         }}

@@ -501,6 +501,7 @@ export default function OnboardingScreen() {
               </AppText>
             </Pressable>
           ) : null}
+        </View>
       </KeyboardAvoidingView>
     </Screen>
   );

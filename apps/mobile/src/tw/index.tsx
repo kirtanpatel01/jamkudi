@@ -17,10 +17,14 @@ import {
 } from "react-native";
 
 // CSS-enabled Link
-export const Link = (
-  props: React.ComponentProps<typeof RouterLink> & { className?: string }
-) => {
-  return useCssElement(RouterLink as any, props, { className: "style" });
+type LinkProps = React.ComponentPropsWithRef<typeof RouterLink> & { className?: string };
+export const Link = React.forwardRef<any, LinkProps>((props, ref) => {
+  return useCssElement(RouterLink as any, { ...props, ref }, { className: "style" });
+}) as React.ForwardRefExoticComponent<LinkProps & React.RefAttributes<any>> & {
+  Trigger: typeof RouterLink.Trigger;
+  Menu: typeof RouterLink.Menu;
+  MenuAction: typeof RouterLink.MenuAction;
+  Preview: typeof RouterLink.Preview;
 };
 
 Link.Trigger = RouterLink.Trigger;
@@ -35,19 +39,20 @@ export const useCSSVariable =
     : (variable: string) => `var(${variable})`;
 
 // View
-export type ViewProps = React.ComponentProps<typeof RNView> & {
+export type ViewProps = React.ComponentPropsWithRef<typeof RNView> & {
   className?: string;
 };
 
-export const View = (props: ViewProps) => {
-  return useCssElement(RNView as any, props, { className: "style" });
-};
+export const View = React.forwardRef<RNView, ViewProps>((props, ref) => {
+  return useCssElement(RNView as any, { ...props, ref }, { className: "style" });
+});
 View.displayName = "CSS(View)";
 
 // Text
-export const Text = (
-  props: React.ComponentProps<typeof RNText> & { className?: string }
-) => {
+export const Text = React.forwardRef<
+  RNText,
+  React.ComponentPropsWithRef<typeof RNText> & { className?: string }
+>((props, ref) => {
   const { className = "", style, ...rest } = props;
 
   let fontFamily = "Nunito_400Regular";
@@ -79,40 +84,44 @@ export const Text = (
     RNText as any,
     {
       ...rest,
+      ref,
       className,
       style: [{ fontFamily }, style, { fontWeight: "normal" }],
     },
     { className: "style" }
   );
-};
+});
 Text.displayName = "CSS(Text)";
 
 // ScrollView
-export const ScrollView = (
-  props: React.ComponentProps<typeof RNScrollView> & {
+export const ScrollView = React.forwardRef<
+  RNScrollView,
+  React.ComponentPropsWithRef<typeof RNScrollView> & {
     className?: string;
     contentContainerClassName?: string;
   }
-) => {
-  return useCssElement(RNScrollView as any, props, {
+>((props, ref) => {
+  return useCssElement(RNScrollView as any, { ...props, ref }, {
     className: "style",
     contentContainerClassName: "contentContainerStyle",
   });
-};
+});
 ScrollView.displayName = "CSS(ScrollView)";
 
 // Pressable
-export const Pressable = (
-  props: React.ComponentProps<typeof RNPressable> & { className?: string }
-) => {
-  return useCssElement(RNPressable as any, props, { className: "style" });
-};
+export const Pressable = React.forwardRef<
+  React.ElementRef<typeof RNPressable>,
+  React.ComponentPropsWithRef<typeof RNPressable> & { className?: string }
+>((props, ref) => {
+  return useCssElement(RNPressable as any, { ...props, ref }, { className: "style" });
+});
 Pressable.displayName = "CSS(Pressable)";
 
 // TextInput
-export const TextInput = (
-  props: React.ComponentProps<typeof RNTextInput> & { className?: string }
-) => {
+export const TextInput = React.forwardRef<
+  RNTextInput,
+  React.ComponentPropsWithRef<typeof RNTextInput> & { className?: string }
+>((props, ref) => {
   const { className = "", style, ...rest } = props;
 
   let fontFamily = "Nunito_400Regular";
@@ -128,28 +137,31 @@ export const TextInput = (
     RNTextInput as any,
     {
       ...rest,
+      ref,
       className,
       style: [{ fontFamily }, style, { fontWeight: "normal" }],
     },
     { className: "style" }
   );
-};
+});
 TextInput.displayName = "CSS(TextInput)";
 
 // AnimatedScrollView
-export const AnimatedScrollView = (
-  props: React.ComponentProps<typeof Animated.ScrollView> & {
+export const AnimatedScrollView = React.forwardRef<
+  any,
+  React.ComponentPropsWithRef<typeof Animated.ScrollView> & {
     className?: string;
     contentClassName?: string;
     contentContainerClassName?: string;
   }
-) => {
-  return useCssElement(Animated.ScrollView as any, props, {
+>((props, ref) => {
+  return useCssElement(Animated.ScrollView as any, { ...props, ref }, {
     className: "style",
     contentClassName: "contentContainerStyle",
     contentContainerClassName: "contentContainerStyle",
   });
-};
+});
+AnimatedScrollView.displayName = "CSS(AnimatedScrollView)";
 
 // TouchableHighlight with underlayColor extraction
 function XXTouchableHighlight(
@@ -166,9 +178,10 @@ function XXTouchableHighlight(
   );
 }
 
-export const TouchableHighlight = (
-  props: React.ComponentProps<typeof RNTouchableHighlight>
-) => {
-  return useCssElement(XXTouchableHighlight as any, props, { className: "style" });
-};
+export const TouchableHighlight = React.forwardRef<
+  React.ElementRef<typeof RNTouchableHighlight>,
+  React.ComponentPropsWithRef<typeof RNTouchableHighlight> & { className?: string }
+>((props, ref) => {
+  return useCssElement(XXTouchableHighlight as any, { ...props, ref }, { className: "style" });
+});
 TouchableHighlight.displayName = "CSS(TouchableHighlight)";

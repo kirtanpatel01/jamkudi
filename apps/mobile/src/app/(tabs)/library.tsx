@@ -8,18 +8,20 @@ import { IconButton } from "@/components/common/IconButton";
 import { SettingsModal } from "@/components/common/SettingsModal";
 import { ArtworkImage } from "@/components/common/ArtworkImage";
 import { FilterChip } from "@/components/common/FilterChip";
+import { EmptyState } from "@/components/common/feedback/EmptyState";
 import { useTheme } from "@/hooks/useTheme";
 import { usePlayer } from "@/context/PlayerContext";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { usePlaylists } from "@/context/PlaylistContext";
+import { useDownloads } from "@/context/DownloadContext";
 import { CreatePlaylistModal } from "@/components/common/CreatePlaylistModal";
 import { SpotifyImportModal } from "@/components/common/SpotifyImportModal";
 import { MADE_FOR_YOU_DATA } from "@/data/mockMusic";
 import { Track } from "@/types/track";
 import { View, Pressable, TextInput } from "@/tw";
 
-type LibraryFilter = "All" | "Liked" | "Recent" | "Playlists";
+type LibraryFilter = "All" | "Liked" | "Downloads" | "Recent" | "Playlists";
 
 function formatDuration(seconds: number): string {
   if (!seconds || isNaN(seconds)) return "";
@@ -43,6 +45,7 @@ export default function LibraryScreen() {
     isPlaying,
   } = usePlayer();
   const { playlists: userPlaylists } = usePlaylists();
+  const { downloadedSongs, formattedStorageSize } = useDownloads();
 
   const [showSettings, setShowSettings] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -172,7 +175,7 @@ export default function LibraryScreen() {
           className="-mx-4"
           contentContainerStyle={{ paddingHorizontal: 16, gap: 6 }}
         >
-          {(["All", "Liked", "Recent", "Playlists"] as LibraryFilter[]).map((filterLabel) => (
+          {(["All", "Liked", "Downloads", "Recent", "Playlists"] as LibraryFilter[]).map((filterLabel) => (
             <FilterChip
               key={filterLabel}
               label={filterLabel}
@@ -187,69 +190,93 @@ export default function LibraryScreen() {
       {/* Complete Empty Library State */}
       {isLibraryEmpty ? (
         <View
-          className="py-16 items-center px-6 rounded-3xl border my-4"
+          className="py-12 items-center px-6 rounded-3xl border my-4"
           style={{ backgroundColor: theme.surface, borderColor: theme.border }}
         >
-          <Icon name="library" size={44} color={theme.textMuted} />
-          <AppText variant="songTitle" className="text-base font-bold text-center mt-4 mb-1">
-            Your library is empty
-          </AppText>
-          <AppText variant="caption" color="textSecondary" className="text-xs font-medium text-center mb-6 leading-5">
-            Like songs, listen to tracks, or explore playlists to build your personal music collection.
-          </AppText>
-          <Pressable
-            onPress={() => router.push("/(tabs)/search")}
-            className="px-6 py-3 rounded-full bg-purple-600 active:bg-purple-700 flex-row items-center gap-x-2 active:scale-[0.98]"
-            accessibilityRole="button"
-            accessibilityLabel="Start exploring music"
-          >
-            <Icon name="search" size={18} color="#FFFFFF" />
-            <AppText className="text-xs font-bold text-white uppercase tracking-wider">Explore Music</AppText>
-          </Pressable>
+          <EmptyState
+            title="It's a little quiet here"
+            message="Like songs, listen to tracks, or explore playlists to build your personal music shelf."
+            showMascot={true}
+            actionTitle="Find Music"
+            onActionPress={() => router.push("/(tabs)/search")}
+          />
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
+          {/* Featured Banner: Downloads Card (Visible when "All" or "Downloads" filter active) */}
+          {(activeFilter === "All" || activeFilter === "Downloads") && (
+            <View className="mb-4">
+              <Pressable
+                onPress={() => router.push("/downloads" as any)}
+                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border active:scale-[0.98]"
+                style={{
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
+                }}
+              >
+                <View className="flex-row items-center flex-1 mr-3">
+                  <View
+                    className="w-12 h-12 rounded-2xl items-center justify-center mr-4 shrink-0"
+                    style={{ backgroundColor: "rgba(155, 124, 255, 0.2)" }}
+                  >
+                    <Icon name="download" size={24} color="#9B7CFF" />
+                  </View>
+
+                  <View className="flex-1 min-w-0">
+                    <AppText variant="songTitle" color="textPrimary" className="text-lg font-bold mb-0.5 tracking-tight">
+                      Downloads
+                    </AppText>
+                    <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
+                      {downloadedSongs.length > 0
+                        ? `${downloadedSongs.length} ${downloadedSongs.length === 1 ? "song" : "songs"} · ${formattedStorageSize}`
+                        : "No offline downloads yet."}
+                    </AppText>
+                  </View>
+                </View>
+
+                <View className="w-10 h-10 rounded-full items-center justify-center bg-purple-950/60 border border-purple-500/30">
+                  <Icon name="chevron-right" size={18} color="#9B7CFF" />
+                </View>
+              </Pressable>
+            </View>
+          )}
+
           {/* Featured Banner: Liked Songs Card (Visible when "All" or "Liked" filter active) */}
           {(activeFilter === "All" || activeFilter === "Liked") && (
             <View className="mb-6">
               <Pressable
                 onPress={handlePlayLiked}
-                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border shadow-md active:scale-[0.98]"
+                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border active:scale-[0.98]"
                 style={{
-                  backgroundColor: theme.isDark ? '#251540' : theme.surfaceElevated,
-                  borderColor: theme.isDark ? 'rgba(168, 85, 247, 0.4)' : theme.border,
+                  backgroundColor: theme.surface,
+                  borderColor: theme.border,
                 }}
               >
-                <View className="flex-1 pr-4">
+                <View className="flex-row items-center flex-1 mr-3">
                   <View
-                    className="w-10 h-10 rounded-full items-center justify-center mb-3 border"
-                    style={{
-                      backgroundColor: theme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(168,85,247,0.12)',
-                      borderColor: theme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(168,85,247,0.3)',
-                    }}
+                    className="w-12 h-12 rounded-2xl items-center justify-center mr-4 shrink-0"
+                    style={{ backgroundColor: "rgba(239, 175, 198, 0.2)" }}
                   >
-                    <Icon name="heart-filled" size={20} color={theme.isDark ? "#FFFFFF" : "#A855F7"} />
+                    <Icon name="heart-filled" size={24} color="#EFAFC6" />
                   </View>
 
-                  <AppText variant="songTitle" color="textPrimary" className="text-xl font-extrabold mb-0.5 tracking-tight">
-                    Liked Songs
-                  </AppText>
-                  <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
-                    {likedTracks.length > 0
-                      ? `${likedTracks.length} saved ${likedTracks.length === 1 ? "track" : "tracks"}`
-                      : "No liked songs yet. Tap the heart on any song to save it here."}
-                  </AppText>
+                  <View className="flex-1 min-w-0">
+                    <AppText variant="songTitle" color="textPrimary" className="text-lg font-bold mb-0.5 tracking-tight">
+                      Liked Songs
+                    </AppText>
+                    <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
+                      {likedTracks.length > 0
+                        ? `${likedTracks.length} saved ${likedTracks.length === 1 ? "track" : "tracks"}`
+                        : "No liked songs yet."}
+                    </AppText>
+                  </View>
                 </View>
 
                 {likedTracks.length > 0 && (
                   <View
-                    className="w-12 h-12 rounded-full items-center justify-center border"
-                    style={{
-                      backgroundColor: theme.isDark ? 'rgba(255,255,255,0.2)' : '#A855F7',
-                      borderColor: theme.isDark ? 'rgba(255,255,255,0.3)' : '#A855F7',
-                    }}
+                    className="w-10 h-10 rounded-full items-center justify-center bg-[#9B7CFF]"
                   >
-                    <Icon name="play" size={22} color="#FFFFFF" />
+                    <Icon name="play" size={18} color="#FFFFFF" />
                   </View>
                 )}
               </Pressable>

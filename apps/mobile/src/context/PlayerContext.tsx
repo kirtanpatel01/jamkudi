@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 import { initAudioSystem, createUnifiedPlayer, AudioPlayerInstance } from "@/utils/audioService";
 import { Track, PlaybackState, RepeatMode, QueueItem, QueueSource } from "@/types/track";
 import { getSongById, searchSongs } from "@/services/jiosaavn";
+import { resolvePlayableSource } from "@/services/downloadService";
 import {
   loadLikedSongs,
   saveLikedSongs,
@@ -222,7 +223,13 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setPosition(0);
       setDuration(track.duration || 0);
 
-      let streamUrl = track.audioUrl || (track as any).url;
+      // Check if song is downloaded locally or available offline
+      const resolution = await resolvePlayableSource(track as any);
+      let streamUrl = resolution.uri || track.audioUrl || (track as any).url;
+
+      if (resolution.type === "unavailable" && !streamUrl) {
+        throw new Error(resolution.reason || "You're offline. Download this song to listen without internet.");
+      }
 
       // If retryCount > 0 or streamUrl is missing, attempt to refresh URL from API
       if (!streamUrl || retryCount > 0) {

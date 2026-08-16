@@ -43,11 +43,14 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
       ? uri.trim().replace(/^http:\/\//i, "https://")
       : "";
 
+  const computedWidth = width || size || "100%";
+  const computedHeight = height || size || "100%";
+
   if (!sanitizedUri || hasError) {
     return (
       <View
         className={`items-center justify-center bg-purple-950/60 ${className}`}
-        style={[{ width: width || "100%", height: height || "100%" }, style]}
+        style={[{ width: computedWidth, height: computedHeight }, style]}
       >
         <Icon name="music" size={iconSize} color={theme.primary} />
       </View>
@@ -57,7 +60,7 @@ export const ArtworkImage: React.FC<ArtworkImageProps> = ({
   return (
     <View
       className={`relative overflow-hidden ${className}`}
-      style={[{ width: width || "100%", height: height || "100%" }, style]}
+      style={[{ width: computedWidth, height: computedHeight }, style]}
     >
       {isLoading ? (
         <View
