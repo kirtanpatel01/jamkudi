@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import auth from './routes/auth.js'
 import health from './routes/health.js'
 import profile from './routes/profile.js'
@@ -8,6 +9,8 @@ import spotify from './routes/spotify.js'
 import playlist from './routes/playlist.js'
 
 const app = new Hono()
+
+app.use('*', cors())
 
 // Global error handling
 app.onError((err, c) => {
