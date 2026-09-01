@@ -48,12 +48,12 @@ export const AppButton: React.FC<AppButtonProps> = ({
         return "bg-[#9B7CFF] active:bg-[#8062E8] active:scale-[0.98]";
       case "secondary":
         return theme.isDark
-          ? "bg-[#171A2B] active:bg-[#20243A] active:scale-[0.98] border border-[#262B45]"
-          : "bg-[#F6F2ED] active:bg-[#EEE9E3] active:scale-[0.98] border border-[#EEE9E3]";
+          ? "bg-[#171A2B] active:bg-[#20243A] active:scale-[0.98]"
+          : "bg-[#F6F2ED] active:bg-[#EEE9E3] active:scale-[0.98]";
       case "outline":
         return theme.isDark
-          ? "bg-transparent border border-[#262B45] active:bg-[#171A2B] active:scale-[0.98]"
-          : "bg-transparent border border-[#EEE9E3] active:bg-[#F6F2ED] active:scale-[0.98]";
+          ? "bg-[#171A2B]/50 active:bg-[#171A2B] active:scale-[0.98]"
+          : "bg-[#F6F2ED]/50 active:bg-[#F6F2ED] active:scale-[0.98]";
       case "ghost":
         return "bg-transparent active:bg-purple-500/10 active:scale-[0.98]";
       default:

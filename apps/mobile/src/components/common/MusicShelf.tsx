@@ -29,7 +29,7 @@ export const MusicShelf: React.FC<MusicShelfProps> = ({
   items,
   currentId,
   isPlaying = false,
-  itemWidth = 140,
+  itemWidth = 144,
   onItemPress,
   style,
   className = "",
@@ -41,7 +41,7 @@ export const MusicShelf: React.FC<MusicShelfProps> = ({
   return (
     <View className={`mb-8 ${className}`} style={style}>
       {title ? (
-        <AppText variant="sectionTitle" className="text-base font-bold mb-3.5 px-0.5">
+        <AppText variant="sectionTitle" className="text-base font-extrabold mb-3.5 px-0.5 tracking-tight">
           {title}
         </AppText>
       ) : null}
@@ -57,32 +57,39 @@ export const MusicShelf: React.FC<MusicShelfProps> = ({
             <Pressable
               key={`${item.id}-${index}`}
               onPress={() => onItemPress(item, index)}
-              className="active:scale-[0.96]"
+              className="active:scale-[0.96] active:opacity-90"
               style={{ width: itemWidth }}
             >
-              {/* Borderless Artwork Tile */}
+              {/* Artwork Container */}
               <View
-                className="rounded-2xl overflow-hidden mb-2 relative shadow-md shadow-black/10"
+                className="rounded-2xl overflow-hidden mb-2 relative shadow-md"
                 style={{
                   width: itemWidth,
                   height: itemWidth,
                   backgroundColor: theme.surface,
                 }}
               >
-                <ArtworkImage uri={item.artworkUri} width={itemWidth} height={itemWidth} iconSize={36} />
+                <ArtworkImage uri={item.artworkUri} width={itemWidth} height={itemWidth} iconSize={Math.max(24, Math.round(itemWidth * 0.28))} />
                 {isCurrent && (
                   <View className="absolute inset-0 bg-black/50 items-center justify-center">
-                    <View className="w-10 h-10 rounded-full bg-[#9B7CFF] items-center justify-center">
-                      <Icon name={isPlaying ? "pause" : "play"} size={20} color="#FFFFFF" />
+                    <View
+                      style={{
+                        width: Math.max(28, Math.round(itemWidth * 0.32)),
+                        height: Math.max(28, Math.round(itemWidth * 0.32)),
+                      }}
+                      className="rounded-full bg-purple-600 items-center justify-center shadow-lg"
+                    >
+                      <Icon name={isPlaying ? "pause" : "play"} size={Math.max(14, Math.round(itemWidth * 0.16))} color="#FFFFFF" />
                     </View>
                   </View>
                 )}
               </View>
 
+              {/* Title & Subtitle */}
               <AppText
                 variant="songTitle"
                 color={isCurrent ? "primary" : "textPrimary"}
-                className={`text-sm ${isCurrent ? "font-bold text-[#9B7CFF]" : "font-semibold"}`}
+                className={`text-sm ${isCurrent ? "font-extrabold text-purple-400" : "font-bold"}`}
                 numberOfLines={1}
               >
                 {item.title}
@@ -92,7 +99,7 @@ export const MusicShelf: React.FC<MusicShelfProps> = ({
                 <AppText
                   variant="artist"
                   color="textSecondary"
-                  className="text-xs font-medium mt-0.5"
+                  className="text-xs font-semibold mt-0.5"
                   numberOfLines={1}
                 >
                   {item.subtitle}

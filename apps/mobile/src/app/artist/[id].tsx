@@ -79,8 +79,8 @@ export default function ArtistDetailScreen() {
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
-          className="w-10 h-10 items-center justify-center rounded-full border active:opacity-80 active:scale-[0.94]"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="w-10 h-10 items-center justify-center rounded-full active:opacity-80 active:scale-[0.94]"
+          style={{ backgroundColor: theme.surface }}
         >
           <Icon name="skip-back" size={22} color={theme.textPrimary} />
         </Pressable>
@@ -115,7 +115,7 @@ export default function ArtistDetailScreen() {
             <View className="items-center mb-6">
               {/* Artist Avatar */}
               <View
-                className="w-36 h-36 rounded-full overflow-hidden mb-4 border-4 border-purple-500/60 shadow-2xl shadow-purple-950/60"
+                className="w-36 h-36 rounded-full overflow-hidden mb-4"
                 style={{ backgroundColor: theme.surface }}
               >
                 <ArtworkImage
@@ -136,7 +136,7 @@ export default function ArtistDetailScreen() {
               <View className="flex-row items-center gap-x-3 mb-2">
                 <Pressable
                   onPress={handlePlayAll}
-                  className="flex-row items-center px-7 py-3 rounded-full bg-purple-600 active:bg-purple-700 shadow-lg shadow-purple-950/50 active:scale-[0.96]"
+                  className="flex-row items-center px-7 py-3 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.96]"
                 >
                   <Icon name="play" size={18} color="#FFFFFF" />
                   <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Play All</AppText>

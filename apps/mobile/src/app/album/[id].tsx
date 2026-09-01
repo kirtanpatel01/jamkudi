@@ -79,8 +79,8 @@ export default function AlbumDetailScreen() {
         <Pressable
           onPress={() => router.back()}
           hitSlop={12}
-          className="w-10 h-10 items-center justify-center rounded-full border active:opacity-80 active:scale-[0.94]"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="w-10 h-10 items-center justify-center rounded-full active:opacity-80 active:scale-[0.94]"
+          style={{ backgroundColor: theme.surface }}
         >
           <Icon name="skip-back" size={22} color={theme.textPrimary} />
         </Pressable>
@@ -115,8 +115,8 @@ export default function AlbumDetailScreen() {
             <View className="items-center mb-6">
               {/* Album Artwork */}
               <View
-                className="w-44 h-44 rounded-3xl overflow-hidden mb-4 border"
-                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                className="w-44 h-44 rounded-3xl overflow-hidden mb-4"
+                style={{ backgroundColor: theme.surface }}
               >
                 <ArtworkImage
                   uri={album.artwork}

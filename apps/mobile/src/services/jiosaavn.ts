@@ -19,51 +19,7 @@ export interface FeaturedArtist {
   query: string;
   imageUrl: string;
 }
-
-export const FEATURED_ARTISTS: FeaturedArtist[] = [
-  {
-    id: "arijit",
-    name: "Arijit Singh",
-    query: "Arijit Singh",
-    imageUrl: "https://c.saavncdn.com/artists/Arijit_Singh_004_20241118063717_500x500.jpg",
-  },
-  {
-    id: "rahman",
-    name: "A.R. Rahman",
-    query: "A.R. Rahman",
-    imageUrl: "https://c.saavncdn.com/artists/AR_Rahman_002_20210120084455_500x500.jpg",
-  },
-  {
-    id: "diljit",
-    name: "Diljit Dosanjh",
-    query: "Diljit Dosanjh",
-    imageUrl: "https://c.saavncdn.com/artists/Diljit_Dosanjh_005_20231025073054_500x500.jpg",
-  },
-  {
-    id: "shreya",
-    name: "Shreya Ghoshal",
-    query: "Shreya Ghoshal",
-    imageUrl: "https://c.saavncdn.com/artists/Shreya_Ghoshal_007_20241101074144_500x500.jpg",
-  },
-  {
-    id: "anirudh",
-    name: "Anirudh Ravichander",
-    query: "Anirudh Ravichander",
-    imageUrl: "https://c.saavncdn.com/artists/Anirudh_Ravichander_003_20260121134149_500x500.jpg",
-  },
-  {
-    id: "pritam",
-    name: "Pritam",
-    query: "Pritam",
-    imageUrl: "https://c.saavncdn.com/artists/Pritam_Chakraborty-20170711073326_500x500.jpg",
-  },
-  {
-    id: "badshah",
-    name: "Badshah",
-    query: "Badshah",
-    imageUrl: "https://c.saavncdn.com/artists/Badshah_006_20241118064015_500x500.jpg",
-  },
-];
+export const FEATURED_ARTISTS: FeaturedArtist[] = [];
 
 const BASE_URL = "https://jiosaavn-api.kjpatel.workers.dev/api";
 
@@ -139,6 +95,11 @@ export function mapToTrack(rawSong: any): Track | null {
     album = rawSong.album;
   }
 
+  let language = "unknown";
+  if (typeof rawSong.language === "string" && rawSong.language) {
+    language = rawSong.language.toLowerCase().trim();
+  }
+
   const cleanUrl = audioUrl.replace("http://", "https://");
 
   return {
@@ -150,6 +111,7 @@ export function mapToTrack(rawSong: any): Track | null {
     audioUrl: cleanUrl,
     url: cleanUrl,
     duration: Number(rawSong.duration) || 0,
+    language,
   } as Track;
 }
 

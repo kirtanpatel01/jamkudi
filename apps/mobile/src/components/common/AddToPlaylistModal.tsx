@@ -62,7 +62,6 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
   };
 
   const handlePlaylistCreated = async (newPlaylistId: string) => {
-    // Automatically add track to the newly created playlist
     const newPlaylist = playlists.find((p) => p.id === newPlaylistId);
     const plName = newPlaylist?.name || "playlist";
     await handleSelectPlaylist(newPlaylistId, plName);
@@ -82,19 +81,24 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
         >
           <Pressable
             onPress={(e) => e.stopPropagation()}
-            className="w-full rounded-t-3xl p-6 border-t shadow-2xl max-h-[80%]"
-            style={{ backgroundColor: theme.surfaceElevated, borderColor: theme.border }}
+            className="w-full rounded-t-[32px] p-6 max-h-[80%] shadow-2xl"
+            style={{ backgroundColor: theme.surfaceElevated }}
           >
+            {/* Grab Handle Bar */}
+            <View className="w-12 h-1.5 rounded-full bg-white/20 self-center mb-4 -mt-1" />
+
             {/* Header */}
             <View className="flex-row items-center justify-between mb-4">
-              <AppText variant="songTitle" color="textPrimary" className="text-base font-extrabold">
+              <AppText variant="songTitle" color="textPrimary" className="text-lg font-black">
                 Add to Playlist
               </AppText>
               <Pressable
                 onPress={onClose}
-                className="w-8 h-8 rounded-full items-center justify-center border active:opacity-75"
-                style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+                className="w-9 h-9 rounded-full items-center justify-center active:opacity-75 active:scale-[0.95]"
+                style={{ backgroundColor: theme.surfacePressed }}
                 hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Close modal"
               >
                 <Icon name="x" size={16} color={theme.textPrimary} />
               </Pressable>
@@ -102,17 +106,17 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
 
             {/* Target Song Info Preview */}
             <View
-              className="flex-row items-center p-3.5 rounded-2xl border mb-4 shadow-md"
-              style={{ backgroundColor: theme.isDark ? '#221A35' : theme.surface, borderColor: '#A855F7' }}
+              className="flex-row items-center p-3.5 rounded-2xl mb-4 shadow-sm"
+              style={{ backgroundColor: theme.isDark ? '#221A35' : theme.surface }}
             >
-              <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
+              <View className="w-12 h-12 rounded-xl overflow-hidden mr-3.5 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
                 <ArtworkImage uri={track.artwork} iconSize={18} className="w-full h-full" />
               </View>
               <View className="flex-1 min-w-0 justify-center">
-                <AppText variant="songTitle" color={theme.isDark ? undefined : 'textPrimary'} className={`text-sm font-bold mb-0.5 ${theme.isDark ? "text-purple-300" : ""}`} numberOfLines={1}>
+                <AppText variant="songTitle" color={theme.isDark ? undefined : 'textPrimary'} className={`text-sm font-black mb-0.5 ${theme.isDark ? "text-purple-300" : ""}`} numberOfLines={1}>
                   {cleanTitle(track.title)}
                 </AppText>
-                <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
+                <AppText variant="artist" color="textSecondary" className="text-xs font-semibold" numberOfLines={1}>
                   {cleanTitle(track.artist)}
                 </AppText>
               </View>
@@ -121,27 +125,27 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
             {/* Create New Playlist Button */}
             <Pressable
               onPress={() => setShowCreateModal(true)}
-              className="flex-row items-center p-3.5 rounded-2xl bg-purple-600/20 border border-purple-500/40 mb-5 active:scale-[0.98] active:bg-purple-600/30"
+              className="flex-row items-center p-3.5 rounded-2xl bg-purple-600/20 mb-5 active:scale-[0.985] active:bg-purple-600/30 shadow-sm"
             >
-              <View className="w-10 h-10 rounded-xl bg-purple-600 items-center justify-center mr-3 shadow-md shadow-purple-950/40">
+              <View className="w-10 h-10 rounded-xl bg-purple-600 items-center justify-center mr-3 shrink-0 shadow-md">
                 <Icon name="plus" size={20} color="#FFFFFF" />
               </View>
               <View className="flex-1">
-                <AppText className="text-sm font-bold text-purple-400">
+                <AppText className="text-sm font-black text-purple-300">
                   Create New Playlist
                 </AppText>
-                <AppText variant="caption" color="textSecondary" className="text-[11px] font-medium">
+                <AppText variant="caption" color="textSecondary" className="text-[11px] font-semibold">
                   Create a new custom mix
                 </AppText>
               </View>
             </Pressable>
 
             {/* Playlists List */}
-            <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-wider text-xs font-bold ml-1">
-              Your Playlists
+            <AppText variant="caption" color="textSecondary" className="mb-2.5 uppercase tracking-widest text-xs font-black ml-1 text-purple-300/80">
+              YOUR PLAYLISTS
             </AppText>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="max-h-72">
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }} className="max-h-72">
               {playlists.length > 0 ? (
                 playlists.map((pl) => {
                   const isAdding = addingPlaylistId === pl.id;
@@ -153,10 +157,10 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                       key={pl.id}
                       onPress={() => handleSelectPlaylist(pl.id, pl.name)}
                       disabled={isAdding}
-                      className="flex-row items-center p-3 rounded-2xl mb-2 border active:scale-[0.98]"
-                      style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                      className="flex-row items-center p-3 rounded-2xl mb-2.5 active:scale-[0.985]"
+                      style={{ backgroundColor: theme.surface }}
                     >
-                      <View className="w-11 h-11 rounded-xl overflow-hidden mr-3 border items-center justify-center shrink-0" style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}>
+                      <View className="w-11 h-11 rounded-xl overflow-hidden mr-3 items-center justify-center shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
                         <ArtworkImage uri={pl.artwork} iconSize={18} className="w-full h-full" />
                       </View>
 
@@ -164,19 +168,19 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                         <AppText variant="songTitle" color="textPrimary" className="text-sm font-bold mb-0.5" numberOfLines={1}>
                           {cleanTitle(pl.name)}
                         </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
+                        <AppText variant="artist" color="textSecondary" className="text-xs font-semibold" numberOfLines={1}>
                           {trackCount} {trackCount === 1 ? "song" : "songs"}
                         </AppText>
                       </View>
 
                       {isAdding ? (
-                        <ActivityIndicator size="small" color="#A855F7" />
+                        <ActivityIndicator size="small" color="#C084FC" />
                       ) : isAlreadyAdded ? (
-                        <View className="px-3 py-1 rounded-full bg-purple-600/30 border border-purple-500/50">
-                          <AppText className="text-[11px] text-purple-300 font-bold">Added</AppText>
+                        <View className="px-3 py-1 rounded-full bg-purple-600/30">
+                          <AppText className="text-[11px] text-purple-300 font-extrabold">Added</AppText>
                         </View>
                       ) : (
-                        <View className="w-7 h-7 rounded-full border items-center justify-center" style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}>
+                        <View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: theme.surfacePressed }}>
                           <Icon name="plus" size={14} color={theme.textPrimary} />
                         </View>
                       )}
@@ -185,7 +189,7 @@ export const AddToPlaylistModal: React.FC<AddToPlaylistModalProps> = ({
                 })
               ) : (
                 <View className="py-6 items-center">
-                  <AppText variant="caption" color="textSecondary" className="text-xs font-medium">
+                  <AppText variant="caption" color="textSecondary" className="text-xs font-semibold">
                     No custom playlists yet. Tap "Create New Playlist" above!
                   </AppText>
                 </View>

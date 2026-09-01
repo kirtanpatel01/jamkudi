@@ -202,8 +202,8 @@ export default function PlaylistDetailScreen() {
       <View className="flex-row items-center justify-between mt-1 mb-4">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full items-center justify-center border active:opacity-80"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="w-10 h-10 rounded-full items-center justify-center active:opacity-80"
+          style={{ backgroundColor: theme.surface }}
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -218,7 +218,7 @@ export default function PlaylistDetailScreen() {
         {isUserPlaylist ? (
           <Pressable
             onPress={handleDeletePlaylist}
-            className="w-10 h-10 rounded-full items-center justify-center bg-red-900/20 border border-red-500/30 active:bg-red-900/40"
+            className="w-10 h-10 rounded-full items-center justify-center bg-red-900/20 active:bg-red-900/40"
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Delete playlist"
@@ -248,7 +248,7 @@ export default function PlaylistDetailScreen() {
           </AppText>
           <Pressable
             onPress={() => router.back()}
-            className="px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40"
+            className="px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700"
           >
             <AppText className="text-xs font-bold text-white">Go Back</AppText>
           </Pressable>
@@ -263,8 +263,8 @@ export default function PlaylistDetailScreen() {
             <View className="items-center mb-5">
               {/* 2. Scaled Artwork */}
               <View
-                className="w-40 h-40 rounded-3xl overflow-hidden mb-3.5 border shadow-xl shadow-purple-950/40 items-center justify-center"
-                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                className="w-40 h-40 rounded-3xl overflow-hidden mb-3.5 items-center justify-center"
+                style={{ backgroundColor: theme.surface }}
               >
                 <ArtworkImage
                   uri={playlist.artwork}
@@ -305,7 +305,7 @@ export default function PlaylistDetailScreen() {
                 <View className="flex-row items-center justify-center gap-x-2.5 mb-4">
                   <Pressable
                     onPress={handlePlayAll}
-                    className="flex-row items-center px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40 active:scale-[0.96]"
+                    className="flex-row items-center px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.96]"
                   >
                     <Icon name="play" size={16} color="#FFFFFF" />
                     <AppText className="ml-2 text-xs font-bold text-white uppercase tracking-wider">Play</AppText>
@@ -313,8 +313,8 @@ export default function PlaylistDetailScreen() {
 
                   <Pressable
                     onPress={handleShufflePlay}
-                    className="flex-row items-center px-5 py-2.5 rounded-full border active:scale-[0.96]"
-                    style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                    className="flex-row items-center px-5 py-2.5 rounded-full active:scale-[0.96]"
+                    style={{ backgroundColor: theme.surface }}
                   >
                     <Icon name="shuffle" size={16} color={theme.textPrimary} />
                     <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold uppercase tracking-wider">Shuffle</AppText>
@@ -336,10 +336,9 @@ export default function PlaylistDetailScreen() {
                             downloadPlaylistTracks(playlist.id, playlist.title, playlist.tracks);
                           }
                         }}
-                        className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
+                        className="flex-row items-center px-4 py-2.5 rounded-full active:scale-[0.96]"
                         style={{
                           backgroundColor: isFullyDownloaded ? "rgba(155, 124, 255, 0.15)" : theme.surface,
-                          borderColor: isFullyDownloaded ? "rgba(155, 124, 255, 0.4)" : theme.border,
                         }}
                       >
                         <Icon
@@ -366,8 +365,8 @@ export default function PlaylistDetailScreen() {
                 </View>
               ) : (
                 <View
-                  className="py-6 items-center px-4 rounded-2xl border w-full my-2"
-                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                  className="py-6 items-center px-4 rounded-2xl w-full my-2"
+                  style={{ backgroundColor: theme.surface }}
                 >
                   <AppText variant="caption" color="textSecondary" className="text-xs text-center mb-3">
                     This playlist is currently empty. Add songs from Search to start building it!
@@ -387,11 +386,11 @@ export default function PlaylistDetailScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 active:scale-[0.99]"
                 style={
                   isCurrent
-                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                    : { backgroundColor: theme.surface, borderColor: theme.border }
+                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed }
+                    : { backgroundColor: theme.surface }
                 }
               >
                 {/* 6. Reordering Controls (Vertically centered) */}
@@ -487,8 +486,8 @@ export default function PlaylistDetailScreen() {
                       setSelectedSongForAdd(item);
                       setShowAddOtherModal(true);
                     }}
-                    className="w-7 h-7 rounded-full border items-center justify-center active:opacity-75"
-                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+                    className="w-7 h-7 rounded-full items-center justify-center active:opacity-75"
+                    style={{ backgroundColor: theme.surfacePressed }}
                     hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}
@@ -502,7 +501,7 @@ export default function PlaylistDetailScreen() {
                         e.stopPropagation();
                         handleRemoveTrack(item);
                       }}
-                      className="w-7 h-7 rounded-full bg-red-900/20 active:bg-red-900/40 border border-red-500/30 items-center justify-center"
+                      className="w-7 h-7 rounded-full bg-red-900/20 active:bg-red-900/40 items-center justify-center"
                       hitSlop={6}
                       accessibilityRole="button"
                       accessibilityLabel={`Remove ${item.title} from playlist`}
@@ -537,10 +536,9 @@ export default function PlaylistDetailScreen() {
         >
           <Pressable
             onPress={(e) => e.stopPropagation()}
-            className="w-full max-w-sm rounded-3xl p-6 border shadow-2xl"
+            className="w-full max-w-sm rounded-3xl p-6"
             style={{
               backgroundColor: theme.surfaceElevated,
-              borderColor: theme.border,
             }}
           >
             <AppText variant="songTitle" className="text-base font-bold mb-4">
@@ -551,8 +549,8 @@ export default function PlaylistDetailScreen() {
               Name
             </AppText>
             <View
-              className="px-3.5 h-11 rounded-xl border mb-3 justify-center"
-              style={{ backgroundColor: theme.background, borderColor: theme.border }}
+              className="px-3.5 h-11 rounded-xl mb-3 justify-center"
+              style={{ backgroundColor: theme.background }}
             >
               <TextInput
                 value={editName}
@@ -566,8 +564,8 @@ export default function PlaylistDetailScreen() {
               Description
             </AppText>
             <View
-              className="px-3.5 py-2.5 h-20 rounded-xl border mb-4 justify-start"
-              style={{ backgroundColor: theme.background, borderColor: theme.border }}
+              className="px-3.5 py-2.5 h-20 rounded-xl mb-4 justify-start"
+              style={{ backgroundColor: theme.background }}
             >
               <TextInput
                 value={editDesc}
@@ -581,7 +579,7 @@ export default function PlaylistDetailScreen() {
             <View className="flex-row items-center gap-x-3">
               <Pressable
                 onPress={() => setShowEditModal(false)}
-                className="flex-1 py-2.5 rounded-full border border-white/10 items-center"
+                className="flex-1 py-2.5 rounded-full bg-zinc-800 items-center"
               >
                 <AppText className="text-xs font-bold text-zinc-300">Cancel</AppText>
               </Pressable>

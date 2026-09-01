@@ -231,7 +231,7 @@ export default function OnboardingScreen() {
             <View
               key={item}
               className={`flex-1 h-1.5 rounded-full mr-2 ${
-                item <= step ? 'bg-purple-600' : 'bg-zinc-800 border border-zinc-700/50'
+                item <= step ? 'bg-purple-600' : 'bg-zinc-800'
               }`}
             />
           ))}
@@ -256,7 +256,7 @@ export default function OnboardingScreen() {
             }}
           >
             {/* Step Icon Badge */}
-            <View className="w-16 h-16 rounded-3xl items-center justify-center mb-6 border border-purple-500/30 bg-[#191428] shadow-lg shadow-purple-950/40">
+            <View className="w-16 h-16 rounded-3xl items-center justify-center mb-6 bg-[#191428]">
               <Icon name={step === 1 ? 'user' : step === 2 ? 'disc' : 'music'} size={28} color="#C084FC" />
             </View>
 
@@ -276,9 +276,8 @@ export default function OnboardingScreen() {
 
                 <Pressable
                   onPress={() => nameRef.current?.focus()}
-                  className="w-full h-14 px-4 rounded-2xl border flex-row items-center"
+                  className="w-full h-14 px-4 rounded-2xl flex-row items-center"
                   style={{
-                    borderColor: isNameFocused ? '#A855F7' : theme.border,
                     backgroundColor: isNameFocused ? (theme.isDark ? '#1C162E' : '#F9F5FF') : theme.surface,
                   }}
                 >
@@ -328,12 +327,12 @@ export default function OnboardingScreen() {
                         onPress={() => toggleGenre(genre.label)}
                         accessibilityRole="checkbox"
                         accessibilityState={{ checked: selected }}
-                        className={`px-4 py-3 rounded-2xl border flex-row items-center active:scale-[0.96] ${
+                        className={`px-4 py-3 rounded-2xl flex-row items-center active:scale-[0.96] ${
                           selected
-                            ? 'bg-purple-600 border-purple-500 shadow-md shadow-purple-950/40'
+                            ? 'bg-purple-600'
                             : 'active:opacity-80'
                         }`}
-                        style={!selected ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
+                        style={!selected ? { backgroundColor: theme.surface } : undefined}
                       >
                         <AppText className="text-base mr-2">{genre.emoji}</AppText>
                         <AppText
@@ -363,8 +362,8 @@ export default function OnboardingScreen() {
 
                 {/* Search Bar */}
                 <View
-                  className="h-13 px-4 rounded-2xl border flex-row items-center mb-5"
-                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                  className="h-13 px-4 rounded-2xl flex-row items-center mb-5"
+                  style={{ backgroundColor: theme.surface }}
                 >
                   <Icon name="search" size={20} color={theme.textMuted} />
                   <TextInput
@@ -388,8 +387,8 @@ export default function OnboardingScreen() {
                 {/* Selected Picks Chips */}
                 {artists.length > 0 ? (
                   <View
-                    className="mb-5 rounded-2xl border p-3.5"
-                    style={{ backgroundColor: theme.isDark ? '#1C162E' : theme.surfaceElevated, borderColor: '#A855F7' }}
+                    className="mb-5 rounded-2xl p-3.5"
+                    style={{ backgroundColor: theme.isDark ? '#1C162E' : theme.surfaceElevated }}
                   >
                     <AppText variant="caption" className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-2">
                       YOUR PICKS · {artists.length}/{MAX_ARTISTS}
@@ -417,7 +416,7 @@ export default function OnboardingScreen() {
                 </AppText>
 
                 {searchFailed ? (
-                  <View className="rounded-2xl border p-4" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+                  <View className="rounded-2xl p-4" style={{ backgroundColor: theme.surface }}>
                     <AppText variant="body" color="textSecondary">
                       Search is unavailable right now. You can still choose from the artists below.
                     </AppText>
@@ -425,7 +424,7 @@ export default function OnboardingScreen() {
                 ) : null}
 
                 {!isSearching && query && suggestedArtists.length === 0 ? (
-                  <View className="rounded-2xl border p-5 items-center" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
+                  <View className="rounded-2xl p-5 items-center" style={{ backgroundColor: theme.surface }}>
                     <AppText variant="body" color="textSecondary">
                       No artists found. Try a different spelling.
                     </AppText>
@@ -444,10 +443,10 @@ export default function OnboardingScreen() {
                           style={{ width: '29%' }}
                         >
                           <View
-                            className={`w-18 h-18 rounded-full overflow-hidden border-2 items-center justify-center ${
-                              selected ? 'border-purple-500 bg-purple-950' : 'bg-zinc-800'
+                            className={`w-18 h-18 rounded-full overflow-hidden items-center justify-center ${
+                              selected ? 'bg-purple-950' : 'bg-zinc-800'
                             }`}
-                            style={!selected ? { borderColor: theme.border, backgroundColor: theme.surface } : undefined}
+                            style={!selected ? { backgroundColor: theme.surface } : undefined}
                           >
                             <ArtworkImage uri={artist.imageUrl} iconSize={22} className="w-full h-full" />
                             {selected ? (
@@ -480,7 +479,7 @@ export default function OnboardingScreen() {
         </ScrollView>
 
         {/* Bottom CTA Action Bar */}
-        <View className="py-4 border-t" style={{ borderTopColor: theme.border }}>
+        <View className="py-4">
           <AppButton
             title={step === 3 ? 'Start listening' : 'Continue'}
             onPress={next}

@@ -112,15 +112,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
           pointerEvents="none"
         >
           <View
-            className="flex-row items-center px-5 py-3 rounded-full border shadow-lg"
+            className="flex-row items-center px-5 py-3 rounded-full"
             style={{
               backgroundColor: theme.surfaceElevated,
-              borderColor: theme.isDark ? "rgba(155, 124, 255, 0.3)" : "rgba(155, 124, 255, 0.25)",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: theme.isDark ? 0.4 : 0.15,
-              shadowRadius: 8,
-              elevation: 6,
             }}
           >
             <Icon

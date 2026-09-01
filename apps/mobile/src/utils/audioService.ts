@@ -27,13 +27,6 @@ try {
   expoAudioModule = null;
 }
 
-let expoAvModule: any = null;
-try {
-  expoAvModule = require('expo-av');
-} catch (e) {
-  expoAvModule = null;
-}
-
 export async function initAudioSystem(): Promise<void> {
   try {
     if (expoAudioModule && expoAudioModule.requestNotificationPermissionsAsync) {
@@ -47,12 +40,6 @@ export async function initAudioSystem(): Promise<void> {
         playsInSilentMode: true,
         shouldPlayInBackground: true,
         interruptionMode: "doNotMix",
-      });
-    } else if (expoAvModule && expoAvModule.Audio && expoAvModule.Audio.setAudioModeAsync) {
-      await expoAvModule.Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-        shouldDuckAndroid: true,
       });
     }
   } catch {}
@@ -101,95 +88,11 @@ export function createUnifiedPlayer(streamUrl: string): AudioPlayerInstance {
         };
       }
     } catch (err) {
-      console.warn("expo-audio native player failed, trying fallback:", err);
+      console.warn("expo-audio native player failed, using fallback player:", err);
     }
   }
 
-  // 2. Try expo-av Audio.Sound player
-  if (expoAvModule && expoAvModule.Audio && expoAvModule.Audio.Sound) {
-    try {
-      let soundObj: any = new expoAvModule.Audio.Sound();
-      let isPlayingState = false;
-      let currentPos = 0;
-      let totalDur = 0;
-
-      soundObj.loadAsync({ uri: streamUrl }, { shouldPlay: true })
-        .then((status: any) => {
-          if (status.isLoaded) {
-            isPlayingState = status.isPlaying;
-            currentPos = (status.positionMillis || 0) / 1000;
-            totalDur = (status.durationMillis || 0) / 1000;
-          } else if (status.error) {
-            hasErrorState = true;
-            listeners.onError?.(status.error);
-          }
-        })
-        .catch((err: any) => {
-          console.warn("expo-av load failure:", err);
-          hasErrorState = true;
-          listeners.onError?.(err);
-        });
-
-      soundObj.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.isLoaded) {
-          const wasPlaying = isPlayingState;
-          isPlayingState = status.isPlaying;
-          currentPos = (status.positionMillis || 0) / 1000;
-          totalDur = (status.durationMillis || 0) / 1000;
-
-          // Detect audio interruption or headphone disconnection (sudden pause mid-track)
-          if (wasPlaying && !status.isPlaying && !status.didJustFinish && currentPos < totalDur - 1.5) {
-            listeners.onInterruption?.();
-          }
-        } else if (status.error) {
-          hasErrorState = true;
-          listeners.onError?.(status.error);
-        }
-      });
-
-      return {
-        play: () => {
-          soundObj?.playAsync().catch((err: any) => {
-            hasErrorState = true;
-            listeners.onError?.(err);
-          });
-          isPlayingState = true;
-        },
-        pause: () => {
-          soundObj?.pauseAsync().catch(() => {});
-          isPlayingState = false;
-        },
-        seekTo: (seconds: number) => {
-          soundObj?.setPositionAsync(seconds * 1000).catch(() => {});
-          currentPos = seconds;
-        },
-        get playing() {
-          return isPlayingState;
-        },
-        get currentTime() {
-          return currentPos;
-        },
-        get duration() {
-          return totalDur;
-        },
-        get hasError() {
-          return hasErrorState;
-        },
-        setActiveForLockScreen: () => {},
-        setRemoteCommandListeners: (l: RemoteCommandListeners) => {
-          listeners = l;
-        },
-        unload: () => {
-          soundObj?.unloadAsync().catch(() => {});
-          soundObj = null;
-        },
-      };
-    } catch (avErr) {
-      console.warn("expo-av player failed, using fallback player:", avErr);
-    }
-  }
-
-  // 3. Fallback web / mock player
+  // 2. Fallback web / mock player
   let mockPlaying = false;
   let mockTime = 0;
 

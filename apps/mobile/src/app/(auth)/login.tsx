@@ -82,7 +82,7 @@ export default function LoginScreen() {
         >
           {/* Header App Icon & Titles */}
           <View className="items-center mb-8">
-            <View className="w-20 h-20 rounded-3xl overflow-hidden border border-purple-500/30 bg-[#191428] items-center justify-center mb-4 shadow-lg shadow-purple-950/50">
+            <View className="w-20 h-20 rounded-3xl overflow-hidden bg-[#191428] items-center justify-center mb-4">
               <Image
                 source={JAMKUDI_LOGO}
                 style={{ width: '100%', height: '100%' }}
@@ -101,7 +101,7 @@ export default function LoginScreen() {
 
           {/* Form Error Banner */}
           {bannerError ? (
-            <View className="p-4 rounded-2xl bg-red-950/90 border border-red-500/60 flex-row items-center mb-6 shadow-md shadow-red-950/50">
+            <View className="p-4 rounded-2xl bg-red-950/90 flex-row items-center mb-6">
               <Icon name="alert-circle" size={22} color="#F87171" className="mr-3" />
               <AppText variant="caption" className="text-sm text-red-200 flex-1 font-semibold">
                 {bannerError}

@@ -87,8 +87,8 @@ export default function DownloadsScreen() {
       <View className="flex-row items-center justify-between mt-2 mb-3">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full items-center justify-center border active:scale-[0.95]"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="w-10 h-10 rounded-full items-center justify-center active:scale-[0.95]"
+          style={{ backgroundColor: theme.surface }}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
@@ -110,8 +110,8 @@ export default function DownloadsScreen() {
       {/* Search Input */}
       {downloadedSongs.length > 0 && (
         <View
-          className="px-3.5 h-11 rounded-2xl flex-row items-center mb-3.5 border"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="px-3.5 h-11 rounded-2xl flex-row items-center mb-3.5"
+          style={{ backgroundColor: theme.surface }}
         >
           <Icon name="search" size={18} color={theme.textMuted} />
           <TextInput
@@ -136,7 +136,7 @@ export default function DownloadsScreen() {
         <View className="mb-4 flex-row items-center justify-between">
           <Pressable
             onPress={handlePlayAll}
-            className="px-5 py-2.5 rounded-full bg-[#9B7CFF] flex-row items-center active:scale-[0.95] shadow-md shadow-purple-950/20"
+            className="px-5 py-2.5 rounded-full bg-[#9B7CFF] flex-row items-center active:scale-[0.95]"
             accessibilityRole="button"
             accessibilityLabel="Play all offline songs"
           >
@@ -146,7 +146,7 @@ export default function DownloadsScreen() {
             </AppText>
           </Pressable>
 
-          <View className="flex-row items-center px-3 py-1.5 rounded-full bg-purple-950/40 border border-purple-500/30">
+          <View className="flex-row items-center px-3 py-1.5 rounded-full bg-purple-950/40">
             <Icon name="check-circle" size={14} color="#9B7CFF" />
             <AppText className="ml-1.5 text-xs font-bold text-purple-300">
               Available Offline

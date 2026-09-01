@@ -26,7 +26,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
           variant="sectionTitle"
           className="text-xl tracking-tight"
           style={{
-            fontFamily: FontFamily.fredoka.semiBold,
+            fontFamily: FontFamily.nunito.semiBold,
             color: theme.text,
           }}
         >

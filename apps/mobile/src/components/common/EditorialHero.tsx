@@ -34,30 +34,40 @@ export const EditorialHero: React.FC<EditorialHeroProps> = ({
   return (
     <Pressable
       onPress={onPress || onPlayPress}
-      className={`w-full py-4 px-1 rounded-[32px] flex-row items-center justify-between active:opacity-95 ${className}`}
-      style={style}
+      className={`w-full p-4 rounded-3xl flex-row items-center justify-between shadow-lg relative overflow-hidden active:scale-[0.985] ${className}`}
+      style={[
+        { backgroundColor: theme.isDark ? "#1E1832" : theme.surfaceElevated },
+        style,
+      ]}
     >
-      <View className="flex-row items-center flex-1 mr-4 min-w-0">
-        {/* Floating borderless artwork */}
-        <View className="w-24 h-24 rounded-2xl overflow-hidden mr-4 shrink-0 shadow-lg shadow-black/10">
+      {/* Ambient Radial Accent Glow */}
+      <View className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-purple-500/15 pointer-events-none" />
+
+      <View className="flex-row items-center flex-1 mr-3 min-w-0">
+        {/* Artwork */}
+        <View
+          className="w-24 h-24 rounded-2xl overflow-hidden mr-4 shrink-0 shadow-md"
+          style={{ backgroundColor: theme.surfacePressed }}
+        >
           <ArtworkImage uri={artworkUri} width={96} height={96} iconSize={32} />
         </View>
 
-        <View className="flex-1 min-w-0">
+        {/* Content Header */}
+        <View className="flex-1 min-w-0 justify-center">
           {badge ? (
-            <AppText
-              variant="caption"
-              color="textSecondary"
-              className="text-[10px] font-bold uppercase tracking-widest mb-1"
-            >
-              {badge}
-            </AppText>
+            <View className="self-start px-2.5 py-0.5 rounded-full bg-purple-500/15 mb-2">
+              <AppText
+                variant="caption"
+                className="text-[10px] font-black uppercase tracking-widest text-purple-300"
+              >
+                {badge}
+              </AppText>
+            </View>
           ) : null}
 
           <AppText
             variant="screenTitle"
-            color="textPrimary"
-            className="text-lg font-bold tracking-tight mb-1"
+            className="text-lg font-black tracking-tight mb-1 text-purple-200"
             numberOfLines={2}
           >
             {title}
@@ -67,7 +77,7 @@ export const EditorialHero: React.FC<EditorialHeroProps> = ({
             <AppText
               variant="artist"
               color="textSecondary"
-              className="text-xs font-medium"
+              className="text-xs font-semibold"
               numberOfLines={1}
             >
               {subtitle}
@@ -76,10 +86,13 @@ export const EditorialHero: React.FC<EditorialHeroProps> = ({
         </View>
       </View>
 
+      {/* Play Action Button */}
       {onPlayPress ? (
         <Pressable
           onPress={onPlayPress}
-          className="w-12 h-12 rounded-full items-center justify-center bg-[#9B7CFF] shrink-0 active:scale-[0.95] shadow-md shadow-purple-950/20"
+          className="w-13 h-13 rounded-full items-center justify-center bg-purple-600 shrink-0 shadow-md active:scale-[0.90] active:bg-purple-700"
+          accessibilityRole="button"
+          accessibilityLabel={isPlaying ? "Pause" : "Play"}
         >
           <Icon name={isPlaying ? "pause" : "play"} size={22} color="#FFFFFF" />
         </Pressable>

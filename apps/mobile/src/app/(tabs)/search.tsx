@@ -267,8 +267,8 @@ export default function SearchScreen() {
 
       {/* Search Input Box */}
       <View
-        className="flex-row items-center px-4 h-12 rounded-2xl border mb-5"
-        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+        className="flex-row items-center px-4 h-12 rounded-2xl mb-5"
+        style={{ backgroundColor: theme.surface }}
       >
         <Icon name="search" size={20} color={theme.textSecondary} />
 
@@ -316,8 +316,8 @@ export default function SearchScreen() {
             {recentSearches.map((term) => (
               <View
                 key={term}
-                className="flex-row items-center rounded-full border pl-3.5 pr-1.5 py-1.5 active:scale-[0.96]"
-                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                className="flex-row items-center rounded-full pl-3.5 pr-1.5 py-1.5 active:scale-[0.96]"
+                style={{ backgroundColor: theme.surface }}
               >
                 <Pressable
                   onPress={() => handleSelectRecentQuery(term)}
@@ -362,12 +362,12 @@ export default function SearchScreen() {
                 <Pressable
                   key={cat.id}
                   onPress={() => handleSelectCategory(cat.label)}
-                  className={`px-4 py-2 rounded-full border active:scale-[0.96] ${
+                  className={`px-4 py-2 rounded-full active:scale-[0.96] ${
                     isActive
-                      ? "bg-purple-600 border-purple-500 shadow-md shadow-purple-950/30"
+                      ? "bg-purple-600"
                       : ""
                   }`}
-                  style={!isActive ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
+                  style={!isActive ? { backgroundColor: theme.surface } : undefined}
                 >
                   <AppText
                     variant="caption"
@@ -424,7 +424,7 @@ export default function SearchScreen() {
           </AppText>
           <Pressable
             onPress={handleRetrySearch}
-            className="px-5 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40"
+            className="px-5 py-2.5 rounded-full bg-purple-600 active:bg-purple-700"
             accessibilityRole="button"
             accessibilityLabel="Try search again"
           >
@@ -457,11 +457,11 @@ export default function SearchScreen() {
                       <Pressable
                         key={artist.id}
                         onPress={() => router.push(`/artist/${encodeURIComponent(artist.query)}` as any)}
-                        className="w-44 flex-row items-center p-2.5 rounded-2xl border active:scale-[0.96] pr-3"
-                        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                        className="w-44 flex-row items-center p-2.5 rounded-2xl active:scale-[0.96] pr-3"
+                        style={{ backgroundColor: theme.surface }}
                       >
                         <View
-                          className="w-11 h-11 rounded-full overflow-hidden mr-2.5 border border-purple-500/40 shrink-0"
+                          className="w-11 h-11 rounded-full overflow-hidden mr-2.5 shrink-0"
                           style={{ backgroundColor: theme.surfacePressed }}
                         >
                           <ArtworkImage uri={artist.imageUrl} iconSize={18} className="w-full h-full" />
@@ -499,8 +499,8 @@ export default function SearchScreen() {
                         className="w-32 active:scale-[0.96]"
                       >
                         <View
-                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
-                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2"
+                          style={{ backgroundColor: theme.surface }}
                         >
                           <ArtworkImage uri={album.artwork} iconSize={24} className="w-full h-full" />
                         </View>
@@ -535,8 +535,8 @@ export default function SearchScreen() {
                         className="w-32 active:scale-[0.96]"
                       >
                         <View
-                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
-                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                          className="w-32 h-32 rounded-2xl overflow-hidden mb-2"
+                          style={{ backgroundColor: theme.surface }}
                         >
                           <ArtworkImage uri={playlist.artwork} iconSize={24} className="w-full h-full" />
                         </View>
@@ -572,8 +572,8 @@ export default function SearchScreen() {
                 ) : paginationError ? (
                   <Pressable
                     onPress={handleLoadMoreSongs}
-                    className="px-4 py-2 rounded-full border active:opacity-80"
-                    style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                    className="px-4 py-2 rounded-full active:opacity-80"
+                    style={{ backgroundColor: theme.surface }}
                   >
                     <AppText className="text-xs text-purple-400 font-bold">
                       Couldn't load more. Tap to retry
@@ -607,11 +607,11 @@ export default function SearchScreen() {
             return (
               <Pressable
                 onPress={() => handleSelectSong(item, index)}
-                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 active:scale-[0.99]"
                 style={
                   isCurrent
-                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                    : { backgroundColor: theme.surface, borderColor: theme.border }
+                    ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed }
+                    : { backgroundColor: theme.surface }
                 }
               >
                 {/* Artwork */}
@@ -676,7 +676,7 @@ export default function SearchScreen() {
                       addToQueue(item, "search");
                       showToast(`Added to queue: ${item.title}`, "info");
                     }}
-                    className="px-2.5 py-1 rounded-full bg-purple-600/20 active:bg-purple-600/40 border border-purple-500/40"
+                    className="px-2.5 py-1 rounded-full bg-purple-600/20 active:bg-purple-600/40"
                     hitSlop={4}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to queue`}
@@ -691,8 +691,8 @@ export default function SearchScreen() {
                       setSelectedSongForPlaylist(item);
                       setShowAddToPlaylistModal(true);
                     }}
-                    className="w-7 h-7 rounded-full border items-center justify-center active:opacity-75"
-                    style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+                    className="w-7 h-7 rounded-full items-center justify-center active:opacity-75"
+                    style={{ backgroundColor: theme.surfacePressed }}
                     hitSlop={6}
                     accessibilityRole="button"
                     accessibilityLabel={`Add ${item.title} to playlist`}

@@ -26,8 +26,8 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   return (
     <View className={`items-center justify-center p-6 my-4 ${className}`} style={style}>
       <View
-        className="w-14 h-14 rounded-2xl items-center justify-center mb-3 border"
-        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+        className="w-14 h-14 rounded-2xl items-center justify-center mb-3"
+        style={{ backgroundColor: theme.surface }}
       >
         <Icon name="alert-circle" size={26} color="#EFAFC6" />
       </View>

@@ -31,12 +31,6 @@ export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const getBorderColor = () => {
-    if (error) return '#EF4444';
-    if (isFocused) return theme.primary;
-    return theme.border;
-  };
-
   const getBackgroundColor = () => {
     if (isFocused) return theme.surfacePressed;
     return theme.surface;
@@ -56,9 +50,8 @@ export const AuthInput = forwardRef<RNTextInput, AuthInputProps>(({
             ref.current.focus();
           }
         }}
-        className="w-full h-14 px-4 rounded-2xl border flex-row items-center justify-between"
+        className="w-full h-14 px-4 rounded-2xl flex-row items-center justify-between"
         style={{
-          borderColor: getBorderColor(),
           backgroundColor: getBackgroundColor(),
         }}
       >

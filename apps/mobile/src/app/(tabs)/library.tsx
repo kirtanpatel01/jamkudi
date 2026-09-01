@@ -146,8 +146,8 @@ export default function LibraryScreen() {
       {/* 2. Library Search Bar (Primary interaction placed before filters) */}
       {!isLibraryEmpty ? (
         <View
-          className="h-12 px-4 rounded-2xl border flex-row items-center mb-3"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="h-12 px-4 rounded-2xl flex-row items-center mb-3"
+          style={{ backgroundColor: theme.surface }}
         >
           <Icon name="search" size={18} color={theme.textMuted} />
           <TextInput
@@ -190,8 +190,8 @@ export default function LibraryScreen() {
       {/* Complete Empty Library State */}
       {isLibraryEmpty ? (
         <View
-          className="py-12 items-center px-6 rounded-3xl border my-4"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="py-12 items-center px-6 rounded-3xl my-4"
+          style={{ backgroundColor: theme.surface }}
         >
           <EmptyState
             title="It's a little quiet here"
@@ -208,10 +208,9 @@ export default function LibraryScreen() {
             <View className="mb-4">
               <Pressable
                 onPress={() => router.push("/downloads" as any)}
-                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border active:scale-[0.98]"
+                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden active:scale-[0.98]"
                 style={{
                   backgroundColor: theme.surface,
-                  borderColor: theme.border,
                 }}
               >
                 <View className="flex-row items-center flex-1 mr-3">
@@ -234,7 +233,7 @@ export default function LibraryScreen() {
                   </View>
                 </View>
 
-                <View className="w-10 h-10 rounded-full items-center justify-center bg-purple-950/60 border border-purple-500/30">
+                <View className="w-10 h-10 rounded-full items-center justify-center bg-purple-950/60">
                   <Icon name="chevron-right" size={18} color="#9B7CFF" />
                 </View>
               </Pressable>
@@ -246,10 +245,9 @@ export default function LibraryScreen() {
             <View className="mb-6">
               <Pressable
                 onPress={handlePlayLiked}
-                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden border active:scale-[0.98]"
+                className="w-full rounded-3xl p-5 flex-row items-center justify-between overflow-hidden active:scale-[0.98]"
                 style={{
                   backgroundColor: theme.surface,
-                  borderColor: theme.border,
                 }}
               >
                 <View className="flex-row items-center flex-1 mr-3">
@@ -293,11 +291,11 @@ export default function LibraryScreen() {
                       <Pressable
                         key={`liked-${item.id}-${idx}`}
                         onPress={() => handlePlayLikedSong(item, idx)}
-                        className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 border active:scale-[0.99]"
+                        className="flex-row items-center py-2.5 px-3 rounded-2xl mb-1.5 active:scale-[0.99]"
                         style={
                           isCurrent
-                            ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed, borderColor: 'rgba(168, 85, 247, 0.6)' }
-                            : { backgroundColor: theme.surface, borderColor: theme.border }
+                            ? { backgroundColor: theme.isDark ? '#221A35' : theme.surfacePressed }
+                            : { backgroundColor: theme.surface }
                         }
                       >
                         <View
@@ -344,7 +342,7 @@ export default function LibraryScreen() {
                               addToQueue(item, "library");
                               showToast(`Added to queue: ${item.title}`, "info");
                             }}
-                            className="px-2.5 py-1 rounded-full bg-purple-600/20 active:bg-purple-600/40 border border-purple-500/40"
+                            className="px-2.5 py-1 rounded-full bg-purple-600/20 active:bg-purple-600/40"
                             hitSlop={4}
                           >
                             <AppText className="text-[10px] text-purple-300 font-bold">+ Queue</AppText>
@@ -387,13 +385,13 @@ export default function LibraryScreen() {
                         className="w-32 active:scale-[0.96]"
                       >
                         <View
-                          className="relative w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
-                          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                          className="relative w-32 h-32 rounded-2xl overflow-hidden mb-2"
+                          style={{ backgroundColor: theme.surface }}
                         >
                           <ArtworkImage uri={item.artwork} iconSize={24} className="w-full h-full" />
                           {isCurrent && (
                             <View className="absolute inset-0 bg-black/60 items-center justify-center">
-                              <View className="w-9 h-9 rounded-full bg-purple-600 items-center justify-center shadow-md">
+                              <View className="w-9 h-9 rounded-full bg-purple-600 items-center justify-center">
                                 <Icon
                                   name={isPlaying ? "pause" : "play"}
                                   size={18}
@@ -420,8 +418,8 @@ export default function LibraryScreen() {
                 </ScrollView>
               ) : (
                 <View
-                  className="py-7 items-center px-4 rounded-2xl border"
-                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                  className="py-7 items-center px-4 rounded-2xl"
+                  style={{ backgroundColor: theme.surface }}
                 >
                   <Icon name="clock" size={24} color={theme.textMuted} />
                   <AppText variant="songTitle" className="text-xs font-bold text-center mt-2 mb-0.5">
@@ -445,7 +443,7 @@ export default function LibraryScreen() {
                 <View className="flex-row items-center gap-x-2">
                   <Pressable
                     onPress={() => setShowSpotifyImportModal(true)}
-                    className="flex-row items-center gap-x-1.5 px-3 py-1.5 rounded-full bg-emerald-600/20 border border-emerald-500/40 active:bg-emerald-600/40 active:scale-[0.96]"
+                    className="flex-row items-center gap-x-1.5 px-3 py-1.5 rounded-full bg-emerald-600/20 active:bg-emerald-600/40 active:scale-[0.96]"
                     accessibilityRole="button"
                     accessibilityLabel="Import Spotify Playlist"
                   >
@@ -455,7 +453,7 @@ export default function LibraryScreen() {
 
                   <Pressable
                     onPress={() => setShowCreateModal(true)}
-                    className="flex-row items-center gap-x-1.5 px-3 py-1.5 rounded-full bg-purple-600 active:bg-purple-700 shadow-md shadow-purple-950/40 active:scale-[0.96]"
+                    className="flex-row items-center gap-x-1.5 px-3 py-1.5 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.96]"
                     accessibilityRole="button"
                     accessibilityLabel="Create Playlist"
                   >
@@ -479,8 +477,8 @@ export default function LibraryScreen() {
                       className="w-32 active:scale-[0.96]"
                     >
                       <View
-                        className="w-32 h-32 rounded-2xl overflow-hidden mb-2 border shadow-md shadow-purple-950/30"
-                        style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                        className="w-32 h-32 rounded-2xl overflow-hidden mb-2"
+                        style={{ backgroundColor: theme.surface }}
                       >
                         <ArtworkImage uri={playlist.imageUrl} iconSize={24} className="w-full h-full" />
                       </View>
@@ -495,8 +493,8 @@ export default function LibraryScreen() {
                 </ScrollView>
               ) : (
                 <View
-                  className="py-7 items-center px-4 rounded-2xl border"
-                  style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+                  className="py-7 items-center px-4 rounded-2xl"
+                  style={{ backgroundColor: theme.surface }}
                 >
                   <Icon name="music" size={24} color={theme.textMuted} />
                   <AppText variant="songTitle" className="text-xs font-bold text-center mt-2 mb-0.5">

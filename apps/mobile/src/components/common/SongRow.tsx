@@ -6,7 +6,6 @@ import { IconButton } from "@/components/common/IconButton";
 import { Icon } from "@/components/common/Icon";
 import { useTheme } from "@/hooks/useTheme";
 import { View, Pressable } from "@/tw";
-
 import { DownloadButton } from "@/components/common/DownloadButton";
 
 export interface SongRowProps {
@@ -45,13 +44,13 @@ export const SongRow: React.FC<SongRowProps> = ({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Play ${title} by ${artist}`}
-      className={`flex-row items-center py-2 px-1 my-0.5 rounded-2xl ${className}`}
+      className={`flex-row items-center p-2.5 my-1 rounded-2xl active:scale-[0.99] active:opacity-90 ${className}`}
       style={({ pressed }) => [
         {
           backgroundColor: isPlaying
             ? theme.isDark
-              ? "rgba(155, 124, 255, 0.12)"
-              : "rgba(155, 124, 255, 0.08)"
+              ? "rgba(155, 124, 255, 0.16)"
+              : "rgba(155, 124, 255, 0.1)"
             : pressed
             ? theme.surfacePressed
             : "transparent",
@@ -59,31 +58,55 @@ export const SongRow: React.FC<SongRowProps> = ({
         style,
       ]}
     >
-      <ArtworkImage
-        uri={artworkUri}
-        width={48}
-        height={48}
-        className="rounded-xl overflow-hidden shrink-0"
-        accessibilityLabel={`${title} cover`}
-      />
+      {/* Artwork Container */}
+      <View
+        className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm"
+        style={{ backgroundColor: theme.surfacePressed }}
+      >
+        <ArtworkImage
+          uri={artworkUri}
+          width={48}
+          height={48}
+          className="w-full h-full"
+          accessibilityLabel={`${title} cover`}
+        />
+        {isPlaying && (
+          <View className="absolute inset-0 bg-black/45 items-center justify-center">
+            <Icon name="pause" size={18} color="#C084FC" />
+          </View>
+        )}
+      </View>
+
+      {/* Song Title & Artist */}
       <View className="flex-1 ml-3.5 justify-center min-w-0 mr-2">
         <AppText
           variant="songTitle"
           numberOfLines={1}
           color={isPlaying ? theme.primary : "textPrimary"}
-          className={`text-sm ${isPlaying ? "font-bold" : "font-semibold"}`}
+          className={`text-sm ${isPlaying ? "font-black text-purple-300" : "font-bold"}`}
         >
           {title}
         </AppText>
-        <AppText variant="artist" numberOfLines={1} color="textSecondary" className="text-xs mt-0.5">
+        <AppText
+          variant="artist"
+          numberOfLines={1}
+          color="textSecondary"
+          className="text-xs font-medium mt-0.5"
+        >
           {artist}
         </AppText>
       </View>
+
+      {/* Duration Badge */}
       {duration && (
-        <AppText variant="caption" color="textMuted" className="mr-2 text-xs">
-          {duration}
-        </AppText>
+        <View className="px-2 py-0.5 rounded-md bg-white/5 mr-2 shrink-0">
+          <AppText variant="caption" color="textMuted" className="text-[11px] font-semibold">
+            {duration}
+          </AppText>
+        </View>
       )}
+
+      {/* Download Action */}
       {(onDownloadPress || songId) && (
         <DownloadButton
           songId={songId || title}
@@ -91,6 +114,8 @@ export const SongRow: React.FC<SongRowProps> = ({
           size="sm"
         />
       )}
+
+      {/* Options Button */}
       {onOptionsPress && (
         <IconButton
           name="settings"

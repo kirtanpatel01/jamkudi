@@ -19,8 +19,8 @@ export const Colors = {
     text: "#202033",
     icon: "#5F5B69",
 
-    border: "#EEE9E3",
-    divider: "#F6F2ED",
+    border: "transparent",
+    divider: "transparent",
 
     favorite: "#EFAFC6",
     success: "#10B981",
@@ -56,8 +56,8 @@ export const Colors = {
     text: "#F5F2EE",
     icon: "#C8C5CD",
 
-    border: "#262B45",
-    divider: "#1B1F34",
+    border: "transparent",
+    divider: "transparent",
 
     favorite: "#EFAFC6",
     success: "#34D399",
@@ -78,10 +78,10 @@ export type ThemeColors = typeof Colors.light;
 
 export const FontFamily = {
   fredoka: {
-    regular: "Fredoka_400Regular",
-    medium: "Fredoka_500Medium",
-    semiBold: "Fredoka_600SemiBold",
-    bold: "Fredoka_700Bold",
+    regular: "Nunito_400Regular",
+    medium: "Nunito_500Medium",
+    semiBold: "Nunito_600SemiBold",
+    bold: "Nunito_700Bold",
   },
   nunito: {
     regular: "Nunito_400Regular",
@@ -96,12 +96,12 @@ export const Fonts = FontFamily;
 
 export const Typography = {
   screenTitle: {
-    fontFamily: FontFamily.fredoka.bold,
+    fontFamily: FontFamily.nunito.bold,
     fontSize: 28,
     lineHeight: 34,
   },
   sectionTitle: {
-    fontFamily: FontFamily.fredoka.semiBold,
+    fontFamily: FontFamily.nunito.semiBold,
     fontSize: 20,
     lineHeight: 26,
   },

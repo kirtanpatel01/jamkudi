@@ -24,7 +24,6 @@
       "package": "com.kjpatel.jamkudi",
       "permissions": [
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
         "android.permission.WAKE_LOCK"
       ]
     },
@@ -52,11 +51,11 @@
         {
           "enableBackgroundPlayback": true
         }
-      ]
+      ],
+      "expo-image"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     },
     "extra": {
       "router": {},

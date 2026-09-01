@@ -97,8 +97,8 @@ export default function PlayerScreen() {
           <Pressable
             onPress={() => router.back()}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-75"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="w-10 h-10 items-center justify-center rounded-full active:opacity-75"
+            style={{ backgroundColor: theme.surface }}
           >
             <Icon name="chevron-down" size={24} color={theme.textPrimary} />
           </Pressable>
@@ -124,8 +124,8 @@ export default function PlayerScreen() {
           <Pressable
             onPress={handleToggleLike}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-75"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="w-10 h-10 items-center justify-center rounded-full active:opacity-75"
+            style={{ backgroundColor: theme.surface }}
             accessibilityLabel={liked ? "Unlike Song" : "Like Song"}
           >
             <Icon
@@ -139,8 +139,8 @@ export default function PlayerScreen() {
         {/* Album Artwork */}
         <View className="items-center my-3">
           <View
-            className="rounded-3xl overflow-hidden border shadow-2xl shadow-purple-950/40"
-            style={{ width: ARTWORK_SIZE, height: ARTWORK_SIZE, backgroundColor: theme.surface, borderColor: theme.border }}
+            className="rounded-3xl overflow-hidden"
+            style={{ width: ARTWORK_SIZE, height: ARTWORK_SIZE, backgroundColor: theme.surface }}
           >
             <ArtworkImage
               uri={currentTrack?.artwork}
@@ -161,7 +161,7 @@ export default function PlayerScreen() {
                 {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
               </AppText>
               {currentTrack && isSongDownloaded(currentTrack.id) && (
-                <View className="px-2 py-0.5 rounded-full bg-purple-950/40 border border-purple-500/30">
+                <View className="px-2 py-0.5 rounded-full bg-purple-950/40">
                   <AppText className="text-[10px] font-bold text-purple-300">
                     Offline
                   </AppText>
@@ -195,7 +195,7 @@ export default function PlayerScreen() {
             maximumValue={maxDuration}
             value={displayPosition}
             minimumTrackTintColor={theme.primary}
-            maximumTrackTintColor={theme.border}
+            maximumTrackTintColor={theme.isDark ? "rgba(255,255,255,0.12)" : theme.surfacePressed}
             thumbTintColor={theme.primary}
             onValueChange={(val) => {
               setIsSliding(true);
@@ -296,8 +296,8 @@ export default function PlayerScreen() {
         <View className="flex-row items-center justify-center gap-x-3 pt-1">
           <Pressable
             onPress={() => setShowQueue(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="flex-row items-center px-4 py-2.5 rounded-full active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface }}
           >
             <Icon name="library" size={15} color="#C084FC" />
             <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">
@@ -307,8 +307,8 @@ export default function PlayerScreen() {
 
           <Pressable
             onPress={() => setShowAddToPlaylist(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="flex-row items-center px-4 py-2.5 rounded-full active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface }}
           >
             <Icon name="plus" size={15} color="#C084FC" />
             <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">
@@ -318,8 +318,8 @@ export default function PlayerScreen() {
 
           <Pressable
             onPress={() => setShowLyrics(true)}
-            className="flex-row items-center px-4 py-2.5 rounded-full border active:scale-[0.96]"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="flex-row items-center px-4 py-2.5 rounded-full active:scale-[0.96]"
+            style={{ backgroundColor: theme.surface }}
           >
             <Icon name="music" size={15} color="#C084FC" />
             <AppText variant="caption" color="textPrimary" className="ml-2 text-xs font-bold">

@@ -12,6 +12,7 @@ import {
   previewSpotifyImport,
   SpotifyPlaylistPreviewResult,
 } from "@/services/spotifyImportService";
+import { JioSaavnSong } from "@/services/jiosaavn";
 import { View, Pressable, TextInput } from "@/tw";
 
 interface SpotifyImportModalProps {
@@ -100,52 +101,53 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
     try {
       const result = await previewSpotifyImport(trimmed);
       setPreviewResult(result);
-      setNewPlaylistName(result.playlistInfo.name);
-      setActiveTrackTab("MATCHED");
+      setNewPlaylistName(result.playlistInfo.name || "Imported Spotify Playlist");
       setStep("PREVIEW");
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to fetch Spotify playlist. Please check the URL.");
+      setErrorMsg(err.message || "Failed to fetch Spotify playlist. Make sure the playlist is public.");
     } finally {
       setLoadingPreview(false);
     }
   };
 
   const handleStartImport = async () => {
-    if (!previewResult || previewResult.matchedTracks.length === 0) {
-      showToast("No matched songs available to import", "error");
-      return;
-    }
+    if (!previewResult) return;
 
     setStep("IMPORTING");
-    setImportProgress(0);
+    setImportProgress(10);
 
     let targetId = selectedDestination;
     if (selectedDestination === "NEW") {
-      const plName = newPlaylistName.trim() || previewResult.playlistInfo.name;
-      const created = await createPlaylist(plName, `Imported from Spotify: ${previewResult.playlistInfo.name}`);
+      const created = await createPlaylist(
+        newPlaylistName.trim() || previewResult.playlistInfo.name || "Spotify Import",
+        `Imported from Spotify playlist (${previewResult.playlistInfo.name})`
+      );
       targetId = created.id;
     }
 
-    let addedCount = 0;
-    let duplicateCount = 0;
-    const totalToImport = previewResult.matchedTracks.length;
+    setImportProgress(30);
 
-    for (let i = 0; i < totalToImport; i++) {
-      const matchItem = previewResult.matchedTracks[i];
-      if (matchItem.jamkudiTrack) {
-        const res = await addTrackToPlaylist(targetId, matchItem.jamkudiTrack);
-        if (res.isDuplicate) {
-          duplicateCount++;
-        } else if (res.success) {
-          addedCount++;
-        }
-      }
-      setImportProgress(i + 1);
+    const tracksToAdd = previewResult.matchedTracks
+      .map((m) => m.jamkudiTrack)
+      .filter((t): t is JioSaavnSong => Boolean(t));
+    let addedCount = 0;
+    let dupCount = 0;
+
+    const total = tracksToAdd.length;
+    for (let i = 0; i < total; i++) {
+      const song = tracksToAdd[i];
+      const { success, isDuplicate } = await addTrackToPlaylist(targetId, song);
+      if (isDuplicate) dupCount++;
+      else if (success) addedCount++;
+
+      const progress = 30 + Math.round(((i + 1) / total) * 65);
+      setImportProgress(progress);
     }
 
+    setImportProgress(100);
     setImportSummary({
       added: addedCount,
-      duplicates: duplicateCount,
+      duplicates: dupCount,
       unmatched: previewResult.unmatchedTracks.length,
       targetPlaylistId: targetId,
     });
@@ -162,23 +164,25 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
     >
       <Pressable
         onPress={handleClose}
-        className="flex-1 bg-black/75 justify-end"
+        className="flex-1 bg-black/80 justify-end"
       >
         <Pressable
           onPress={(e) => e.stopPropagation()}
-          className="w-full rounded-t-3xl p-6 border-t shadow-2xl max-h-[85%]"
+          className="w-full rounded-t-[32px] p-6 max-h-[85%] shadow-2xl"
           style={{
             backgroundColor: theme.surfaceElevated,
-            borderColor: theme.border,
           }}
         >
+          {/* Sheet Handle Bar */}
+          <View className="w-12 h-1.5 rounded-full bg-white/20 self-center mb-4 -mt-1" />
+
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center gap-x-2">
-              <View className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 items-center justify-center">
-                <Icon name="music" size={16} color="#22C55E" />
+            <View className="flex-row items-center gap-x-2.5">
+              <View className="w-9 h-9 rounded-2xl bg-green-500/20 items-center justify-center">
+                <Icon name="music" size={18} color="#22C55E" />
               </View>
-              <AppText variant="songTitle" color="textPrimary" className="text-base font-bold">
+              <AppText variant="songTitle" color="textPrimary" className="text-lg font-black">
                 Import from Spotify
               </AppText>
             </View>
@@ -186,29 +190,29 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
             <Pressable
               onPress={handleClose}
               disabled={step === "IMPORTING"}
-              className="p-1 rounded-full active:opacity-70"
+              className="w-9 h-9 rounded-full items-center justify-center active:opacity-70 active:scale-[0.95]"
+              style={{ backgroundColor: theme.surfacePressed }}
               hitSlop={8}
             >
-              <AppText variant="caption" color="textMuted" className="text-xs font-bold px-1">✕</AppText>
+              <Icon name="x" size={16} color={theme.textPrimary} />
             </Pressable>
           </View>
 
           {/* STEP 1: URL Input */}
           {step === "INPUT" && (
             <View className="py-2">
-              <AppText variant="caption" color="textSecondary" className="text-xs font-medium mb-3">
-                Paste a Spotify playlist URL to read its songs and match them to Jamkudi's music source.
+              <AppText variant="caption" color="textSecondary" className="text-xs font-semibold mb-4 leading-5">
+                Paste a public Spotify playlist URL to match its songs to Jamkudi's catalog.
               </AppText>
 
-              <AppText variant="caption" color="textSecondary" className="text-[11px] uppercase tracking-wider font-bold mb-1.5">
-                Spotify Playlist Link *
+              <AppText variant="caption" color="textSecondary" className="text-[11px] uppercase tracking-widest font-black mb-1.5 ml-1 text-purple-300">
+                SPOTIFY PLAYLIST LINK *
               </AppText>
 
               <View
-                className="flex-row items-center px-3.5 h-11 rounded-xl border mb-3"
+                className="flex-row items-center px-4 h-12 rounded-2xl mb-4 shadow-inner"
                 style={{
                   backgroundColor: theme.background,
-                  borderColor: errorMsg ? "#EF4444" : theme.border,
                 }}
               >
                 <TextInput
@@ -219,7 +223,7 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
                   }}
                   placeholder="https://open.spotify.com/playlist/..."
                   placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
-                  className="flex-1 text-xs font-medium h-full"
+                  className="flex-1 text-xs font-semibold h-full py-0"
                   style={{ color: theme.textPrimary }}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -227,10 +231,9 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
 
                 <Pressable
                   onPress={handlePasteUrl}
-                  className="px-2 py-1 rounded-md active:opacity-75 border"
-                  style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+                  className="px-3 py-1.5 rounded-xl bg-purple-600/20 active:bg-purple-600/30 active:scale-[0.95]"
                 >
-                  <AppText variant="caption" color="textPrimary" className="text-[10px] font-bold">Paste</AppText>
+                  <AppText variant="caption" className="text-xs font-black text-purple-300">Paste</AppText>
                 </Pressable>
               </View>
 
@@ -243,14 +246,14 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
               <Pressable
                 onPress={handleFetchPreview}
                 disabled={loadingPreview}
-                className="py-3 rounded-full bg-green-600 active:bg-green-700 shadow-md items-center flex-row justify-center gap-x-2 mt-2"
+                className="py-3.5 rounded-full bg-green-600 active:bg-green-700 active:scale-[0.95] items-center flex-row justify-center gap-x-2 mt-2 shadow-lg"
               >
                 {loadingPreview ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
                   <>
-                    <Icon name="search" size={16} color="#FFFFFF" />
-                    <AppText className="text-xs font-bold text-white">Fetch Playlist</AppText>
+                    <Icon name="search" size={18} color="#FFFFFF" />
+                    <AppText className="text-xs font-black text-white uppercase tracking-wider">Fetch Playlist</AppText>
                   </>
                 )}
               </Pressable>
@@ -261,16 +264,16 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
           {step === "PREVIEW" && previewResult && (
             <ScrollView showsVerticalScrollIndicator={false} className="max-h-[500px]">
               {/* Spotify Playlist Preview Header */}
-              <View className="flex-row items-center p-3.5 rounded-2xl border mb-4" style={{ backgroundColor: theme.surface, borderColor: theme.border }}>
-                <View className="w-14 h-14 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
+              <View className="flex-row items-center p-4 rounded-2xl mb-4 shadow-sm" style={{ backgroundColor: theme.surface }}>
+                <View className="w-14 h-14 rounded-2xl overflow-hidden mr-3.5 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
                   <ArtworkImage uri={previewResult.playlistInfo.artwork} iconSize={24} className="w-full h-full" />
                 </View>
 
                 <View className="flex-1 min-w-0">
-                  <AppText variant="songTitle" color="textPrimary" className="text-base font-bold mb-0.5" numberOfLines={1}>
+                  <AppText variant="songTitle" color="textPrimary" className="text-base font-black mb-0.5" numberOfLines={1}>
                     {previewResult.playlistInfo.name}
                   </AppText>
-                  <AppText variant="artist" color="textSecondary" className="text-xs font-medium" numberOfLines={1}>
+                  <AppText variant="artist" color="textSecondary" className="text-xs font-semibold" numberOfLines={1}>
                     By {previewResult.playlistInfo.owner} • {previewResult.playlistInfo.totalTracks} songs
                   </AppText>
                 </View>
@@ -280,17 +283,17 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
               <View className="flex-row items-center gap-x-2 mb-4">
                 <Pressable
                   onPress={() => setActiveTrackTab("MATCHED")}
-                  className={`flex-1 flex-row items-center px-3 py-2.5 rounded-xl border active:opacity-80 ${
+                  className={`flex-1 flex-row items-center px-3.5 py-2.5 rounded-2xl active:opacity-80 ${
                     activeTrackTab === "MATCHED"
-                      ? "bg-purple-600/30 border-purple-500"
+                      ? "bg-purple-600/30"
                       : ""
                   }`}
-                  style={activeTrackTab !== "MATCHED" ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
+                  style={activeTrackTab !== "MATCHED" ? { backgroundColor: theme.surface } : undefined}
                 >
                   <Icon name="check" size={14} color={activeTrackTab === "MATCHED" ? "#C084FC" : theme.textMuted} />
                   <AppText
                     color={activeTrackTab === "MATCHED" ? undefined : "textSecondary"}
-                    className={`text-xs font-bold ml-1.5 ${
+                    className={`text-xs font-black ml-1.5 ${
                       activeTrackTab === "MATCHED" ? "text-purple-300" : ""
                     }`}
                   >
@@ -301,163 +304,55 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
                 {previewResult.unmatchedTracks.length > 0 ? (
                   <Pressable
                     onPress={() => setActiveTrackTab("UNMATCHED")}
-                    className={`flex-1 flex-row items-center px-3 py-2.5 rounded-xl border active:opacity-80 ${
+                    className={`flex-1 flex-row items-center px-3.5 py-2.5 rounded-2xl active:opacity-80 ${
                       activeTrackTab === "UNMATCHED"
-                        ? "bg-amber-600/30 border-amber-500"
+                        ? "bg-rose-500/20"
                         : ""
                     }`}
-                    style={activeTrackTab !== "UNMATCHED" ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
+                    style={activeTrackTab !== "UNMATCHED" ? { backgroundColor: theme.surface } : undefined}
                   >
-                    <Icon name="alert-circle" size={14} color={activeTrackTab === "UNMATCHED" ? "#FBBF24" : theme.textMuted} />
+                    <Icon name="x" size={14} color={activeTrackTab === "UNMATCHED" ? "#F87171" : theme.textMuted} />
                     <AppText
-                      color={activeTrackTab === "UNMATCHED" ? undefined : "textSecondary"}
-                      className={`text-xs font-bold ml-1.5 ${
-                        activeTrackTab === "UNMATCHED" ? "text-amber-300" : ""
+                      className={`text-xs font-black ml-1.5 ${
+                        activeTrackTab === "UNMATCHED" ? "text-rose-400" : "text-gray-400"
                       }`}
                     >
-                      ⚠ {previewResult.unmatchedTracks.length} not found
+                      ✕ {previewResult.unmatchedTracks.length} skipped
                     </AppText>
                   </Pressable>
                 ) : null}
               </View>
 
-              {/* Destination Picker */}
-              <AppText variant="caption" color="textSecondary" className="mb-2 uppercase tracking-wider text-[11px] font-bold">
-                Destination Playlist
-              </AppText>
-
+              {/* Start Import Action */}
               <Pressable
-                onPress={() => setSelectedDestination("NEW")}
-                className={`p-3 rounded-2xl border mb-2 flex-row items-center justify-between ${
-                  selectedDestination === "NEW"
-                    ? "bg-purple-600/20 border-purple-500"
-                    : ""
-                }`}
-                style={selectedDestination !== "NEW" ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
+                onPress={handleStartImport}
+                className="py-3.5 rounded-full bg-green-600 active:bg-green-700 active:scale-[0.95] items-center flex-row justify-center gap-x-2 my-2 shadow-lg"
               >
-                <View className="flex-1 mr-2">
-                  <AppText variant="songTitle" color={selectedDestination === "NEW" ? undefined : 'textPrimary'} className={`text-xs font-bold mb-0.5 ${selectedDestination === "NEW" ? "text-purple-300" : ""}`}>
-                    + Create New Playlist
-                  </AppText>
-                  <TextInput
-                    value={newPlaylistName}
-                    onChangeText={setNewPlaylistName}
-                    placeholder="Enter playlist name"
-                    placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
-                    className="text-xs font-semibold border-b border-purple-500/40 py-0.5"
-                    style={{ color: theme.textPrimary }}
-                  />
-                </View>
-                {selectedDestination === "NEW" && (
-                  <Icon name="check" size={18} color="#C084FC" />
-                )}
+                <Icon name="check" size={18} color="#FFFFFF" />
+                <AppText className="text-xs font-black text-white uppercase tracking-wider">Start Import</AppText>
               </Pressable>
-
-              {playlists.map((pl) => (
-                <Pressable
-                  key={pl.id}
-                  onPress={() => setSelectedDestination(pl.id)}
-                  className={`p-3 rounded-2xl border mb-2 flex-row items-center justify-between ${
-                    selectedDestination === pl.id
-                      ? "bg-purple-600/20 border-purple-500"
-                      : ""
-                  }`}
-                  style={selectedDestination !== pl.id ? { backgroundColor: theme.surface, borderColor: theme.border } : undefined}
-                >
-                  <View>
-                    <AppText variant="songTitle" color={selectedDestination === pl.id ? undefined : 'textPrimary'} className={`text-xs font-bold mb-0.5 ${selectedDestination === pl.id ? "text-purple-300" : ""}`}>
-                      {pl.name}
-                    </AppText>
-                    <AppText variant="caption" color="textSecondary" className="text-[10px] font-medium">
-                      {pl.tracks ? pl.tracks.length : 0} songs
-                    </AppText>
-                  </View>
-                  {selectedDestination === pl.id && (
-                    <Icon name="check" size={18} color="#C084FC" />
-                  )}
-                </Pressable>
-              ))}
-
-              {/* Tracks List Toggle Tab */}
-              {activeTrackTab === "MATCHED" ? (
-                <>
-                  <AppText variant="caption" className="mt-4 mb-2 uppercase tracking-wider text-[11px] text-purple-400 font-bold">
-                    Matched Songs ({previewResult.matchedTracks.length})
-                  </AppText>
-
-                  {previewResult.matchedTracks.slice(0, 15).map((m, idx) => (
-                    <View key={idx} className="flex-row items-center py-2 border-b" style={{ borderBottomColor: theme.border }}>
-                      <Icon name="check" size={14} color="#C084FC" />
-                      <View className="ml-2.5 flex-1 min-w-0">
-                        <AppText variant="songTitle" color="textPrimary" className="text-xs font-semibold" numberOfLines={1}>
-                          {m.jamkudiTrack?.title || m.spotifyTrack.title}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-[10px] font-medium" numberOfLines={1}>
-                          {m.jamkudiTrack?.artist || m.spotifyTrack.artist}
-                        </AppText>
-                      </View>
-                    </View>
-                  ))}
-
-                  {previewResult.matchedTracks.length > 15 && (
-                    <AppText variant="caption" color="textSecondary" className="text-[11px] text-center py-2">
-                      ...and {previewResult.matchedTracks.length - 15} more matched songs
-                    </AppText>
-                  )}
-                </>
-              ) : (
-                <>
-                  <AppText variant="caption" className="mt-4 mb-2 uppercase tracking-wider text-[11px] text-amber-400 font-bold">
-                    Songs Not Found in Jamkudi ({previewResult.unmatchedTracks.length})
-                  </AppText>
-
-                  {previewResult.unmatchedTracks.map((unm, idx) => (
-                    <View key={idx} className="flex-row items-center py-2 border-b" style={{ borderBottomColor: theme.border }}>
-                      <Icon name="alert-circle" size={14} color="#FBBF24" />
-                      <View className="ml-2.5 flex-1 min-w-0">
-                        <AppText variant="songTitle" color="textPrimary" className="text-xs font-semibold" numberOfLines={1}>
-                          {unm.title}
-                        </AppText>
-                        <AppText variant="artist" color="textSecondary" className="text-[10px] font-medium" numberOfLines={1}>
-                          {unm.artist}
-                        </AppText>
-                      </View>
-                    </View>
-                  ))}
-                </>
-              )}
-
-              {/* Action Buttons */}
-              <View className="flex-row items-center gap-x-3 mt-5 mb-2">
-                <Pressable
-                  onPress={handleReset}
-                  className="flex-1 py-3 rounded-full border active:opacity-75 items-center"
-                  style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
-                >
-                  <AppText variant="caption" color="textSecondary" className="text-xs font-bold">Back</AppText>
-                </Pressable>
-
-                <Pressable
-                  onPress={handleStartImport}
-                  className="flex-1 py-3 rounded-full bg-purple-600 active:bg-purple-700 shadow-md items-center"
-                >
-                  <AppText className="text-xs font-bold text-white">
-                    Import {previewResult.matchedTracks.length} Songs
-                  </AppText>
-                </Pressable>
-              </View>
             </ScrollView>
           )}
 
           {/* STEP 3: Importing Progress */}
-          {step === "IMPORTING" && previewResult && (
-            <View className="py-12 items-center justify-center">
-              <ActivityIndicator size="large" color={theme.primary} />
-              <AppText variant="songTitle" className="text-base font-bold text-center mt-4 mb-1">
-                Importing Playlist...
+          {step === "IMPORTING" && (
+            <View className="py-12 items-center">
+              <ActivityIndicator size="large" color="#22C55E" />
+              <AppText variant="songTitle" className="text-base font-black mt-4 mb-1">
+                Importing Songs...
               </AppText>
-              <AppText variant="caption" className="text-xs text-purple-400 font-medium text-center">
-                Processed {importProgress} of {previewResult.matchedTracks.length} songs
+              <AppText variant="caption" color="textSecondary" className="text-xs font-semibold mb-6">
+                Matching and adding tracks to your library
+              </AppText>
+
+              <View className="w-full h-3 rounded-full bg-black/20 overflow-hidden mb-2">
+                <View
+                  className="h-full bg-green-500 rounded-full"
+                  style={{ width: `${importProgress}%` }}
+                />
+              </View>
+              <AppText variant="caption" className="text-xs font-bold text-green-400">
+                {importProgress}%
               </AppText>
             </View>
           )}
@@ -465,46 +360,21 @@ export const SpotifyImportModal: React.FC<SpotifyImportModalProps> = ({
           {/* STEP 4: Summary */}
           {step === "SUMMARY" && importSummary && (
             <View className="py-6 items-center">
-              <View className="w-14 h-14 rounded-full bg-purple-600/20 border border-purple-500/30 items-center justify-center mb-3">
-                <Icon name="check" size={28} color="#C084FC" />
+              <View className="w-16 h-16 rounded-full bg-green-500/20 items-center justify-center mb-4 shadow-md">
+                <Icon name="check" size={32} color="#22C55E" />
               </View>
-
-              <AppText variant="songTitle" className="text-lg font-bold text-center mb-1">
-                Playlist Imported!
+              <AppText variant="screenTitle" className="text-xl font-black mb-1">
+                Import Complete!
+              </AppText>
+              <AppText variant="caption" color="textSecondary" className="text-xs font-semibold mb-6 text-center">
+                Added {importSummary.added} songs to your playlist.
               </AppText>
 
-              <View
-                className="w-full rounded-2xl border p-4 my-4 gap-y-2"
-                style={{ backgroundColor: theme.surface, borderColor: theme.border }}
-              >
-                <AppText variant="caption" color="textPrimary" className="text-xs font-semibold">
-                  ✓ {importSummary.added} {importSummary.added === 1 ? "song" : "songs"} added
-                </AppText>
-
-                {importSummary.duplicates > 0 && (
-                  <AppText className="text-xs text-purple-400 font-semibold">
-                    • {importSummary.duplicates} songs already existed in playlist
-                  </AppText>
-                )}
-
-                {importSummary.unmatched > 0 && (
-                  <AppText className="text-xs text-amber-500 font-semibold">
-                    ⚠ {importSummary.unmatched} songs could not be found in Jamkudi
-                  </AppText>
-                )}
-              </View>
-
               <Pressable
-                onPress={() => {
-                  const targetId = importSummary.targetPlaylistId;
-                  handleReset();
-                  onClose();
-                  router.push(`/playlist/${encodeURIComponent(targetId)}` as any);
-                }}
-                className="w-full py-3 rounded-full bg-purple-600 active:bg-purple-700 shadow-md items-center flex-row justify-center gap-x-2"
+                onPress={handleClose}
+                className="w-full py-3.5 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.95] items-center shadow-lg"
               >
-                <Icon name="play" size={16} color="#FFFFFF" />
-                <AppText className="text-xs font-bold text-white">Open Playlist</AppText>
+                <AppText className="text-xs font-black text-white uppercase tracking-wider">Done</AppText>
               </Pressable>
             </View>
           )}

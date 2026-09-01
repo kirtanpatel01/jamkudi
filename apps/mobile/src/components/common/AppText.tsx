@@ -29,34 +29,16 @@ export const AppText: React.FC<AppTextProps> = ({
 
   const typographyStyle = Typography[variant];
 
-  // Determine if Fredoka or Nunito
-  const isFredoka =
-    variant === "screenTitle" ||
-    variant === "sectionTitle" ||
-    className.includes("font-fredoka");
-
   let resolvedFontFamily: string = typographyStyle.fontFamily;
 
-  if (isFredoka) {
-    if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
-      resolvedFontFamily = FontFamily.fredoka.bold;
-    } else if (className.includes("font-semibold")) {
-      resolvedFontFamily = FontFamily.fredoka.semiBold;
-    } else if (className.includes("font-medium")) {
-      resolvedFontFamily = FontFamily.fredoka.medium;
-    } else if (className.includes("font-normal") || className.includes("font-regular")) {
-      resolvedFontFamily = FontFamily.fredoka.regular;
-    }
-  } else {
-    if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
-      resolvedFontFamily = FontFamily.nunito.bold;
-    } else if (className.includes("font-semibold")) {
-      resolvedFontFamily = FontFamily.nunito.semiBold;
-    } else if (className.includes("font-medium")) {
-      resolvedFontFamily = FontFamily.nunito.medium;
-    } else if (className.includes("font-normal") || className.includes("font-regular")) {
-      resolvedFontFamily = FontFamily.nunito.regular;
-    }
+  if (className.includes("font-bold") || className.includes("font-extrabold") || className.includes("font-black")) {
+    resolvedFontFamily = FontFamily.nunito.bold;
+  } else if (className.includes("font-semibold")) {
+    resolvedFontFamily = FontFamily.nunito.semiBold;
+  } else if (className.includes("font-medium")) {
+    resolvedFontFamily = FontFamily.nunito.medium;
+  } else if (className.includes("font-normal") || className.includes("font-regular")) {
+    resolvedFontFamily = FontFamily.nunito.regular;
   }
 
   return (

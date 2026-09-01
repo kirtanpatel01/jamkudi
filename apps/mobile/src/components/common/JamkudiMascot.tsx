@@ -27,8 +27,6 @@ export const JamkudiMascot: React.FC<JamkudiMascotProps> = ({
           width: size + 20,
           height: size + 20,
           backgroundColor: theme.isDark ? "rgba(155, 124, 255, 0.08)" : "rgba(155, 124, 255, 0.12)",
-          borderWidth: 1,
-          borderColor: theme.isDark ? "rgba(155, 124, 255, 0.15)" : "rgba(155, 124, 255, 0.2)",
         }}
       >
         <Image
@@ -44,10 +42,9 @@ export const JamkudiMascot: React.FC<JamkudiMascotProps> = ({
 
       {moodBadge ? (
         <View
-          className="mt-2.5 px-3 py-1 rounded-full flex-row items-center border"
+          className="mt-2.5 px-3 py-1 rounded-full flex-row items-center"
           style={{
             backgroundColor: theme.surface,
-            borderColor: theme.border,
           }}
         >
           <AppText

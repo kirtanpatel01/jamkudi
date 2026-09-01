@@ -56,25 +56,36 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
       onRequestClose={onClose}
     >
       <View
-        className="flex-1 px-6 pt-12 pb-6"
+        className="flex-1 px-6 pt-4 pb-6"
         style={{ backgroundColor: theme.background }}
       >
+        {/* Grab Handle Bar */}
+        <View className="w-12 h-1.5 rounded-full bg-white/20 self-center mb-4 mt-2" />
+
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-6 pb-4 border-b" style={{ borderBottomColor: theme.border }}>
+        <View className="flex-row items-center justify-between mb-6 pb-4">
           <View className="flex-row items-center flex-1 mr-4">
-            <View className="w-12 h-12 rounded-xl overflow-hidden mr-3 shrink-0" style={{ backgroundColor: theme.surfacePressed }}>
+            <View
+              className="w-14 h-14 rounded-2xl overflow-hidden mr-3.5 shrink-0 shadow-md"
+              style={{ backgroundColor: theme.surfacePressed }}
+            >
               <ArtworkImage
                 uri={currentTrack?.artwork}
-                iconSize={20}
+                iconSize={22}
                 className="w-full h-full"
               />
             </View>
 
             <View className="flex-1 min-w-0">
+              <View className="self-start px-2.5 py-0.5 rounded-full bg-purple-500/15 mb-1">
+                <AppText variant="caption" className="text-[10px] text-purple-300 font-extrabold tracking-wider uppercase">
+                  LYRICS
+                </AppText>
+              </View>
               <AppText
                 variant="songTitle"
                 color="textPrimary"
-                className="text-base font-bold mb-0.5"
+                className="text-base font-extrabold mb-0.5"
                 numberOfLines={1}
               >
                 {cleanTitle(currentTrack?.title) || "Song Lyrics"}
@@ -82,7 +93,7 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
               <AppText
                 variant="artist"
                 color="textSecondary"
-                className="text-xs font-medium"
+                className="text-xs font-semibold"
                 numberOfLines={1}
               >
                 {cleanTitle(currentTrack?.artist) || "Unknown Artist"}
@@ -93,19 +104,21 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
           <Pressable
             onPress={onClose}
             hitSlop={12}
-            className="w-10 h-10 items-center justify-center rounded-full border active:opacity-70"
-            style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+            className="w-10 h-10 items-center justify-center rounded-full active:opacity-70 active:scale-[0.95] shrink-0"
+            style={{ backgroundColor: theme.surface }}
+            accessibilityRole="button"
+            accessibilityLabel="Close lyrics"
           >
-            <Icon name="chevron-down" size={24} color={theme.textPrimary} />
+            <Icon name="chevron-down" size={22} color={theme.textPrimary} />
           </Pressable>
         </View>
 
         {/* Content */}
         {loading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#A855F7" />
-            <AppText variant="caption" color="textSecondary" className="mt-3 font-medium">
-              Loading Lyrics...
+            <ActivityIndicator size="large" color="#C084FC" />
+            <AppText variant="caption" color="textSecondary" className="mt-4 font-bold text-xs uppercase tracking-wider">
+              Fetching Lyrics...
             </AppText>
           </View>
         ) : (
@@ -117,25 +130,27 @@ export const LyricsModal: React.FC<LyricsModalProps> = ({ visible, onClose }) =>
               <AppText
                 variant="body"
                 color="textPrimary"
-                className="text-lg leading-9 text-center font-semibold"
+                className="text-lg leading-10 text-center font-bold tracking-tight"
               >
                 {lyrics}
               </AppText>
             ) : (
               <View className="py-20 items-center">
-                <Icon name="music" size={48} color={theme.textMuted} />
+                <View className="w-16 h-16 rounded-full bg-purple-500/10 items-center justify-center mb-4">
+                  <Icon name="music" size={32} color={theme.primary} />
+                </View>
                 <AppText
                   variant="body"
                   color="textSecondary"
-                  className="mt-4 text-center font-medium px-4 mb-4"
+                  className="mt-2 text-center font-semibold px-4 mb-5 max-w-[280px]"
                 >
-                  Lyrics are unavailable for this song.
+                  Lyrics are currently unavailable for this track.
                 </AppText>
                 <Pressable
                   onPress={fetchLyricsData}
-                  className="px-5 py-2 rounded-full bg-purple-600 active:bg-purple-700 border border-purple-500"
+                  className="px-6 py-2.5 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.95] shadow-md"
                 >
-                  <AppText className="text-xs font-bold text-white">Retry</AppText>
+                  <AppText className="text-xs font-black text-white uppercase tracking-wider">Retry</AppText>
                 </Pressable>
               </View>
             )}

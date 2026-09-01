@@ -36,8 +36,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <JamkudiMascot size={72} moodBadge="cozy space" className="mb-4" />
       ) : (
         <View
-          className="w-16 h-16 rounded-2xl items-center justify-center mb-4 border"
-          style={{ backgroundColor: theme.surface, borderColor: theme.border }}
+          className="w-16 h-16 rounded-2xl items-center justify-center mb-4"
+          style={{ backgroundColor: theme.surface }}
         >
           <Icon name={icon} size={28} color={theme.primary} />
         </View>

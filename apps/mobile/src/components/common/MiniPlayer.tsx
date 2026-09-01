@@ -54,10 +54,9 @@ export const MiniPlayer: React.FC = () => {
   return (
     <Pressable
       onPress={() => router.push("/player")}
-      className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3.5 overflow-hidden border active:scale-[0.98]"
+      className="absolute left-3 right-3 h-16 rounded-2xl flex-row items-center px-3.5 overflow-hidden active:scale-[0.98]"
       style={{
         backgroundColor: theme.surface,
-        borderColor: theme.border,
         bottom: bottomOffset,
         zIndex: 99,
       }}
@@ -79,8 +78,8 @@ export const MiniPlayer: React.FC = () => {
 
       {/* Album Artwork */}
       <View
-        className="w-11 h-11 rounded-2xl overflow-hidden mr-3 items-center justify-center border shrink-0"
-        style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+        className="w-11 h-11 rounded-2xl overflow-hidden mr-3 items-center justify-center shrink-0"
+        style={{ backgroundColor: theme.surfacePressed }}
       >
         <ArtworkImage
           uri={currentTrack.artwork}
@@ -89,12 +88,12 @@ export const MiniPlayer: React.FC = () => {
         />
       </View>
 
-      {/* Title & Artist Info */}
-      <View className="flex-1 mr-2 min-w-0 justify-center">
+      {/* Song Info */}
+      <View className="flex-1 min-w-0 mr-3 justify-center">
         <AppText
           variant="songTitle"
           color="textPrimary"
-          className="text-sm font-bold mb-0.5"
+          className="text-xs font-extrabold mb-0.5"
           numberOfLines={1}
         >
           {cleanTitle(currentTrack.title)}
@@ -102,7 +101,7 @@ export const MiniPlayer: React.FC = () => {
         <AppText
           variant="artist"
           color="textSecondary"
-          className="text-xs font-medium"
+          className="text-[11px] font-medium"
           numberOfLines={1}
         >
           {cleanTitle(currentTrack.artist)}
@@ -116,7 +115,7 @@ export const MiniPlayer: React.FC = () => {
             e.stopPropagation();
             togglePlayPause();
           }}
-          className="w-10 h-10 items-center justify-center rounded-full bg-purple-600/30 border border-purple-500/40 active:bg-purple-600 active:scale-[0.92]"
+          className="w-10 h-10 items-center justify-center rounded-full bg-purple-600/30 active:bg-purple-600 active:scale-[0.92]"
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? "Pause" : "Play"}
         >

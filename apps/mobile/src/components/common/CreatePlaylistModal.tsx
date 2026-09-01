@@ -72,16 +72,16 @@ export const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
       >
         <Pressable
           onPress={(e) => e.stopPropagation()}
-          className="w-full max-w-sm rounded-3xl p-6 border shadow-2xl"
-          style={{ backgroundColor: theme.surfaceElevated, borderColor: theme.border }}
+          className="w-full max-w-sm rounded-3xl p-6 shadow-2xl"
+          style={{ backgroundColor: theme.surfaceElevated }}
         >
           {/* Title Header */}
           <View className="flex-row items-center justify-between mb-5">
-            <View className="flex-row items-center gap-x-2">
-              <View className="w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/30 items-center justify-center">
-                <Icon name="music" size={16} color="#C084FC" />
+            <View className="flex-row items-center gap-x-2.5">
+              <View className="w-10 h-10 rounded-2xl bg-purple-500/15 items-center justify-center">
+                <Icon name="music" size={18} color="#C084FC" />
               </View>
-              <AppText variant="songTitle" color="textPrimary" className="text-base font-extrabold">
+              <AppText variant="songTitle" color="textPrimary" className="text-lg font-black">
                 Create Playlist
               </AppText>
             </View>
@@ -89,23 +89,23 @@ export const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
             <Pressable
               onPress={handleClose}
               disabled={submitting}
-              className="w-8 h-8 rounded-full items-center justify-center border active:opacity-75"
-              style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+              className="w-9 h-9 rounded-full items-center justify-center active:opacity-75 active:scale-[0.95]"
+              style={{ backgroundColor: theme.surfacePressed }}
               hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Close modal"
             >
               <Icon name="x" size={16} color={theme.textPrimary} />
             </Pressable>
           </View>
 
           {/* Name Input */}
-          <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-1.5 ml-1">
+          <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-extrabold mb-1.5 ml-1">
             Playlist Name *
           </AppText>
           <View
-            className={`flex-row items-center px-4 h-12 rounded-2xl border mb-4 ${
-              errorMsg ? "border-red-500" : ""
-            }`}
-            style={{ backgroundColor: theme.background, borderColor: errorMsg ? undefined : theme.border }}
+            className="flex-row items-center px-4 h-12 rounded-2xl mb-4 shadow-inner"
+            style={{ backgroundColor: theme.background }}
           >
             <TextInput
               value={name}
@@ -115,7 +115,7 @@ export const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
               }}
               placeholder="Give your playlist a name"
               placeholderTextColor={theme.isDark ? '#52525B' : '#9CA3AF'}
-              className="flex-1 text-sm font-semibold h-full py-0"
+              className="flex-1 text-sm font-bold h-full py-0"
               style={{ color: theme.textPrimary }}
               autoFocus
               maxLength={60}
@@ -123,12 +123,12 @@ export const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
           </View>
 
           {/* Description Input */}
-          <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-bold mb-1.5 ml-1">
+          <AppText variant="caption" color="textSecondary" className="text-xs uppercase tracking-wider font-extrabold mb-1.5 ml-1">
             Description (Optional)
           </AppText>
           <View
-            className="flex-row items-start px-4 py-3 h-22 rounded-2xl border mb-4"
-            style={{ backgroundColor: theme.background, borderColor: theme.border }}
+            className="flex-row items-start px-4 py-3 h-22 rounded-2xl mb-4 shadow-inner"
+            style={{ backgroundColor: theme.background }}
           >
             <TextInput
               value={description}
@@ -153,21 +153,21 @@ export const CreatePlaylistModal: React.FC<CreatePlaylistModalProps> = ({
             <Pressable
               onPress={handleClose}
               disabled={submitting}
-              className="flex-1 py-3 rounded-full border active:opacity-75 items-center"
-              style={{ backgroundColor: theme.surfacePressed, borderColor: theme.border }}
+              className="flex-1 py-3 rounded-full active:opacity-75 active:scale-[0.95] items-center"
+              style={{ backgroundColor: theme.surfacePressed }}
             >
-              <AppText variant="caption" color="textSecondary" className="text-xs font-bold">Cancel</AppText>
+              <AppText variant="caption" color="textSecondary" className="text-xs font-bold uppercase tracking-wider">Cancel</AppText>
             </Pressable>
 
             <Pressable
               onPress={handleCreate}
               disabled={submitting}
-              className="flex-1 py-3 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.98] items-center flex-row justify-center gap-x-1.5"
+              className="flex-1 py-3 rounded-full bg-purple-600 active:bg-purple-700 active:scale-[0.95] items-center flex-row justify-center gap-x-1.5 shadow-md"
             >
               {submitting ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <AppText className="text-xs font-bold text-white uppercase tracking-wider">Create</AppText>
+                <AppText className="text-xs font-black text-white uppercase tracking-wider">Create</AppText>
               )}
             </Pressable>
           </View>

@@ -30,7 +30,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({
       accessibilityRole="checkbox"
       accessibilityState={{ checked: active }}
       accessibilityLabel={accessibilityLabel || `${label} filter`}
-      className={`px-4 py-1.5 rounded-full border min-h-[32px] items-center justify-center mr-2 ${className}`}
+      className={`px-4 py-1.5 rounded-full min-h-[32px] items-center justify-center mr-2 ${className}`}
       style={({ pressed }) => [
         {
           backgroundColor: active
@@ -38,7 +38,6 @@ export const FilterChip: React.FC<FilterChipProps> = ({
             : pressed
             ? theme.surfacePressed
             : theme.surface,
-          borderColor: active ? theme.primary : theme.border,
           borderRadius: BorderRadius.full,
         },
         style,

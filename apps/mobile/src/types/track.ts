@@ -6,6 +6,7 @@ export type Track = {
   artwork?: string;
   audioUrl: string;
   duration: number;
+  language?: string;
 };
 
 export type PlaybackState =
